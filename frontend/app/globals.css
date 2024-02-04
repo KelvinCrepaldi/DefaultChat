@@ -11,17 +11,37 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
+    --background-start-rgb: 111, 111, 111;
     --background-end-rgb: 0, 0, 0;
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: radial-gradient(
+    42.38% 52.72% at 71.22% 22.94%,
+    #253143 3.34%,
+    #181818 100%
+  );
+
+  min-height: 100vh;
+}
+
+.section {
+  @apply px-10 max-w-[1200px] m-auto my-10;
+}
+
+.button {
+  @apply bg-chatBackground2 border border-chatBorder text-chatTitle rounded-xl flex justify-center items-center  p-2 text-xl  w-full hover:shadow-xl;
+}
+
+.homeTitle {
+  @apply text-chatTitle text-3xl font-bold my-5;
+}
+
+.homeText {
+  @apply text-chatText text-lg my-2;
+}
+
+.section-page {
+  @apply p-5;
 }
