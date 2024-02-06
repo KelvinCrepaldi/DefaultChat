@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --transpile-only --watch --ignore-watch ./node_modules ./src/app.ts",
-    "typeorm": "typeorm-ts-node-commonjs -d ./src/data-source.ts"
+    "typeorm": "typeorm-ts-node-commonjs -d ./src/data-source.ts",
+    "start": "node dist/app.js",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
