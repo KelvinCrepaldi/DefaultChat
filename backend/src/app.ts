@@ -14,16 +14,15 @@ import { IClientMessage } from "./interface/socket";
 
 const app = express();
 const server = createServer(app);
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN,
+  methods: ["GET", "POST", "PATCH", "DELETE"],
+}
 const io = new Server(server, {
-  cors: {
-    origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST"],
-  },
+  cors: corsOptions,
 });
 
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN
-}
+
 app.use(cors(corsOptions));
 app.use(express.json());
 const port = process.env.PORT || 3000;
