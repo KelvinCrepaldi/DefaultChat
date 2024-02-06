@@ -2,12 +2,10 @@ import { DataSource } from 'typeorm';
 import 'dotenv/config';
 import { User } from './entities/user.entity';
 import { Relationship } from './entities/relationship.entity';
-import { CreateDatabase1705787530564 } from './migrations/1705787530564-createDatabase';
-import { RelationshipTypeAdded1705787763372 } from './migrations/1705787763372-relationshipTypeAdded';
-import { ChangeRequesterAndAddresseed1705795354773 } from './migrations/1705795354773-changeRequesterAndAddresseed';
 import { UserRoom } from './entities/userRoom.entity';
 import { Room } from './entities/rooms.entity';
-import { CreateRoomsTables1705965270952 } from './migrations/1705965270952-createRoomsTables';
+import { CreateTables1707251681489 } from './migrations/1707251681489-createTables';
+
 
 const AppDataSource = new DataSource({
    type: 'postgres',
@@ -21,10 +19,7 @@ const AppDataSource = new DataSource({
    entities: [ User, Relationship, UserRoom, Room ],
    subscribers: [],
    migrations: [
-      CreateDatabase1705787530564,
-      RelationshipTypeAdded1705787763372,
-      ChangeRequesterAndAddresseed1705795354773,
-      CreateRoomsTables1705965270952
+      CreateTables1707251681489
    ]
 });
 
