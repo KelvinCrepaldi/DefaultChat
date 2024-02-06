@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn, OneToMany } from 'typeorm';
 import { Relationship } from './relationship.entity';
+import { UserRoom } from './userRoom.entity';
 
 @Entity('users')
 export class User {
@@ -29,4 +30,7 @@ export class User {
 
    @OneToMany(() => Relationship, relationship => relationship.addressee)
    relationshipsReceived: Relationship[];
+
+   @OneToMany(()=> UserRoom, userRoom => userRoom.user)
+   userRooms: UserRoom[]
 }

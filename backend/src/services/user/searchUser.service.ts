@@ -2,7 +2,7 @@ import { ILike } from 'typeorm';
 import AppDataSource from '../../data-source';
 import { User } from '../../entities/user.entity';
 
-const FindFriendService = async ({ letters, userId }: { letters: string; userId: string }) => {
+const searchUserService = async ({ letters, userId }: { letters: string; userId: string }) => {
    const userRepository = AppDataSource.getRepository(User);
 
    const users = userRepository.find({
@@ -12,4 +12,4 @@ const FindFriendService = async ({ letters, userId }: { letters: string; userId:
    return users;
 };
 
-export default FindFriendService;
+export default searchUserService;

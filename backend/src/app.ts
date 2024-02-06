@@ -9,12 +9,14 @@ import errorsMiddleware from "./middlewares/errors.middleware";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import friendRoutes from "./routes/friends.routes";
+import roomRoutes from "./routes/rooms.routes";
+import { IClientMessage } from "./interface/socket";
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3001",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
@@ -29,35 +31,37 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/user/friend", friendRoutes);
+app.use("/api/friend", friendRoutes);
+app.use("/api/room", roomRoutes)
 
 app.use(errorsMiddleware);
 
 const socketUsers = [];
 
 io.on("connection", (socket) => {
-  socket.id;
+  let roomId = ''
+  console.log('client connected:', socket.id)
+  socket.on('connect', ()=>{
+  })
 
-  io.on("connect", (user) => {
-    socketUsers.push({ user, id: socket.id });
-  });
-
-  // Evento para receber mensagens do cliente
   socket.on("sendMessage", (message) => {
     console.log(`Mensagem recebida do cliente: ${message}`);
-
-    // Enviar a mensagem de volta para todos os clientes conectados
     io.emit("receivedMessage", message);
   });
 
-  // Evento para lidar com a desconexão do cliente
   socket.on("disconnect", () => {
     console.log("Cliente desconectado");
   });
 
-  socket.on("send_message", (message) => {
-    socket.emit("receive_message", message);
+  socket.on("send_message", ({message, user}: IClientMessage) => {
+    const createdAt = Date.now();
+    io.to(roomId).emit("send_message", {message, user, createdAt});
   });
+
+  socket.on('join_room', ({room})=>{
+    roomId = room;
+    socket.join(roomId);
+  })
 });
 
 server.listen(port, () => {

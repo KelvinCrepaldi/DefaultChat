@@ -6,15 +6,15 @@ export class Relationship {
    @PrimaryGeneratedColumn('uuid')
    id: string;
 
-   @ManyToOne(() => User, user => user.relationshipsRequested)
-   requester: User;
-
-   @ManyToOne(() => User, user => user.relationshipsReceived)
-   addressee: User;
-
    @CreateDateColumn()
    createdAt: Date;
 
    @Column()
    type: string;
+
+   @ManyToOne(() => User, user => user.relationshipsRequested)
+   requester: User;
+
+   @ManyToOne(() => User, user => user.relationshipsReceived)
+   addressee: User;
 }

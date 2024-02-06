@@ -1,13 +1,18 @@
 import { Router } from "express";
+import { blockUserController, getUserController, searchUserController } from "../controllers/user.controllers";
+import verifyAuthTokenMiddleware from "../middlewares/verifyAuthToken.middleware";
 
 const userRoutes = Router();
 
-//update
 
-//find (list)
 
-//add friend
+//find user
+userRoutes.get('/search', verifyAuthTokenMiddleware, searchUserController);
 
-//remove friend
+//get user 
+userRoutes.get('/:id', getUserController)
+
+//block user 
+userRoutes.get('/:id/block', verifyAuthTokenMiddleware,blockUserController)
 
 export default userRoutes;
