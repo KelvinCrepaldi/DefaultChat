@@ -10,15 +10,15 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SessionProvider>
-        <SocketProvider>
-          <UserSearchProvider>
-            <FriendsProvider>
-              <ActiveChatProvider>
+        <ActiveChatProvider>
+          <SocketProvider>
+            <UserSearchProvider>
+              <FriendsProvider>
                 <FriendRequestsProvider>{children}</FriendRequestsProvider>
-              </ActiveChatProvider>
-            </FriendsProvider>
-          </UserSearchProvider>
-        </SocketProvider>
+              </FriendsProvider>
+            </UserSearchProvider>
+          </SocketProvider>
+        </ActiveChatProvider>
       </SessionProvider>
     </>
   );

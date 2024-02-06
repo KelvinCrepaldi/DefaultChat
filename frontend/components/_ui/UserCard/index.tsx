@@ -1,4 +1,4 @@
-import { IFriend, IUser } from "@/interfaces/friends";
+import { IUser } from "@/interfaces/friends";
 import Image from "next/image";
 interface UserCardProps {
   user: IUser;

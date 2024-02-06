@@ -2,11 +2,13 @@
 import { IListActiveChats } from "@/interfaces/activeChats";
 import { api } from "@/services";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { createContext, ReactNode, useState } from "react";
 
 export type activeChatContextType = {
   chatList: IListActiveChats[];
   fetchChatList: () => void;
+  closeChat: (id: string) => void;
 };
 
 export const ActiveChatContext = createContext<activeChatContextType | null>(
@@ -14,6 +16,7 @@ export const ActiveChatContext = createContext<activeChatContextType | null>(
 );
 
 export const ActiveChatProvider = ({ children }: { children: ReactNode }) => {
+  const { push } = useRouter();
   const [chatList, setChatList] = useState<IListActiveChats[]>([]);
   const { data: session } = useSession();
 
@@ -30,8 +33,26 @@ export const ActiveChatProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const closeChat = async (id: string) => {
+    try {
+      const removeChat = chatList.filter((chat) => chat.id !== id);
+      setChatList(removeChat);
+      await api.post(
+        `/api/room/${id}/close`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${session?.user.accessToken}` },
+        }
+      );
+
+      push("/me/friends");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <ActiveChatContext.Provider value={{ chatList, fetchChatList }}>
+    <ActiveChatContext.Provider value={{ chatList, fetchChatList, closeChat }}>
       {children}
     </ActiveChatContext.Provider>
   );

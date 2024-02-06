@@ -8,10 +8,11 @@ import { BiMessageDetail } from "react-icons/bi";
 import { useContext, useEffect, useState } from "react";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import CounterText from "../_ui/CounterText";
-import { api } from "@/services";
-import useFriends from "@/hooks/useFriends";
 import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
-import Loading from "../_ui/Loading";
+import {
+  ActiveChatContext,
+  activeChatContextType,
+} from "@/contexts/activeChatsContext";
 
 const FriendsList = () => {
   const { data: session } = useSession();
@@ -19,36 +20,41 @@ const FriendsList = () => {
   const { fetchFriends, deleteFriend, friends } = useContext(
     FriendsContext
   ) as FriendsContextType;
+  const { fetchChatList } = useContext(
+    ActiveChatContext
+  ) as activeChatContextType;
 
   const goToChat = (id: string) => {
     router.push(`/me/chat/${id}`);
+    console.log(id);
   };
 
   useEffect(() => {
-    if (session?.user.accessToken) fetchFriends();
+    if (session?.user.accessToken) {
+      fetchFriends();
+    }
   }, [session]);
 
   return (
     <section className="w-full h-full ">
       <CounterText list={friends} text="Amigos adicionados" />
 
-      {friends &&
-        friends.map((friend: IFriend) => (
-          <UserCard key={friend.id} user={friend.addressee}>
-            <UserActionBtn
-              actionId={friend.addressee.id}
-              icon={<BiMessageDetail />}
-              handleFunction={goToChat}
-              color="green"
-            ></UserActionBtn>
-            <UserActionBtn
-              actionId={friend.addressee.id}
-              icon={<IoPersonRemove />}
-              handleFunction={deleteFriend}
-              color="red"
-            ></UserActionBtn>
-          </UserCard>
-        ))}
+      {friends?.map((friend: IFriend) => (
+        <UserCard key={friend.id} user={friend.addressee}>
+          <UserActionBtn
+            actionId={friend.addressee.id}
+            icon={<BiMessageDetail />}
+            handleFunction={goToChat}
+            color="green"
+          ></UserActionBtn>
+          <UserActionBtn
+            actionId={friend.addressee.id}
+            icon={<IoPersonRemove />}
+            handleFunction={deleteFriend}
+            color="red"
+          ></UserActionBtn>
+        </UserCard>
+      ))}
     </section>
   );
 };

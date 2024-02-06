@@ -1,7 +1,6 @@
 export interface IListActiveChats {
   id: string;
-  roomId: string;
-  friend: {
+  user: {
     id: string;
     name: string;
     email: string;

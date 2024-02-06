@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const Message = ({ msg }: { msg: socketMessage }) => {
   return (
-    <div className="p-2 m-1 shadow bg-chatBorder rounded-xl text-chatText flex">
+    <div className="p-2 m-1 shadow bg-chatBorder rounded-xl text-chatTextWhite flex">
       <Image
         src={msg.user.image || ""}
         className="rounded-full w-[30px] h-[30px] object-cover bg-black m-1"

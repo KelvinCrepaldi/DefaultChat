@@ -1,10 +1,20 @@
 "use client";
-import { ReactNode, createContext, useEffect, useState } from "react";
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useSession } from "next-auth/react";
 import { api, socket } from "@/services";
 import { IRoom } from "@/interfaces/room";
 import { ISendMessage } from "@/interfaces/message";
 import { IUser } from "@/interfaces/friends";
+import {
+  ActiveChatContext,
+  activeChatContextType,
+} from "../activeChatsContext";
 
 export const SocketContext = createContext<any>(undefined);
 
@@ -19,6 +29,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<IErrorResponse | null>(null);
   const [room, setRoom] = useState<IRoom | null>(null);
   const [isConnected, setIsConnected] = useState(socket.connected);
+  const { chatList, fetchChatList } = useContext(
+    ActiveChatContext
+  ) as activeChatContextType;
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -66,6 +79,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
         const data: IRoom = response.data;
         setRoom(data);
+        fetchChatList();
         socket.emit("join_room", { room: data.id });
       } catch (error: any) {
         setError(error.code);
@@ -74,7 +88,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const sendMessage = ({ message, user }: ISendMessage) => {
-    console.log(messages);
     socket.emit("send_message", {
       user: { name: user.name, email: user.email, image: user.picture },
       message,
