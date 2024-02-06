@@ -12,7 +12,7 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const { email, password } = req.body;
+        const { email, password }: any = req.body;
         const response = await api.post("api/auth/login", { email, password });
         const { user, token } = response.data;
 
@@ -26,14 +26,14 @@ export const authOptions = {
     // ...add more providers here
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: any) {
       if (user) {
         token.accessToken = user.token;
       }
 
       return token;
     },
-    async session({ session, token, user }) {
+    async session({ session, token, user }: any) {
       session.user = token;
       return session;
     },
@@ -43,4 +43,5 @@ export const authOptions = {
     error: "/login",
   },
 };
+
 export default NextAuth(authOptions);
