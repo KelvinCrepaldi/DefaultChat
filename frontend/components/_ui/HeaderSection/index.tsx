@@ -8,7 +8,9 @@ type HeaderSectionProps = {
 const HeaderSection = ({ text }: { text: string }) => {
   return (
     <>
-      <h1 className="text-2xl text-chatTitle bg-chatBackground0">{text}</h1>
+      <header className="text-2xl text-chatTitle bg-chatBackground0">
+        {text}
+      </header>
     </>
   );
 };

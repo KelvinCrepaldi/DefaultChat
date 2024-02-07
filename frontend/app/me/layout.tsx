@@ -13,7 +13,10 @@ export default function RootLayout({
         <NavButtons />
         <ChatList />
       </section>
-      <div className="w-full bg-chatBackground1">{children}</div>
+      <div className="grow bg-chatBackground1">{children}</div>
+      <div className="max-w-[250px] w-full bg-chatBackground1 p-1">
+        <div className="bg-chatBackground2 w-full border  h-full "></div>
+      </div>
     </main>
   );
 }

@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { useSession } from "next-auth/react";
@@ -28,11 +29,20 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<socketMessage[]>([]);
   const [error, setError] = useState<IErrorResponse | null>(null);
   const [room, setRoom] = useState<IRoom | null>(null);
+  const [list, setList] = useState<string[]>([]);
+  const listRef = useRef<HTMLUListElement>(null);
+
   const [isConnected, setIsConnected] = useState(socket.connected);
   const { chatList, fetchChatList } = useContext(
     ActiveChatContext
   ) as activeChatContextType;
   const { data: session } = useSession();
+
+  const scrollToBottom = () => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  };
 
   useEffect(() => {
     socket.connect();
@@ -97,6 +107,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   return (
     <SocketContext.Provider
       value={{
+        scrollToBottom,
         sendMessage,
         isConnected,
         messages,
@@ -104,6 +115,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         joinRoom,
         room,
         error,
+        listRef,
       }}
     >
       {children}

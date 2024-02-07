@@ -9,8 +9,16 @@ import Message from "../_ui/Message";
 import { IUser } from "@/interfaces/friends";
 
 export default function Chat({ roomId }: { roomId: string }) {
-  const { sendMessage, isConnected, messages, joinRoom, room, error } =
-    useContext(SocketContext);
+  const {
+    sendMessage,
+    isConnected,
+    messages,
+    joinRoom,
+    room,
+    error,
+    scrollToBottom,
+    listRef,
+  } = useContext(SocketContext);
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
 
@@ -27,13 +35,27 @@ export default function Chat({ roomId }: { roomId: string }) {
     joinRoom(roomId);
   }, [session]);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   if (!room) {
     return <Loading />;
   }
 
+  const handleKeyPress = (e: any) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
-      <div className="m-2 p-2 rounded overflow-y-auto flex flex-col grow">
+      <div
+        ref={listRef}
+        className="m-2 p-2 rounded overflow-y-auto flex flex-col grow"
+      >
         {messages?.map((msg: socketMessage, index: number) => (
           <Message msg={msg} key={index} />
         ))}
@@ -41,8 +63,10 @@ export default function Chat({ roomId }: { roomId: string }) {
 
       <div className="flex">
         <input
+          type="text"
           value={message}
           onChange={handleChange}
+          onKeyDown={handleKeyPress}
           className="w-full m-1 p-1 bg-slate-300 rounded"
         ></input>
         <button className="bg-gray-700 m-1 p-1 rounded" onClick={handleSend}>

@@ -4,7 +4,7 @@ import HeaderSection from "@/components/_ui/HeaderSection";
 
 export default function Friends() {
   return (
-    <section className="section-page">
+    <section>
       <HeaderSection text="Amigos" />
       <RequestsReceived />
       <FriendsList />
