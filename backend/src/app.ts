@@ -124,6 +124,7 @@ io.on("connection", (socket) => {
   
         onlineFriends.forEach((friend: IUsersOnline) => {
           io.to(friend.socketId).emit('friendIsOffline', { userEmail: userEmail });
+          console.log(userEmail)
         });
       }
       
@@ -139,13 +140,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on('join_room', ({room})=>{
-    for (let room in socket.rooms) {
-      if (room !== socket.id) {
-          socket.leave(room);
-      }
-    }
-
-    socket.leave(roomId)
     roomId = room;
     socket.join(roomId);
   })
