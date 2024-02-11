@@ -15,10 +15,17 @@ export const ActiveChatContext = createContext<activeChatContextType | null>(
   null
 );
 
+interface IUsersList {
+  user: string
+  messages: IListActiveChats[]
+  ping: number
+}
+
 export const ActiveChatProvider = ({ children }: { children: ReactNode }) => {
   const { push } = useRouter();
   const [chatList, setChatList] = useState<IListActiveChats[]>([]);
   const { data: session } = useSession();
+  const [channels, setChannels] = useState<IUsersList[]>([]);
 
   const fetchChatList = async () => {
     try {
@@ -27,6 +34,8 @@ export const ActiveChatProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const data = response.data;
+      
+      
       setChatList(data);
     } catch (error) {
       console.log(error);

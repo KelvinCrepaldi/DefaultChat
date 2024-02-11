@@ -1,33 +1,30 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import formatDate from "@/utils/formatDate";
-import { SocketContext, socketMessage } from "@/contexts/socketContext";
+import { IRoom, SocketContext, socketMessage } from "@/contexts/socketContext";
 import { useSession } from "next-auth/react";
 import Loading from "../_ui/Loading";
-import Image from "next/image";
 import Message from "../_ui/Message";
-import { IUser } from "@/interfaces/friends";
 
 export default function Chat({ roomId }: { roomId: string }) {
   const {
     sendMessage,
-    isConnected,
     messages,
     joinRoom,
-    room,
+    rooms,
     error,
     scrollToBottom,
-    listRef,
+    listRef, activeRoom
   } = useContext(SocketContext);
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
+  const room: IRoom = rooms?.filter((room: IRoom) => room.user.id === roomId)[0]
 
   const handleChange = (event: any) => {
     setMessage(event.target.value);
   };
 
   const handleSend = () => {
-    if (session?.user) sendMessage({ message, user: session?.user });
+    if (session?.user && room) sendMessage({ message, user: session?.user, roomId: activeRoom });
     setMessage("");
   };
 
@@ -52,13 +49,15 @@ export default function Chat({ roomId }: { roomId: string }) {
 
   return (
     <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
+
       <div
         ref={listRef}
         className="m-2 p-2 rounded overflow-y-auto flex flex-col grow"
       >
-        {messages?.map((msg: socketMessage, index: number) => (
+        {room.messages?.map((msg: socketMessage, index: number) => (
           <Message msg={msg} key={index} />
         ))}
+        <div>{error}</div>
       </div>
 
       <div className="flex">

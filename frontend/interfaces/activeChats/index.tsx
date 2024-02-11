@@ -1,4 +1,4 @@
-export interface IListActiveChats {
+export interface IListRooms {
   id: string;
   user: {
     id: string;

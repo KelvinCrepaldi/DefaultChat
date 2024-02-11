@@ -13,8 +13,6 @@ export default function Chats() {
 
   return (
     <section>
-      <ChatHeader userId={params.roomId} />
-      {/* <ChatHeader userId={params?.roomId} /> */}
       <div className="h-[calc(100vh-70px)] overflow-hidden">
         {params?.roomId && <Chat roomId={params?.roomId} />}
       </div>

@@ -11,13 +11,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <>
       <SessionProvider>
         <ActiveChatProvider>
-          <SocketProvider>
             <UserSearchProvider>
               <FriendsProvider>
                 <FriendRequestsProvider>{children}</FriendRequestsProvider>
               </FriendsProvider>
             </UserSearchProvider>
-          </SocketProvider>
         </ActiveChatProvider>
       </SessionProvider>
     </>

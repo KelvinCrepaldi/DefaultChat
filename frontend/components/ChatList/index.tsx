@@ -3,45 +3,48 @@ import {
   ActiveChatContext,
   activeChatContextType,
 } from "@/contexts/activeChatsContext";
-import { IListActiveChats } from "@/interfaces/activeChats";
 import { useSession } from "next-auth/react";
 import { useContext, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FaXmark } from "react-icons/fa6";
 import Image from "next/image";
+import { IRoom, SocketContext } from "@/contexts/socketContext";
 
 const ChatList = () => {
-  const { chatList, fetchChatList } = useContext(
-    ActiveChatContext
-  ) as activeChatContextType;
   const { data: session } = useSession();
 
+  const { rooms } = useContext(
+    SocketContext
+  );
+
   useEffect(() => {
-    if (session) fetchChatList();
+    if (session) {}
   }, [session]);
 
   return (
     <section>
-      {chatList?.map((chat: IListActiveChats) => (
-        <ChatCard user={chat.user} id={chat.id} key={chat.id} />
-      ))}
+      {rooms?.map((room: IRoom)=><ChatCard room={room} key={room.id} />)}   
     </section>
   );
 };
 
-const ChatCard = ({ user, id }: IListActiveChats) => {
+type ChatCardProps = {
+  room: IRoom,
+}
+
+const ChatCard = ({ room }: ChatCardProps) => {
   const pathname = usePathname()?.split("/")[3];
 
   const { push } = useRouter();
   const { closeChat } = useContext(ActiveChatContext) as activeChatContextType;
 
   const goToChat = () => {
-    push(`/me/chat/${user.id}`);
+    push(`/me/chat/${room.id}`);
   };
 
   const handleCloseChat = (e: any) => {
     e.stopPropagation();
-    closeChat(id);
+    closeChat(room.id);
   };
 
   return (
@@ -52,10 +55,10 @@ const ChatCard = ({ user, id }: IListActiveChats) => {
             ? "bg-chatBackground2"
             : "bg-chatBackground0 hover:bg-chatBackground1"
         }`}
-        key={user.id}
+        key={room.id}
       >
         <Image
-          src={user.image}
+          src={room.user.image}
           className="rounded-full w-[40px] h-[40px] object-cover bg-black"
           width={60}
           height={60}
@@ -64,7 +67,7 @@ const ChatCard = ({ user, id }: IListActiveChats) => {
         <div className="flex justify-between items-center shrink w-full ">
           <div className="truncate ... max-w-[150px] text-chatCardHover">
             <span className="text-lg text-chatTitle font-semibold  ">
-              {user.name}asdfasdfasdfasdfasdf
+              {room.user.name} {room.status === "online" ? "on" : "off"}
             </span>
           </div>
 
