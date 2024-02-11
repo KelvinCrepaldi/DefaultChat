@@ -6,4 +6,5 @@ export interface IClientMessage{
     image:string;
   };
   message: string;
+  roomId: string;
 }

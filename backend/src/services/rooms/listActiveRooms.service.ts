@@ -48,7 +48,7 @@ export const listActiveRoomsService = async ({
     })[0]
 
     return {
-      id: userRoom.id,
+      id: userRoom.room.id,
       user: {
         id: friendInfo.user.id,
         name: friendInfo.user.name,
