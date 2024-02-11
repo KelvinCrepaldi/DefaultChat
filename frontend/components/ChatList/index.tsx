@@ -1,8 +1,4 @@
 "use client";
-import {
-  ActiveChatContext,
-  activeChatContextType,
-} from "@/contexts/activeChatsContext";
 import { useSession } from "next-auth/react";
 import { useContext, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -46,7 +42,6 @@ const ChatCard = ({ room }: ChatCardProps) => {
   const pathname = usePathname()?.split("/")[3];
 
   const { push } = useRouter();
-  const { closeChat } = useContext(ActiveChatContext) as activeChatContextType;
   const { rooms } = useContext(
     SocketContext
   );
@@ -58,7 +53,6 @@ const ChatCard = ({ room }: ChatCardProps) => {
 
   const handleCloseChat = (e: any) => {
     e.stopPropagation();
-    closeChat(room.id);
   };
 
   return (

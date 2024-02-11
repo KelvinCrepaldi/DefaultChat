@@ -9,10 +9,6 @@ import { useContext, useEffect, useState } from "react";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import CounterText from "../_ui/CounterText";
 import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
-import {
-  ActiveChatContext,
-  activeChatContextType,
-} from "@/contexts/activeChatsContext";
 
 const FriendsList = () => {
   const { data: session } = useSession();
@@ -20,9 +16,6 @@ const FriendsList = () => {
   const { fetchFriends, deleteFriend, friends } = useContext(
     FriendsContext
   ) as FriendsContextType;
-  const { fetchChatList } = useContext(
-    ActiveChatContext
-  ) as activeChatContextType;
 
   const goToChat = (id: string) => {
     router.push(`/me/chat/${id}`);
