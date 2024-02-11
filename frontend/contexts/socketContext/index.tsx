@@ -112,11 +112,28 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
 
     function receiveMessage({ message, user, createdAt, roomId }: socketMessage) {
-      console.log(message)
+   
+      setRooms(prevRooms => {
+        const newRooms = [...prevRooms];
+        const roomIndex = newRooms.findIndex(room => room.id === roomId);
+        if (roomIndex !== -1) {
+          newRooms[roomIndex].messages.push({message, user, createdAt, roomId})
+          newRooms[roomIndex].notification = newRooms[roomIndex].notification + 1
+        }
+        return newRooms;
+      });
+
     }
 
     function friendIsOffline(data: any){
-      console.log("usuário desconectou-se:",data)
+      setRooms(prevRooms => {
+        const newRooms = [...prevRooms];
+        const roomIndex = newRooms.findIndex(room => room.user.email === data.userEmail);
+        if (roomIndex !== -1) {
+          newRooms[roomIndex].status = "offline";
+        }
+        return newRooms;
+      });
     }
 
    
@@ -126,7 +143,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     socket.on("send_message", receiveMessage);
     socket.on("friendsOnline", friendsOnline);
     socket.on("friendIsOnline", friendIsOnline);
-    socket.off("friendIsOffline", friendIsOffline);
+    socket.on("friendIsOffline", friendIsOffline);
 
     return () => {
       
@@ -178,7 +195,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         const data: IRoom = response.data;
         // fazer fetch das mensagens da room?
         setActiveRoom(data.id)
-        fetchChatList();
+   
         socket.emit("join_room", { room: data.id });
       } catch (error: any) {
         setError(error.code);
@@ -194,6 +211,18 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const clearNotification = ({ roomId }: ISendMessage) => {
+    setRooms(prevRooms => {
+      const newRooms = [...prevRooms];
+      const roomIndex = newRooms.findIndex(room => room.user.id === roomId);
+      if (roomIndex !== -1) {
+
+        newRooms[roomIndex].notification = 0
+      }
+      return newRooms;
+    });
+  };
+
   return (
     <SocketContext.Provider
       value={{
@@ -206,6 +235,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         rooms,
         activeRoom,
         listRef,
+        clearNotification
       }}
     >
       {children}

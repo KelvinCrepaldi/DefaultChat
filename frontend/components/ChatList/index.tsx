@@ -23,7 +23,17 @@ const ChatList = () => {
 
   return (
     <section>
-      {rooms?.map((room: IRoom)=><ChatCard room={room} key={room.id} />)}   
+      {rooms?.sort((a: IRoom, b: IRoom) => {
+      if (a.status === "online" && b.status === "offline") {
+        return -1;
+      }
+      else if (a.status === "offline" && b.status === "online") {
+        return 1;
+      }
+      else {
+        return a.user.name.localeCompare(b.user.name);
+      }
+    }).map((room: IRoom) => <ChatCard room={room} key={room.id} />)}  
     </section>
   );
 };
@@ -37,9 +47,13 @@ const ChatCard = ({ room }: ChatCardProps) => {
 
   const { push } = useRouter();
   const { closeChat } = useContext(ActiveChatContext) as activeChatContextType;
+  const { rooms } = useContext(
+    SocketContext
+  );
 
   const goToChat = () => {
-    push(`/me/chat/${room.id}`);
+    push(`/me/chat/${room.user.id}`);
+  
   };
 
   const handleCloseChat = (e: any) => {
@@ -50,8 +64,8 @@ const ChatCard = ({ room }: ChatCardProps) => {
   return (
     <div className="relative group cursor-pointer" onClick={goToChat}>
       <div
-        className={`rounded-l-full p-2 flex gap-3 items-center  ${
-          pathname
+        className={`rounded-l-full p-2 flex gap-3 items-center border-b ${room?.notification > 0 ? "border-green-400" : "border-transparent"} ${
+          pathname === room.user.id
             ? "bg-chatBackground2"
             : "bg-chatBackground0 hover:bg-chatBackground1"
         }`}
@@ -59,7 +73,7 @@ const ChatCard = ({ room }: ChatCardProps) => {
       >
         <Image
           src={room.user.image}
-          className="rounded-full w-[40px] h-[40px] object-cover bg-black"
+          className={`rounded-full w-[40px] h-[40px] object-cover bg-black border-2 ${room.status === "online" ? "border-green-600" : "border-zinc-600"}`}
           width={60}
           height={60}
           alt="User profile image"
@@ -67,7 +81,7 @@ const ChatCard = ({ room }: ChatCardProps) => {
         <div className="flex justify-between items-center shrink w-full ">
           <div className="truncate ... max-w-[150px] text-chatCardHover">
             <span className="text-lg text-chatTitle font-semibold  ">
-              {room.user.name} {room.status === "online" ? "on" : "off"}
+              {room.user.name} {room.notification}
             </span>
           </div>
 
