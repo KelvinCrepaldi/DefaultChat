@@ -14,7 +14,7 @@ const Message = ({ msg }: { msg: socketMessage }) => {
       ></Image>
       <div className="flex-col  gap-1 w-full">
         <div className="flex items-center justify-between">
-          <p className="text-chatTitle">{msg.user?.name}</p>
+          <p className="text-chatTitle">{msg.user.name}</p>
           <p className="opacity-40">{msg.createdAt.toString()}</p>
         </div>
         <div className="w-full border-b opacity-10"></div>

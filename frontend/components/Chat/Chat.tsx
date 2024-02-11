@@ -51,7 +51,6 @@ export default function Chat({ roomId }: { roomId: string }) {
 
   return (
     <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
-
       <div
         className="m-2 p-2 rounded overflow-y-auto flex flex-col grow"
       >

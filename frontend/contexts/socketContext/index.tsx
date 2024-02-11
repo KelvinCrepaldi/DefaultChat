@@ -33,8 +33,9 @@ export type IChat = {
 export type IUser = {
   id?: string;
   email: string;
-  username: string;
+  name: string;
   picture: string;
+  image: string;
 }
 
 export type IRoom = {
