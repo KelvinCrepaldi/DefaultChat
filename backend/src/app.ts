@@ -14,6 +14,7 @@ import { IClientMessage } from "./interface/socket";
 import AppDataSource from "./data-source";
 import { User } from "./entities/user.entity";
 import { Relationship } from "./entities/relationship.entity";
+import messageRoutes from "./routes/messages.routes";
 
 const app = express();
 const server = createServer(app);
@@ -40,6 +41,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/friend", friendRoutes);
 app.use("/api/room", roomRoutes)
+app.use('/api/message', messageRoutes)
 app.use(errorsMiddleware);
 
 interface IUsersOnline {
@@ -124,7 +126,6 @@ io.on("connection", (socket) => {
   
         onlineFriends.forEach((friend: IUsersOnline) => {
           io.to(friend.socketId).emit('friendIsOffline', { userEmail: userEmail });
-          console.log(userEmail)
         });
       }
       
@@ -134,7 +135,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", ({message, user, roomId}: IClientMessage) => {
-    console.log({message, user, roomId})
     const createdAt = Date.now();
     io.to(roomId).emit("send_message", {message, user, roomId, createdAt})
   });

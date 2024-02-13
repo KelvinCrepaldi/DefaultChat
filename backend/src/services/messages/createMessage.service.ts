@@ -3,12 +3,9 @@ import { Message } from "../../entities/messages.enitity";
 import { Room } from "../../entities/room.entity";
 import { User } from "../../entities/user.entity";
 import { AppError } from "../../errors/appErrors";
+import { ICreateMessageService } from "../../interface/messages/createMessage.interface";
 
-interface ICreateMessageService{
-  message: string,
-  userId: string,
-  roomId: string
-}
+
 
 const createMessageService = async ({message, userId, roomId}:ICreateMessageService): Promise<Message> =>{
   const messageRepository = AppDataSource.getRepository(Message)

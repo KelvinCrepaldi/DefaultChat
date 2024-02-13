@@ -1,16 +1,41 @@
 import AppDataSource from "../../data-source"
 import { Message } from "../../entities/messages.enitity"
+import { IListMessagesService } from "../../interface/messages/listMessages.interface"
 
-interface IListMessagesService {
-  roomId: string;
+export interface IListMessageServiceResponse {
+  message: string,
+      user: {
+        id: string,
+        name: string,
+        image: string
+      },
+      createdAt: Date
 }
 
-const listMessagesService = async ({roomId}: IListMessagesService): Promise<Message[]> =>{
+const listMessagesService = async ({roomId}: IListMessagesService): Promise<IListMessageServiceResponse[]> =>{
   const messageRepository = AppDataSource.getRepository(Message)
 
-  const messages = await messageRepository.find({where:{room:{id: roomId}}, relations: ['room']})
+  const messages = await messageRepository.find({
+    where:{room:{id: roomId}}, 
+    relations: ['room', 'user'],
+    order:{
+      createdAt: "DESC"
+    },
+    take: 20
+  })
 
-  return messages;
+  const createMessagesResponse = messages.map((message)=>{
+    return {
+      message: message.message,
+      user: {
+        id: message.user.id,
+        name: message.user.name,
+        image: message.user.image
+      },
+      createdAt: message.user.createdAt
+    }
+  })
+  return createMessagesResponse;
 }
 
 export default listMessagesService

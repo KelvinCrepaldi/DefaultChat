@@ -1,10 +1,9 @@
 export interface IClientMessage{
+  message: string,
   user: {
-    id?: string;
-    name: string;
-    email: string;
-    image:string;
-  };
-  message: string;
-  roomId: string;
+    id: string;
+    name: string,
+    image: string
+  },
+  roomId: string
 }
