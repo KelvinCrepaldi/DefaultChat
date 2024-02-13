@@ -1,5 +1,5 @@
 import AppDataSource from "../../data-source";
-import { Room } from "../../entities/rooms.entity";
+import { Room } from "../../entities/room.entity";
 import { User } from "../../entities/user.entity";
 import { UserRoom } from "../../entities/userRoom.entity";
 import { AppError } from "../../errors/appErrors";

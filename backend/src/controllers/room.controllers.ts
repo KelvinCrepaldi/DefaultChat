@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppError, handleError } from "../errors/appErrors";
 import privateRoomService from "../services/rooms/privateRoom.service";
-import { Room } from "../entities/rooms.entity";
+import { Room } from "../entities/room.entity";
 import listActiveRoomsService from "../services/rooms/listActiveRooms.service";
 import closeChatService from "../services/rooms/closeChat.service";
 

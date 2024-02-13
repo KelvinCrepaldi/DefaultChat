@@ -3,8 +3,11 @@ import 'dotenv/config';
 import { User } from './entities/user.entity';
 import { Relationship } from './entities/relationship.entity';
 import { UserRoom } from './entities/userRoom.entity';
-import { Room } from './entities/rooms.entity';
+import { Room } from './entities/room.entity';
 import { CreateTables1707251681489 } from './migrations/1707251681489-createTables';
+import { AddRoomImage1707774966587 } from './migrations/1707774966587-addRoomImage';
+import { Message } from './entities/messages.enitity';
+import { CreateMessagesTable1707780491768 } from './migrations/1707780491768-createMessagesTable';
 
 
 const AppDataSource = new DataSource({
@@ -16,10 +19,12 @@ const AppDataSource = new DataSource({
    database: process.env.DB,
    synchronize: false,
    logging: false,
-   entities: [ User, Relationship, UserRoom, Room ],
+   entities: [ User, Relationship, UserRoom, Room, Message ],
    subscribers: [],
    migrations: [
-      CreateTables1707251681489
+      CreateTables1707251681489,
+      AddRoomImage1707774966587,
+      CreateMessagesTable1707780491768
    ]
 });
 
