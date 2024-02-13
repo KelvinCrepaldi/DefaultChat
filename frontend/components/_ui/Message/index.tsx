@@ -1,8 +1,16 @@
 import { socketMessage } from "@/contexts/socketContext";
+import { IMessage } from "@/interfaces/message";
 import formatDate from "@/utils/formatDate";
 import Image from "next/image";
 
-const Message = ({ msg }: { msg: socketMessage }) => {
+type MessageProps = {
+  createdAt: "2024-02-13T02:14:17.314Z"
+  id: "cce54b9f-af9c-47ca-bed7-11f9f9bea395"
+  message: "sdf"
+  room: any
+}
+
+const Message = ({ msg }: { msg: IMessage }) => {
   return (
     <div className="p-2 m-1 shadow bg-chatBorder rounded-xl text-chatTextWhite flex">
       <Image

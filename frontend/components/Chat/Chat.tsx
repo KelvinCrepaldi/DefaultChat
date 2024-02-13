@@ -1,29 +1,34 @@
 "use client";
 import { useContext, useEffect, useRef, useState } from "react";
-import { IRoom, SocketContext, socketMessage } from "@/contexts/socketContext";
+import { IPrivateRoom, SocketContext, socketMessage } from "@/contexts/socketContext";
 import { useSession } from "next-auth/react";
 import Loading from "../_ui/Loading";
 import Message from "../_ui/Message";
+import { useParams } from "next/navigation";
 
-export default function Chat({ roomId }: { roomId: string }) {
+export default function Chat() {
+  const params = useParams<{ roomId: string }>();
+  const roomId = params?.roomId
   const {
     sendMessage,
     joinRoom,
-    rooms,
+    privateRooms,
     error,
+    fetchMessage,
     clearNotification
   } = useContext(SocketContext);
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
-  const room: IRoom = rooms?.filter((room: IRoom) => room.user.id === roomId)[0]
   const divRef = useRef<HTMLDivElement>(null)
+  const [room, setRoom] = useState<IPrivateRoom | null>(null)
+
 
   const handleChange = (event: any) => {
     setMessage(event.target.value);
   };
 
   const handleSend = () => {
-    if (session?.user && room) sendMessage({ message, user: session?.user, roomId: room.id });
+    if (session?.user && room) sendMessage({ message, roomId: room.id });
     setMessage("");
   };
 
@@ -38,23 +43,23 @@ export default function Chat({ roomId }: { roomId: string }) {
     joinRoom(roomId);
   }, [session]);
 
+  useEffect(()=>{
+    if(room)fetchMessage({roomId: room.id})
+  },[room])
+
   useEffect(() => {
     if(divRef.current){
       divRef.current.scrollIntoView()
     }
-    
-  },[rooms])
-
-  if (!room) {
-    return <Loading />;
-  }
+    setRoom(privateRooms?.filter((room: IPrivateRoom) => room.user.id === roomId)[0])
+  },[privateRooms])
 
   return (
     <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
       <div
         className="m-2 p-2 rounded overflow-y-auto flex flex-col grow"
       >
-        {room.messages?.map((msg: socketMessage, index: number) => (
+        {room?.messages?.map((msg: any, index: number) => (
           <Message msg={msg} key={index} />
         ))}
         <div ref={divRef}></div>

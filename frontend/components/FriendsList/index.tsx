@@ -13,6 +13,7 @@ import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
 const FriendsList = () => {
   const { data: session } = useSession();
   const router = useRouter();
+
   const { fetchFriends, deleteFriend, friends } = useContext(
     FriendsContext
   ) as FriendsContextType;

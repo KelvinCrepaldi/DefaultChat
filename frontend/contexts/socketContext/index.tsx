@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import { api, socket } from "@/services";
 import { ISendMessage } from "@/interfaces/message";
 
-export const SocketContext = createContext<any>(undefined);
+
 
 export type socketMessage = {
   user: IUser;
@@ -20,14 +20,27 @@ export type socketMessage = {
   roomId: string;
 };
 
-export type IChat = {
+export type IPrivateRoomRequest = {
   id: string,
+  name: string,
+  image: string,
   user: {
     id: string
     name: string,
     email: string,
     image:string;
   },
+}
+export type IGroupRoomRequest = {
+  id: string,
+    name: string,
+    image: string,
+    users: {
+      id: string
+      name: string,
+      email: string,
+      image:string;
+  }[],
 }
 
 export type IUser = {
@@ -38,15 +51,35 @@ export type IUser = {
   image: string;
 }
 
-export type IRoom = {
+export type IGroupRoom = {
+  id:string,
+  type: string //group or private
+  image: string;
+  title: string;
+  messages:socketMessage[],
+  notification: number,
+  users:[
+    {
+      id?: string;
+      email: string;
+      name: string;
+      picture: string;
+      image: string;
+    }
+  ]
+}
+
+export type IPrivateRoom = {
   id:string
+  name: string;
+  image: string;
   user:{
     id: string;
     name: string
     email: string
     image: string
   },
-  messages:socketMessage[],
+  messages: {}[],
   notification: number,
   status: string
 }
@@ -56,13 +89,14 @@ interface IUsersOnline {
   userEmail:string
 }
 
+export const SocketContext = createContext<any>(undefined);
+
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [error, setError] = useState<IErrorResponse | null>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const [rooms, setRooms] = useState<IRoom[]>([]);
-  const [activeRoom, setActiveRoom] = useState<string>("")
+  const [privateRooms, setPrivateRooms] = useState<IPrivateRoom[]>([]);
   const { data: session } = useSession();
+  const listRef = useRef<HTMLUListElement>(null);
 
   const scrollToBottom = () => {
     if (listRef.current) {
@@ -81,6 +115,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     function onConnect() {
+      setIsConnected(true);
     }
 
     function onDisconnect() {
@@ -88,7 +123,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
 
     function friendsOnline(friends: IUsersOnline[]){
-      setRooms(prevRooms => {
+      setPrivateRooms(prevRooms => {
         const newRooms = [...prevRooms]
         friends.forEach((friend)=> {
           const roomIndex = newRooms.findIndex((room)=> room.user.email === friend.userEmail)
@@ -96,13 +131,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             newRooms[roomIndex].status = "online"
           }
         })
-        
         return newRooms
       });
     }
 
     function friendIsOnline(data: any){
-        setRooms(prevRooms => {
+        setPrivateRooms(prevRooms => {
           const newRooms = [...prevRooms];
           const roomIndex = newRooms.findIndex(room => room.user.email === data.userEmail);
           if (roomIndex !== -1) {
@@ -113,12 +147,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
 
     function receiveMessage({ message, user, createdAt, roomId }: socketMessage) {
-   
-      setRooms(prevRooms => {
+      setPrivateRooms(prevRooms => {
         const newRooms = [...prevRooms];
         const roomIndex = newRooms.findIndex(room => room.id === roomId);
         if (roomIndex !== -1) {
-          newRooms[roomIndex].messages.push({message, user, createdAt, roomId})
+          newRooms[roomIndex].messages = [...newRooms[roomIndex].messages,
+             {message, user, createdAt, roomId}
+          ]
           newRooms[roomIndex].notification = newRooms[roomIndex].notification + 1
         }
         return newRooms;
@@ -127,7 +162,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
 
     function friendIsOffline(data: any){
-      setRooms(prevRooms => {
+      setPrivateRooms(prevRooms => {
         const newRooms = [...prevRooms];
         const roomIndex = newRooms.findIndex(room => room.user.email === data.userEmail);
         if (roomIndex !== -1) {
@@ -137,17 +172,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       });
     }
 
-   
-
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("send_message", receiveMessage);
     socket.on("friendsOnline", friendsOnline);
     socket.on("friendIsOnline", friendIsOnline);
     socket.on("friendIsOffline", friendIsOffline);
-
     return () => {
-      
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("send_message", receiveMessage);
@@ -171,7 +202,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       });
       const data = response.data;
 
-      const newChatData = data.map((chat: IChat) =>{
+      const privateRooms = data.privateRooms.map((chat: IPrivateRoomRequest) =>{
         return {
           ...chat,
           messages:[],
@@ -179,7 +210,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           status: 'offline'
         }
       })
-      setRooms(newChatData);
+      setPrivateRooms(privateRooms);
+      //criar logica de grupos usando data.groupRooms
     } catch (error) {
       console.log(error);
     } finally{
@@ -193,9 +225,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         const response = await api.get(`api/room/user?id=${id}`, {
           headers: { Authorization: `Bearer ${session?.user.accessToken}` },
         });
-        const data: IRoom = response.data;
-        // fazer fetch das mensagens da room?
-        setActiveRoom(data.id)
+        const data = response.data;
    
         socket.emit("join_room", { room: data.id });
       } catch (error: any) {
@@ -204,25 +234,55 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const sendMessage = ({ message, user, roomId }: ISendMessage) => {
-    socket.emit("send_message", {
-      user: { name: user.name, email: user.email, image: user.picture },
-      message,
-      roomId
-    });
-  };
-
-  const clearNotification = ({ roomId }: ISendMessage) => {
-    setRooms(prevRooms => {
-      const newRooms = [...prevRooms];
-      const roomIndex = newRooms.findIndex(room => room.user.id === roomId);
-      if (roomIndex !== -1) {
-
-        newRooms[roomIndex].notification = 0
+  const sendMessage = async ({ message , roomId }: ISendMessage) => {
+    if (session?.user.accessToken) {
+      try{
+        socket.emit("send_message", {
+          user: { 
+            id: session.user.id,
+            name: session.user.name,
+            image: session.user.picture 
+          },
+          message,
+          roomId
+        });
+    
+        await api.post(`api/message/${roomId}`, {message}, {
+          headers: {
+            Authorization: `Bearer ${session?.user.accessToken}`
+          }
+        })
+      }catch(error){
+        console.log(error)
       }
-      return newRooms;
-    });
+    }
   };
+
+  const fetchMessage = async ({roomId}: {roomId : string}) =>{
+    if (session?.user.accessToken) {
+      try {
+        const response = await api.get(`api/message/${roomId}`, {
+          headers: {
+            Authorization: `Bearer ${session?.user.accessToken}`
+          }
+        })
+        const messages = response.data.reverse();
+        console.log(messages)
+  
+        setPrivateRooms(prevRooms => {
+          const newRooms = [...prevRooms];
+          const roomIndex = newRooms.findIndex(room => room.id === "5010c3e3-3385-486b-8678-8ad2926ff45f");
+          if (roomIndex !== -1) {
+            newRooms[roomIndex].messages = [...messages];
+          }
+          console.log(newRooms)
+          return newRooms;
+        });
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
 
   return (
     <SocketContext.Provider
@@ -233,10 +293,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         socket,
         joinRoom,
         error,
-        rooms,
-        activeRoom,
+        privateRooms,
         listRef,
-        clearNotification
+        fetchMessage
       }}
     >
       {children}

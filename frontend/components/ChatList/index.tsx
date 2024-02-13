@@ -4,22 +4,16 @@ import { useContext, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FaXmark } from "react-icons/fa6";
 import Image from "next/image";
-import { IRoom, SocketContext } from "@/contexts/socketContext";
+import { IPrivateRoom, SocketContext } from "@/contexts/socketContext";
 
 const ChatList = () => {
-  const { data: session } = useSession();
-
-  const { rooms } = useContext(
+  const { privateRooms } = useContext(
     SocketContext
   );
 
-  useEffect(() => {
-    if (session) {}
-  }, [session]);
-
   return (
     <section>
-      {rooms?.sort((a: IRoom, b: IRoom) => {
+      {privateRooms?.sort((a: IPrivateRoom, b: IPrivateRoom) => {
       if (a.status === "online" && b.status === "offline") {
         return -1;
       }
@@ -29,22 +23,18 @@ const ChatList = () => {
       else {
         return a.user.name.localeCompare(b.user.name);
       }
-    }).map((room: IRoom) => <ChatCard room={room} key={room.id} />)}  
+    }).map((room: IPrivateRoom) => <ChatCard room={room} key={room.id} />)}  
     </section>
   );
 };
 
 type ChatCardProps = {
-  room: IRoom,
+  room: IPrivateRoom,
 }
 
 const ChatCard = ({ room }: ChatCardProps) => {
   const pathname = usePathname()?.split("/")[3];
-
   const { push } = useRouter();
-  const { rooms } = useContext(
-    SocketContext
-  );
 
   const goToChat = () => {
     push(`/me/chat/${room.user.id}`);
@@ -58,7 +48,7 @@ const ChatCard = ({ room }: ChatCardProps) => {
   return (
     <div className="relative group cursor-pointer" onClick={goToChat}>
       <div
-        className={`rounded-l-full p-2 flex gap-3 items-center border-b ${room?.notification > 0 ? "border-green-400" : "border-transparent"} ${
+        className={`rounded-l-full p-2 flex gap-3 items-center border-b ${room.notification > 0 ? "border-green-400" : "border-transparent"} ${
           pathname === room.user.id
             ? "bg-chatBackground2"
             : "bg-chatBackground0 hover:bg-chatBackground1"
@@ -66,7 +56,7 @@ const ChatCard = ({ room }: ChatCardProps) => {
         key={room.id}
       >
         <Image
-          src={room.user.image}
+          src={room.image}
           className={`rounded-full w-[40px] h-[40px] object-cover bg-black border-2 ${room.status === "online" ? "border-green-600" : "border-zinc-600"}`}
           width={60}
           height={60}
@@ -75,7 +65,7 @@ const ChatCard = ({ room }: ChatCardProps) => {
         <div className="flex justify-between items-center shrink w-full ">
           <div className="truncate ... max-w-[150px] text-chatCardHover">
             <span className="text-lg text-chatTitle font-semibold  ">
-              {room.user.name} {room.notification}
+              {room.name} {room.notification}
             </span>
           </div>
 

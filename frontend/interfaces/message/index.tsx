@@ -1,12 +1,19 @@
-import { IUser } from "../friends";
 export interface ISendMessage {
-  user: IUser;
-  message: string;
-  roomId: string;
+  message: string,
+  user: {
+    id: string;
+    name: string,
+    image: string
+  },
+  roomId: string
 }
 
-export interface IReceiveMessage {
-  user: IUser;
-  message: string;
-  createdAt: Date;
+export interface IMessage {
+  message: string,
+  user: {
+    id: string,
+    name: string,
+    image: string
+  },
+  createdAt: Date
 }

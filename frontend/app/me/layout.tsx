@@ -16,8 +16,8 @@ export default function RootLayout({
           <ChatList />
         </section>
         <div className="grow bg-chatBackground1">{children}</div>
-        <div className="max-w-[250px] w-full bg-chatBackground1 p-1">
-          <div className="bg-chatBackground2 w-full border  h-full "></div>
+        <div className="max-w-[250px] lg:w-full bg-chatBackground0 p-1">
+          <div className=" w-full  h-full "></div>
         </div>
       </main>
     </SocketProvider>
