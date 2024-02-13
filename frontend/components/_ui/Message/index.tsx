@@ -1,6 +1,8 @@
+'use client'
 import { socketMessage } from "@/contexts/socketContext";
 import { IMessage } from "@/interfaces/message";
 import formatDate from "@/utils/formatDate";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 type MessageProps = {
@@ -11,8 +13,9 @@ type MessageProps = {
 }
 
 const Message = ({ msg }: { msg: IMessage }) => {
+  const {data: session} = useSession();
   return (
-    <div className="p-2 m-1 shadow bg-chatBorder rounded-xl text-chatTextWhite flex">
+    <div className={`p-2 m-1 shadow rounded-xl text-chatTextWhite flex ${session?.user.name === msg.user.name ? "bg-zinc-800" : "bg-zinc-700"}`}>
       <Image
         src={msg.user.image || ""}
         className="rounded-full w-[30px] h-[30px] object-cover bg-black m-1"
