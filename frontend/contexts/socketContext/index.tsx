@@ -271,7 +271,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   
         setPrivateRooms(prevRooms => {
           const newRooms = [...prevRooms];
-          const roomIndex = newRooms.findIndex(room => room.id === "5010c3e3-3385-486b-8678-8ad2926ff45f");
+          const roomIndex = newRooms.findIndex(room => room.id === roomId);
           if (roomIndex !== -1) {
             newRooms[roomIndex].messages = [...messages];
           }
