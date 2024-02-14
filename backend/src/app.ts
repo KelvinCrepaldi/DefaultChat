@@ -135,7 +135,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", ({message, user, roomId}: IClientMessage) => {
-    const createdAt = Date.now();
+    const dateNow = Date.now();
+    const createdAt = new Date(dateNow)
     io.to(roomId).emit("send_message", {message, user, roomId, createdAt})
   });
 

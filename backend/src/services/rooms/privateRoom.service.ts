@@ -38,7 +38,6 @@ const privateRoomService = async ({friendId, userId}:{friendId: string, userId: 
 
     return hasUserId && hasFriendId && (element.room.type === 'private');
   });
-  console.log(roomExists)
 
   if(roomExists){
    

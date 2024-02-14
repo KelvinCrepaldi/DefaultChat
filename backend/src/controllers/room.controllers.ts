@@ -35,10 +35,11 @@ const listActiveRoomsController = async (req: Request, res: Response) => {
 
 const closeChatController = async (req: Request, res: Response) => {
    try {
-       const id = req.params.id
-       const closeRoom = await closeChatService({id});
+      const userId = req.user.id
+      const roomId = req.params.roomId
+      const closeRoom = await closeChatService({roomId, userId});
       
-       return res.status(200).send(closeRoom);
+      return res.status(200).send(closeRoom);
    } catch (error) {
       if (error instanceof AppError) {
          handleError(error, res);

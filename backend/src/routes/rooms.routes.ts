@@ -4,6 +4,7 @@ import { closeChatController, listActiveRoomsController, privateRoomController }
 
 const roomRoutes = Router();
 
+
 //list active rooms 
 roomRoutes.get('/list', verifyAuthTokenMiddleware, listActiveRoomsController)
 
@@ -14,7 +15,7 @@ roomRoutes.get('/user', verifyAuthTokenMiddleware, privateRoomController)
 roomRoutes.get('/room/group', verifyAuthTokenMiddleware)
 
 //set room status to closed 
-roomRoutes.post('/:id/close', verifyAuthTokenMiddleware, closeChatController)
+roomRoutes.post('/:roomId/close', verifyAuthTokenMiddleware, closeChatController)
 
 //delete private room
 roomRoutes.delete('/')
