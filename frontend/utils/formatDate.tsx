@@ -3,7 +3,15 @@ const formatDate = (date: Date) => {
   const s = datex.getSeconds();
   const m = datex.getMinutes();
   const h = datex.getHours();
-  return `${h}:${m}:${s} `;
+  return `${addZero(h)}:${addZero(m)}:${addZero(s)}`;
 };
+
+const addZero = (number: number) =>{
+  const numberToString = number.toString()
+  if(numberToString.length == 1){
+    return `0${numberToString}`
+  }
+  return numberToString
+}
 
 export default formatDate;

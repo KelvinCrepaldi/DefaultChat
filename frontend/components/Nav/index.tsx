@@ -23,7 +23,7 @@ export default function NavButtons() {
         text="Configurações"
         urlPath="/me/config"
       />
-      <div className="w-1/2 h-[2px] rounded m-2 bg-chatCard mx-auto"></div>
+      <div className="w-2/3 h-[1px] rounded m-2 bg-chatBackground2 mx-auto"></div>
     </nav>
   );
 }

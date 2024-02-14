@@ -5,22 +5,22 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { IoPersonRemove } from "react-icons/io5";
 import { BiMessageDetail } from "react-icons/bi";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import CounterText from "../_ui/CounterText";
 import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
+import { SocketContext } from "@/contexts/socketContext";
 
 const FriendsList = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const { fetchFriends, deleteFriend, friends } = useContext(
+  const { fetchFriends, deleteFriend, friends,  } = useContext(
     FriendsContext
   ) as FriendsContextType;
 
   const goToChat = (id: string) => {
     router.push(`/me/chat/${id}`);
-    console.log(id);
   };
 
   useEffect(() => {

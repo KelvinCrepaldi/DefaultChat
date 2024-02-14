@@ -6,8 +6,11 @@ export default function Friends() {
   return (
     <section>
       <HeaderSection text="Amigos" />
-      <RequestsReceived />
-      <FriendsList />
+      <div className="p-4">
+        <RequestsReceived />
+        <FriendsList />
+      </div>
+
     </section>
   );
 }

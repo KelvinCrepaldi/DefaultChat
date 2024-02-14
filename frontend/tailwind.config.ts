@@ -23,6 +23,8 @@ const config: Config = {
         chatCard: "#393E46",
         chatCardHover: "#464f5d",
         chatTextWhite: "#FFFFFF",
+        chatMessageBox1: "#2d2d2d",
+        chatMessageBox2: "#3b3b3b"
       },
     },
   },

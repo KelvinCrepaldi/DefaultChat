@@ -10,8 +10,7 @@ import {
 import { useSession } from "next-auth/react";
 import { api, socket } from "@/services";
 import { ISendMessage } from "@/interfaces/message";
-
-
+import { useRouter } from "next/navigation";
 
 export type socketMessage = {
   user: IUser;
@@ -95,7 +94,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [error, setError] = useState<IErrorResponse | null>(null);
   const [privateRooms, setPrivateRooms] = useState<IPrivateRoom[]>([]);
+
   const { data: session } = useSession();
+  const { push } = useRouter();
   const listRef = useRef<HTMLUListElement>(null);
 
   const scrollToBottom = () => {
@@ -228,9 +229,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         const data = response.data;
    
         socket.emit("join_room", { room: data.id });
+        
       } catch (error: any) {
         setError(error.code);
       }
+      fetchChatList()
     }
   };
 
@@ -267,7 +270,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           }
         })
         const messages = response.data.reverse();
-        console.log(messages)
   
         setPrivateRooms(prevRooms => {
           const newRooms = [...prevRooms];
@@ -275,13 +277,29 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           if (roomIndex !== -1) {
             newRooms[roomIndex].messages = [...messages];
           }
-          console.log(newRooms)
           return newRooms;
         });
       } catch (error) {
         console.log(error)
       }
     }
+  }
+
+  const closeRoom = async ({roomId}: {roomId: string}) =>{
+    if (session?.user.accessToken) {
+      try {
+        await api.post(`api/room/${roomId}/close`,{}, {
+          headers: {
+            Authorization: `Bearer ${session?.user.accessToken}`
+          }
+        })
+        fetchChatList()
+      
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    push("/me/")
   }
 
   return (
@@ -295,7 +313,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         error,
         privateRooms,
         listRef,
-        fetchMessage
+        fetchMessage,
+        closeRoom,
+        fetchChatList
       }}
     >
       {children}

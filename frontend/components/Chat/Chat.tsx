@@ -2,9 +2,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { IPrivateRoom, SocketContext, socketMessage } from "@/contexts/socketContext";
 import { useSession } from "next-auth/react";
-import Loading from "../_ui/Loading";
 import Message from "../_ui/Message";
 import { useParams } from "next/navigation";
+import ChatHeader from "../ChatHeader";
 
 export default function Chat() {
   const params = useParams<{ roomId: string }>();
@@ -15,7 +15,6 @@ export default function Chat() {
     privateRooms,
     error,
     fetchMessage,
-    clearNotification
   } = useContext(SocketContext);
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
@@ -40,11 +39,11 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    joinRoom(roomId);
-  }, [session]);
+   joinRoom(roomId)
+  }, []);
 
   useEffect(()=>{
-    if(room)fetchMessage({roomId: room.id})
+    if(room && room.messages.length === 0)fetchMessage({roomId: room.id})
   },[room])
 
   useEffect(() => {
@@ -56,6 +55,7 @@ export default function Chat() {
 
   return (
     <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
+      {room && <ChatHeader room={room} />}
       <div
         className="m-2 p-2 rounded overflow-y-auto flex flex-col grow"
       >

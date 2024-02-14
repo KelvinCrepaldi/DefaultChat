@@ -5,7 +5,10 @@ export default function Requests() {
   return (
     <section>
       <HeaderSection text="Buscar usuários" />
+      <div className="p-4">
       <AddFriend />
+      </div>
+      
     </section>
   );
 }
