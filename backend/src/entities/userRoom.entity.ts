@@ -10,10 +10,10 @@ export class UserRoom {
   @Column()
   isActive: boolean;
 
-  @ManyToOne(()=>User, user => user.userRooms)
+  @ManyToOne(()=>User, (user) => user.userRooms)
   user: User
 
-  @ManyToOne(()=>Room, room=> room.roomUsers)
+  @ManyToOne(()=>Room, (room)=> room.roomUsers)
   room: Room
 
 }

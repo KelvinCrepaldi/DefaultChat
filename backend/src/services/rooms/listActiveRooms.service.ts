@@ -1,4 +1,5 @@
 import AppDataSource from "../../data-source";
+import { Message } from "../../entities/messages.enitity";
 import { User } from "../../entities/user.entity";
 
 interface IListActiveRooms {
@@ -16,6 +17,7 @@ interface IListActiveRoomsResponse{
       email: string,
       image:string;
     },
+    messages?: any
   }[] 
   groupRooms:{
     id: string,
@@ -47,7 +49,9 @@ export const listActiveRoomsService = async ({
       'userRooms',
       'userRooms.room',
       'userRooms.room.roomUsers',
-      'userRooms.room.roomUsers.user'
+      'userRooms.room.roomUsers.user',
+      'userRooms.room.messages',
+      'userRooms.room.messages.user',
     ]
   })
 
@@ -58,10 +62,11 @@ export const listActiveRoomsService = async ({
     }
   }
 
-  const privateRooms = roomsList.userRooms
-  .map((userRoom) => {
+  const privateRooms = roomsList.userRooms.map((userRoom) => {
     const friendInfo = userRoom.room.roomUsers.find((roomUser) => roomUser.user.id !== userId);
+
     if (friendInfo && userRoom.room.type === 'private') {
+
       return {
         id: userRoom.room.id,
         name: friendInfo.user.name,
@@ -72,10 +77,10 @@ export const listActiveRoomsService = async ({
           email: friendInfo.user.email,
           image: friendInfo.user.image,
         },
+        messages: userRoom.room.messages
       };
     }
-  })
-  .filter((room): room is NonNullable<typeof room> => !!room);
+  }).filter((room): room is NonNullable<typeof room> => !!room);
 
   const groupRooms = roomsList.userRooms
   .map((userRoom) => {
