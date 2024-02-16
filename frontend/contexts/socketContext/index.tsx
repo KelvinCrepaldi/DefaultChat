@@ -206,7 +206,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       const privateRooms = data.privateRooms.map((chat: IPrivateRoomRequest) =>{
         return {
           ...chat,
-          messages:[],
           notification: 0,
           status: 'offline'
         }
@@ -220,22 +219,38 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const joinRoom = async (id: string) => {
-    if (session?.user.accessToken) {
-      try {
-        const response = await api.get(`api/room/user?id=${id}`, {
-          headers: { Authorization: `Bearer ${session?.user.accessToken}` },
-        });
-        const data = response.data;
-   
-        socket.emit("join_room", { room: data.id });
+  const openRoom = async ({userId} : {userId: string}) =>{
+    const roomExists = privateRooms.find((room)=> room.user.id === userId)
+    if(roomExists){
+      socket.emit("join_room", { room: roomExists.id });
+      push(`/me/chat/${userId}`)
+    } else{
+      if (session?.user.accessToken) {
+        try {
+          const responseChat = await api.get(`api/room/user?id=${userId}`, {
+            headers: { Authorization: `Bearer ${session?.user.accessToken}` },
+          });
+          const room = responseChat.data;
+          socket.emit("join_room", { room: room.id });
+          setPrivateRooms(prevRooms => {
+            return [...prevRooms, {
+              ...room,
+              notification: 0,
+              status: 'offline'
+            }];
+          });
         
-      } catch (error: any) {
-        setError(error.code);
+          push(`/me/chat/${userId}`)
+        } catch (error: any) {
+          setError(error.code);
+        }
       }
-      fetchChatList()
     }
-  };
+  }
+
+  /* const leaveRoom = async ({roomId} : {roomId: string}) => {
+    socket.emit("leaveRoom", { room: roomId });
+  }; */
 
   const sendMessage = async ({ message , roomId }: ISendMessage) => {
     if (session?.user.accessToken) {
@@ -293,8 +308,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             Authorization: `Bearer ${session?.user.accessToken}`
           }
         })
-        fetchChatList()
-      
+        setPrivateRooms(prevRooms => {
+          const filterRooms = prevRooms.filter((room) => room.id !== roomId);
+          return filterRooms;
+        });
       } catch (error) {
         console.log(error)
       }
@@ -309,13 +326,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         sendMessage,
         isConnected,
         socket,
-        joinRoom,
         error,
         privateRooms,
         listRef,
         fetchMessage,
         closeRoom,
-        fetchChatList
+        fetchChatList,
+        openRoom,
+        setPrivateRooms
       }}
     >
       {children}

@@ -11,23 +11,20 @@ export default function Chat() {
   const roomId = params?.roomId
   const {
     sendMessage,
-    joinRoom,
     privateRooms,
     error,
-    fetchMessage,
   } = useContext(SocketContext);
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
   const divRef = useRef<HTMLDivElement>(null)
-  const [room, setRoom] = useState<IPrivateRoom | null>(null)
-
+  const room = privateRooms?.filter((room: IPrivateRoom) => room.user.id === roomId)[0]
 
   const handleChange = (event: any) => {
     setMessage(event.target.value);
   };
 
   const handleSend = () => {
-    if (session?.user && room) sendMessage({ message, roomId: room.id });
+    if (session?.user ) sendMessage({ message, roomId: room?.id });
     setMessage("");
   };
 
@@ -38,20 +35,17 @@ export default function Chat() {
     }
   };
 
-  useEffect(() => {
-   joinRoom(roomId)
-  }, []);
-
   useEffect(()=>{
-    if(room && room.messages.length === 0)fetchMessage({roomId: room.id})
-  },[room])
+    console.log(`PARAMS ${params}`)
+  },[])
 
   useEffect(() => {
     if(divRef.current){
       divRef.current.scrollIntoView()
     }
-    setRoom(privateRooms?.filter((room: IPrivateRoom) => room.user.id === roomId)[0])
-  },[privateRooms])
+    // setRoom(privateRooms?.filter((room: IPrivateRoom) => room.user.id === roomId)[0])
+    console.log(room?.id)
+  },[privateRooms, params])
 
   return (
     <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
@@ -59,9 +53,9 @@ export default function Chat() {
       <div
         className="m-2 p-2 rounded overflow-y-auto flex flex-col grow"
       >
-        {room?.messages?.map((msg: any, index: number) => (
-          <Message msg={msg} key={index} />
-        ))}
+        {room?.messages?.map((msg: any, index: number) => {
+          return <Message msg={msg} key={index} />
+        })}
         <div ref={divRef}></div>
         <div>{error}</div>
       </div>
@@ -72,9 +66,9 @@ export default function Chat() {
           value={message}
           onChange={handleChange}
           onKeyDown={handleKeyPress}
-          className="w-full m-1 p-1 bg-slate-300 rounded"
+          className="w-full bg-chatBackground2 rounded border border-chatBorder p-2 text-chatText my-1"
         ></input>
-        <button className="bg-gray-700 m-1 p-1 rounded" onClick={handleSend}>
+        <button className="border-chatBorder p-2 text-chatText m-1 hover:bg-chatBorder rounded bg-chatBackground0" onClick={handleSend}>
           Send
         </button>
       </div>

@@ -11,10 +11,6 @@ type searchUserType = {
   letters: string;
 };
 
-type inviteFriendUserType = {
-  actionId: string;
-};
-
 export const UserSearchProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState(null);

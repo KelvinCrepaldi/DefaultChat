@@ -19,8 +19,12 @@ const FriendsList = () => {
     FriendsContext
   ) as FriendsContextType;
 
-  const goToChat = (id: string) => {
-    router.push(`/me/chat/${id}`);
+  const { openRoom  } = useContext(
+    SocketContext
+  )
+
+  const goToChat = (userId: string) => {
+    openRoom({userId})
   };
 
   useEffect(() => {

@@ -34,15 +34,14 @@ type ChatCardProps = {
 
 const ChatCard = ({ room }: ChatCardProps) => {
   const [isOpen, setIsOpen] = useState(true);
-  const { closeRoom } = useContext(
+  const { closeRoom, openRoom } = useContext(
     SocketContext
   );
   const pathname = usePathname()?.split("/")[3];
   const { push } = useRouter();
 
   const goToChat = () => {
-    push(`/me/chat/${room.user.id}`);
-  
+    openRoom({userId: room.user.id});
   };
 
   const handleCloseChat = (e: any) => {
