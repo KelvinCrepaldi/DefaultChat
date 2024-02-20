@@ -7,7 +7,7 @@ import Image from "next/image";
 import { IPrivateRoom, SocketContext } from "@/contexts/socketContext";
 
 const ChatList = () => {
-  const { privateRooms, closeRoom } = useContext(
+  const { privateRooms } = useContext(
     SocketContext
   );
 
