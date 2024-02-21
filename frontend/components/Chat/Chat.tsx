@@ -7,12 +7,12 @@ import { useParams } from "next/navigation";
 import ChatHeader from "../ChatHeader";
 
 export default function Chat() {
-  const params = useParams<{ roomId: string }>();
-  const roomId = params?.roomId
+  const { roomId } = useParams() as { roomId: string | null };
   const {
     sendMessage,
     privateRooms,
     error,
+    resetPrivateNotificationCount,
   } = useContext(SocketContext);
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
@@ -36,7 +36,7 @@ export default function Chat() {
   };
 
   useEffect(()=>{
-    console.log(`PARAMS ${params}`)
+    resetPrivateNotificationCount({roomId: room?.id})
   },[])
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export default function Chat() {
       divRef.current.scrollIntoView()
     }
     // setRoom(privateRooms?.filter((room: IPrivateRoom) => room.user.id === roomId)[0])
-    console.log(room?.id)
-  },[privateRooms, params])
+    
+  },[privateRooms, roomId])
 
   return (
     <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
