@@ -34,7 +34,7 @@ type ChatCardProps = {
 
 const ChatCard = ({ room }: ChatCardProps) => {
   const [isOpen, setIsOpen] = useState(true);
-  const { closeRoom, openRoom } = useContext(
+  const { closeRoom, openRoom, setActiveRoom } = useContext(
     SocketContext
   );
   const pathname = usePathname()?.split("/")[3];
@@ -42,6 +42,7 @@ const ChatCard = ({ room }: ChatCardProps) => {
 
   const goToChat = () => {
     openRoom({userId: room.user.id});
+    setActiveRoom('XXXX')
   };
 
   const handleCloseChat = (e: any) => {
