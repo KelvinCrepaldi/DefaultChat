@@ -29,6 +29,8 @@ export type IPrivateRoomRequest = {
     email: string,
     image:string;
   },
+  notifications: number,
+  messages: any[]
 }
 export type IGroupRoomRequest = {
   id: string,
@@ -78,9 +80,9 @@ export type IPrivateRoom = {
     email: string
     image: string
   },
-  messages: {}[],
   notification: number,
-  status: string
+  status: string,
+  messages:socketMessage[],
 }
 
 interface IUsersOnline {
@@ -213,7 +215,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       const privateRooms = data.privateRooms.map((chat: IPrivateRoomRequest) =>{
         return {
           ...chat,
-          notification: 0,
           status: 'offline'
         }
       })
@@ -267,17 +268,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           user: { 
             id: session.user.id,
             name: session.user.name,
-            image: session.user.picture 
+            image: session.user.picture ,
+            token: session.user.accessToken
           },
           message,
-          roomId
+          roomId,
         });
-    
-        await api.post(`api/message/${roomId}`, {message}, {
-          headers: {
-            Authorization: `Bearer ${session?.user.accessToken}`
-          }
-        })
       }catch(error){
         console.log(error)
       }
@@ -328,6 +324,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const resetPrivateNotificationCount = ({roomId}: {roomId: string}) =>{
+    api.post(`api/notification/${roomId}`,{}, {
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`
+      }
+    })
     setPrivateRooms(prevRooms => {
       const newRooms = [...prevRooms];
       const roomIndex = newRooms.findIndex((room)=> room.id === roomId);
