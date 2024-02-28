@@ -15,14 +15,15 @@ import AppDataSource from "./data-source";
 import { User } from "./entities/user.entity";
 import { Relationship } from "./entities/relationship.entity";
 import messageRoutes from "./routes/messages.routes";
+import { Room } from "./entities/room.entity";
+import { MessageNotification } from "./entities/messageNotification.entity";
+import createMessageService from "./services/messages/createMessage.service";
+import { Message } from "./entities/messages.enitity";
+import notificationRoutes from "./routes/notifications.routes";
 
 const app = express();
 const server = createServer(app);
-const corsOptions = { 
-  origin: '*', 
-  methods: '*',
-  allowedHeaders: '*',
-}
+
 const io = new Server(server, {
   cors: { 
     origin: '*', 
@@ -42,6 +43,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/friend", friendRoutes);
 app.use("/api/room", roomRoutes)
 app.use('/api/message', messageRoutes)
+app.use("/api/notification", notificationRoutes)
 app.use(errorsMiddleware);
 
 interface IUsersOnline {
@@ -52,7 +54,6 @@ interface IUsersOnline {
 let usersOnline:IUsersOnline[] = [];
 
 io.on("connection", (socket) => {
-  let roomId = ''
 
   socket.on('connect', ()=>{
   })
@@ -73,7 +74,7 @@ io.on("connection", (socket) => {
     }
    
   }) 
-  socket.on("userListReady", async ({userEmail})=>{
+  socket.on("userListReady", async ({userEmail, activeRooms})=>{
     try {
       const friends = await AppDataSource.getRepository(Relationship).find({
         where:{
@@ -98,13 +99,16 @@ io.on("connection", (socket) => {
         //Returning to the user the friends who are online
         io.to(socket.id).emit('friendsOnline', onlineFriends);
       }
+
+      activeRooms.forEach((room: any) =>{
+        socket.join(room)
+      })
     } catch (error) {
       console.log(error)
     }
   })
 
   socket.on("disconnect", async () => {
-    roomId = '';
     const userEmail = usersOnline.find((user)=> user.socketId === socket.id)?.userEmail
     if(userEmail){
       const friends = await AppDataSource.getRepository(Relationship).find({
@@ -130,19 +134,55 @@ io.on("connection", (socket) => {
       }
       
       socket.disconnect();
-      console.log("Cliente desconectado");
     }
   });
 
-  socket.on("send_message", ({message, user, roomId}: IClientMessage) => {
+  socket.on("send_message", async ({message, user, roomId}: IClientMessage) => {
     const dateNow = Date.now();
     const createdAt = new Date(dateNow)
     io.to(roomId).emit("send_message", {message, user, roomId, createdAt})
+
+    try {
+      const userRepository = AppDataSource.getRepository(User)
+      const roomRepository = AppDataSource.getRepository(Room)
+
+      const room = await roomRepository.findOne({where: {id: roomId}, relations: ['roomUsers', 'roomUsers.user'] })
+      const messageNotificationRepository = AppDataSource.getRepository(MessageNotification)
+
+      if(!room){
+        console.log("Room not exists")
+        throw new Error
+      }
+
+      //save message on database 
+        const newMessage: Message = await createMessageService({message, roomId, userId: user.id})
+
+      //create notification on database for offline users
+        if(newMessage){
+          const removeSender = room.roomUsers.filter((x) => x.user.id !== user.id  )
+          removeSender.forEach(async (user)=>{
+            const userIsOffline = usersOnline.some((userOnline)=>userOnline.userEmail === user.user.email)
+            
+            if(!userIsOffline){
+              const userExists = await userRepository.findOne({where: {id: user.user.id}})
+              if(userExists){
+                const newNotification = new MessageNotification();
+                newNotification.message = newMessage
+                newNotification.user = userExists;
+                newNotification.room = room;
+                newNotification.viewed = false;
+                await messageNotificationRepository.save(newNotification)
+              }
+            } 
+          })
+        }
+    } catch (error) {
+      console.log(error)
+    }
   });
 
   socket.on('join_room', ({room})=>{
-    roomId = room;
-    socket.join(roomId);
+    socket.join(room);
   })
 });
 

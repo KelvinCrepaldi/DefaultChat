@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn, CreateDateCol
 import { Relationship } from './relationship.entity';
 import { UserRoom } from './userRoom.entity';
 import { Message } from './messages.enitity';
+import { MessageNotification } from './messageNotification.entity';
 
 @Entity('users')
 export class User {
@@ -37,4 +38,7 @@ export class User {
 
    @OneToMany(()=> Message, (message )=> message.user)
    messages: Message;
+
+   @OneToMany(()=> MessageNotification, (messageNotification) => messageNotification.user)
+   messageNotifications: MessageNotification[]
 }

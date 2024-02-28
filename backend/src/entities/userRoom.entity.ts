@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from "typeorm";
 import { User } from "./user.entity";
 import { Room } from "./room.entity";
 
@@ -15,5 +15,4 @@ export class UserRoom {
 
   @ManyToOne(()=>Room, (room)=> room.roomUsers)
   room: Room
-
 }

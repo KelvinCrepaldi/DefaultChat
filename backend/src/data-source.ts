@@ -8,6 +8,9 @@ import { CreateTables1707251681489 } from './migrations/1707251681489-createTabl
 import { AddRoomImage1707774966587 } from './migrations/1707774966587-addRoomImage';
 import { Message } from './entities/messages.enitity';
 import { CreateMessagesTable1707780491768 } from './migrations/1707780491768-createMessagesTable';
+import { MessageNotification } from './entities/messageNotification.entity';
+import { MessageNotificationTable1708623078024 } from './migrations/1708623078024-messageNotificationTable';
+import { AddRoomOnMessageNotification1709131069577 } from './migrations/1709131069577-addRoomOnMessageNotification';
 
 
 const AppDataSource = new DataSource({
@@ -19,12 +22,21 @@ const AppDataSource = new DataSource({
    database: process.env.DB,
    synchronize: false,
    logging: false,
-   entities: [ User, Relationship, UserRoom, Room, Message ],
+   entities: [ 
+      User, 
+      Relationship, 
+      UserRoom, 
+      Room, 
+      Message, 
+      MessageNotification 
+   ],
    subscribers: [],
    migrations: [
       CreateTables1707251681489,
       AddRoomImage1707774966587,
-      CreateMessagesTable1707780491768
+      CreateMessagesTable1707780491768,
+      MessageNotificationTable1708623078024,
+      AddRoomOnMessageNotification1709131069577
    ]
 });
 
