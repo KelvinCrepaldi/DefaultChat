@@ -20,6 +20,7 @@ import { MessageNotification } from "./entities/messageNotification.entity";
 import createMessageService from "./services/messages/createMessage.service";
 import { Message } from "./entities/messages.enitity";
 import notificationRoutes from "./routes/notifications.routes";
+import { UserRoom } from "./entities/userRoom.entity";
 
 const app = express();
 const server = createServer(app);
@@ -145,20 +146,30 @@ io.on("connection", (socket) => {
     try {
       const userRepository = AppDataSource.getRepository(User)
       const roomRepository = AppDataSource.getRepository(Room)
+      const userRoomRepository = AppDataSource.getRepository(UserRoom)
 
       const room = await roomRepository.findOne({where: {id: roomId}, relations: ['roomUsers', 'roomUsers.user'] })
       const messageNotificationRepository = AppDataSource.getRepository(MessageNotification)
 
+      //open room if is closed
+      const userRoom = await userRoomRepository.findOne({
+        where:{room: {id: roomId}, user:{id: user.id}, isActive: false}
+      })
+      if(userRoom?.isActive === false){
+        userRoom.isActive = true
+        await userRoomRepository.save(userRoom)
+      }
+
       if(!room){
-        console.log("Room not exists")
         throw new Error
       }
 
       //save message on database 
         const newMessage: Message = await createMessageService({message, roomId, userId: user.id})
 
-      //create notification on database for offline users
+      
         if(newMessage){
+          //create notification on database for offline users
           const removeSender = room.roomUsers.filter((x) => x.user.id !== user.id  )
           removeSender.forEach(async (user)=>{
             const userIsOffline = usersOnline.some((userOnline)=>userOnline.userEmail === user.user.email)
