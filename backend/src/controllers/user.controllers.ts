@@ -4,7 +4,7 @@ import { AppError, handleError } from "../errors/appErrors";
 import getUserService from "../services/user/getUser.service";
 import blockUserService from "../services/user/blockUser.service";
 import searchUserService from "../services/user/searchUser.service";
-import inviteFriendService from "../services/user/inviteFriend.service";
+import uploadUserImageService from "../services/user/uploadUserImage.service";
 
 const getUserController = async (req: Request, res: Response) => {
   try {
@@ -45,6 +45,21 @@ const blockUserController = async (req: Request, res: Response) => {
          handleError(error, res);
       }
    }
- };
+};
 
-export {getUserController, blockUserController, searchUserController};
+const uploadUserImageController = async (req: Request, res: Response) =>{  
+   try {
+      const file = req.file;
+      const userId = req.user.id
+      console.log(file?.path);
+
+      const image = await uploadUserImageService({file, userId });
+      return res.status(200).send(image);
+   } catch (error) {
+      if (error instanceof AppError) {
+         handleError(error, res);
+      }
+   }
+}
+
+export {getUserController, blockUserController, searchUserController, uploadUserImageController};
