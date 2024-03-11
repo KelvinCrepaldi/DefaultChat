@@ -16,7 +16,7 @@ export const metadata: Metadata ={
     siteName: "DefaultChat",
     images:[
       {
-        url: "./defaultchatLogo.png",
+        url: "/defaultchatLogo.png",
         width: 200,
         height: 200
       }
