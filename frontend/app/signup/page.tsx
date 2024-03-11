@@ -2,6 +2,26 @@ import React from "react";
 import Link from "next/link";
 import Hero from "@/components/_ui/Hero";
 import SignupForm from "@/components/_form/signupForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata ={
+  title: "Criar conta - Default Chat",
+  description: "Página de criação de conta no aplicativo DefaultChat.",
+  authors: [{name: "Kelvin Crepaldi", url: "https://kelvincrepaldi.vercel.app"}],
+  openGraph:{
+    title: "Criar conta - Default Chat",
+    description: "Página de criação de conta no aplicativo DefaultChat.",
+    url: "defaultchat.vercel.app/signup",
+    siteName: "DefaultChat",
+    images:[
+      {
+        url: "/defaultchatlogo.svg",
+        width: 200,
+        height: 200
+      }
+    ]
+  }
+}
 
 export default function Signup() {
   return (

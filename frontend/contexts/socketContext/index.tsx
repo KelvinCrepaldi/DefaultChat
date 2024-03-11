@@ -324,19 +324,23 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const resetPrivateNotificationCount = ({roomId}: {roomId: string}) =>{
-    api.post(`api/notification/${roomId}`,{}, {
-      headers: {
-        Authorization: `Bearer ${session?.user.accessToken}`
-      }
-    })
-    setPrivateRooms(prevRooms => {
-      const newRooms = [...prevRooms];
-      const roomIndex = newRooms.findIndex((room)=> room.id === roomId);
-      if(roomIndex !== -1){
-        newRooms[roomIndex].notification = 0;
-      }
-      return newRooms
-    })
+
+    if(roomId !== undefined){
+      api.post(`api/notification/${roomId}`,{}, {
+        headers: {
+          Authorization: `Bearer ${session?.user.accessToken}`
+        }
+      })
+      setPrivateRooms(prevRooms => {
+        const newRooms = [...prevRooms];
+        const roomIndex = newRooms.findIndex((room)=> room.id === roomId);
+        if(roomIndex !== -1){
+          newRooms[roomIndex].notification = 0;
+        }
+        return newRooms
+      })
+    }
+
   }
 
   return (
