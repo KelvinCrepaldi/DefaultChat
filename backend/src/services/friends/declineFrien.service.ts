@@ -1,14 +1,12 @@
 import AppDataSource from '../../data-source';
 import { Relationship } from '../../entities/relationship.entity';
 import { AppError } from '../../errors/appErrors';
+import { IDeclineFriendsRequest, IDeclineFriendsResponse } from '../../interface/friends/friend.interface';
 
 const declineFriendService = async ({
    requestId,
    userId
-}: {
-   requestId: string;
-   userId: string;
-}): Promise<{ message: string }> => {
+}: IDeclineFriendsRequest): Promise<IDeclineFriendsResponse> => {
    const relationshipRepository = AppDataSource.getRepository(Relationship);
 
    const relation = await relationshipRepository.findOne({

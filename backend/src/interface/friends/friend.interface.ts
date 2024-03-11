@@ -19,3 +19,30 @@ export interface FriendRequestsResponse {
     name: string
   }
 }
+
+export interface IAcceptFriendRequest {
+  requestId: string;
+  userId: string;
+}
+
+export interface IAcceptFriendResponse {
+  message: string
+}
+
+export interface IDeclineFriendsRequest {
+  requestId: string;
+   userId: string;
+}
+
+export interface IDeclineFriendsResponse {
+  message: string
+}
+
+export interface IDeleteFriendRequest {
+  userId: string;
+  friendId: string;
+}
+
+export interface IDeleteFriendResponse { 
+  message: string 
+}

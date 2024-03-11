@@ -14,8 +14,6 @@ const setMessagesAsViewedService = async ({userId, roomId}:ISetMessageAsViewed):
   const roomRepository = AppDataSource.getRepository(Room);
   const messageNotificationRepository = AppDataSource.getRepository(MessageNotification)
 
-  console.log(userId, roomId)
-
   const user = await userRepository.findOne({where:{id: userId}})
 
   if(!user){

@@ -7,3 +7,8 @@ export interface IClientMessage{
   },
   roomId: string
 }
+
+export interface IUsersOnline {
+  socketId: string,
+  userEmail:string
+}

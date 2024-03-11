@@ -1,14 +1,12 @@
 import AppDataSource from '../../data-source';
 import { Relationship } from '../../entities/relationship.entity';
 import { AppError } from '../../errors/appErrors';
+import { IDeleteFriendRequest, IDeleteFriendResponse } from '../../interface/friends/friend.interface';
 
 const deleteFriendService = async ({
    userId,
    friendId
-}: {
-   userId: string;
-   friendId: string;
-}): Promise<{ message: string }> => {
+}: IDeleteFriendRequest): Promise<IDeleteFriendResponse> => {
    const relationshipRepository = AppDataSource.getRepository(Relationship);
 
    const userRelation = await relationshipRepository.findOne({
