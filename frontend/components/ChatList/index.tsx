@@ -1,6 +1,6 @@
 "use client";
-import { useSession } from "next-auth/react";
-import { useContext, useEffect, useState } from "react";
+
+import { useContext, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FaXmark } from "react-icons/fa6";
 import Image from "next/image";
@@ -42,7 +42,6 @@ const ChatCard = ({ room }: ChatCardProps) => {
 
   const goToChat = () => {
     openRoom({userId: room.user.id});
-    setActiveRoom('XXXX')
   };
 
   const handleCloseChat = (e: any) => {

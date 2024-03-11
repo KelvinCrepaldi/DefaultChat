@@ -39,7 +39,7 @@ body {
 }
 
 .homeText {
-  @apply text-chatText text-lg my-2;
+  @apply text-chatTextWhite text-lg my-2 antialiased;
 }
 
 .section-page {

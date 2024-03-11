@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const About = () => {
   return (
     <section className="section">
@@ -8,38 +10,45 @@ const About = () => {
         básicas.
       </p>
       <p className="homeText">
-        Criado com a finalidade de explorar e aprender os fundamentos da troca
-        de informações através de APIs e Sockets, o DefaultChat se destaca por
-        proporcionar conversas privadas seguras e facilitar a comunicação em
-        grupos. Seja para trocar mensagens pessoais ou coordenar com equipes,
-        nossa plataforma intuitiva está aqui para tornar suas conversas online
-        diretas e eficientes.
+      Criado com a finalidade de explorar e aprender os fundamentos da troca de 
+      informações através de APIs e Sockets, o DefaultChat se destaca por 
+      proporcionar conversas privadas seguras. Seja para trocar mensagens 
+      pessoais, discutir tópicos sensíveis ou simplesmente manter uma 
+      comunicação discreta, nossa plataforma intuitiva está aqui para tornar 
+      suas conversas online diretas e eficientes.
       </p>
-
       <section className="flex my-20 space-x-4">
-        <div className="bg-chatBackground1 border border-chatBorder rounded p-4">
-          <p className="text-chatTitle">
-            DefaultChat é ágil e responsivo graças ao Next.js, garantindo uma
-            experiência web envolvente. Mensagens em tempo real, com estilo.
-          </p>
-        </div>
-        <div className="bg-chatBackground1 border border-chatBorder rounded p-4">
-          <p className="text-chatTitle">
-            Usamos Express API para eficiência na comunicação. Seguro e rápido,
+        <HighlightTech 
+            imageSrc="./nextSVG.svg" 
+            text="  DefaultChat é ágil e responsivo graças ao Next.js, garantindo uma
+            experiência web envolvente. Mensagens em tempo real, com estilo."
+        />
+        <HighlightTech 
+            imageSrc="./ExpressSVG.svg" 
+            text=" Usamos Express API para eficiência na comunicação. Seguro e rápido,
             o DefaultChat oferece uma experiência de troca de mensagens
-            simplificada.
-          </p>
-        </div>
-        <div className="bg-chatBackground1 border border-chatBorder rounded p-4">
-          <p className="text-chatTitle">
-            DefaultChat proporciona interação instantânea com a tecnologia de
+            simplificada."
+        />
+        <HighlightTech 
+            imageSrc="./socketSVG.svg" 
+            text=" DefaultChat proporciona interação instantânea com a tecnologia de
             sockets. Conversas em tempo real, sem atrasos, para uma comunicação
-            fluida.
-          </p>
-        </div>
+            fluida."
+        />
       </section>
     </section>
   );
 };
+
+const HighlightTech = ({imageSrc, text}: {imageSrc: string, text: string}) =>{
+  return (
+    <div className="flex flex-col items-center p-4">
+      <Image src={imageSrc} width={100} height={100} alt="Next logo"></Image>
+      <p className="text-chatTitle pt-3 text-center">
+        {text}
+      </p>
+    </div>
+  )
+}
 
 export default About;
