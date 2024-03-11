@@ -1,14 +1,12 @@
 import AppDataSource from '../../data-source';
 import { Relationship } from '../../entities/relationship.entity';
 import { AppError } from '../../errors/appErrors';
+import { IAcceptFriendRequest, IAcceptFriendResponse } from '../../interface/friends/friend.interface';
 
 const acceptFriendService = async ({
    requestId,
    userId
-}: {
-   requestId: string;
-   userId: string;
-}): Promise<{ message: string }> => {
+}: IAcceptFriendRequest): Promise<IAcceptFriendResponse> => {
    const relationshipRepository = AppDataSource.getRepository(Relationship);
 
    const relation = await relationshipRepository.findOne({

@@ -1,7 +1,7 @@
 import AppDataSource from '../../data-source';
 import { User } from '../../entities/user.entity';
 import { AppError } from '../../errors/appErrors';
-import { ILoginResponse, IloginRequest } from '../../interface/authentication/login.interface';
+import { IloginRequest } from '../../interface/authentication/login.interface';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';

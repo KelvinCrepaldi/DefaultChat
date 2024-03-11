@@ -19,9 +19,6 @@ const createMessageNotification = async  ({messageId, userId}: ICreateMessageNot
   if(!message) throw new AppError(404, 'message not found')
 
   const usersOnChat = message.room.roomUsers.filter((roomUser) => roomUser.user.id !== userId)
-
-  
-
 }
 
 export default createMessageNotification
