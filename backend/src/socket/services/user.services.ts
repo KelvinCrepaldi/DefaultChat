@@ -69,7 +69,6 @@ const userServices = (io: Server, socket: Socket) =>{
       })
    
       if (friends) {
-        usersOnline = usersOnline.filter((user)=> user.socketId !== socket.id)
         const onlineFriends = usersOnline.filter((user: IUsersOnline) =>
 
         friends.some((friend: Relationship) => friend.addressee.email === user.userEmail)
@@ -79,8 +78,9 @@ const userServices = (io: Server, socket: Socket) =>{
           io.to(friend.socketId).emit('friendIsOffline', { userEmail: userEmail });
         });
       }
-      
+
       socket.disconnect();
+      return usersOnline.filter((user)=> user.socketId !== socket.id);
     }
   }
 

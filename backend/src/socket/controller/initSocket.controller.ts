@@ -20,7 +20,9 @@ const initSocketController = (io: Server) =>{
     })
   
     socket.on("disconnect", async () => {
-      userServices(io, socket).disconnect(usersOnline);
+      const users = await userServices(io, socket).disconnect(usersOnline);
+
+      if(users) usersOnline = users;
     });
   
     socket.on("send_message", async ({message, user, roomId}: IClientMessage) => {
