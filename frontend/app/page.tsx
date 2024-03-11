@@ -6,20 +6,36 @@ import { Metadata } from "next";
 
 export const metadata: Metadata ={
   title: "Default Chat",
-  description: "O Default Chat é um aplicativo de chat que permite a comunicação instantânea entre usuários, possibilitando conversas individuais ou em grupo.",
+  description: "O Default Chat é um aplicativo de chat que permite a comunicação instantânea entre usuários, possibilitando conversas individuais privadas.",
   authors: [{name: "Kelvin Crepaldi", url: "https://kelvincrepaldi.vercel.app"}],
   openGraph:{
     title: "Default Chat",
-    description: "O Default Chat é um aplicativo de chat que permite a comunicação instantânea entre usuários, possibilitando conversas individuais ou em grupo.",
+    description: "O Default Chat é um aplicativo de chat que permite a comunicação instantânea entre usuários, possibilitando conversas individuais privadas.",
     url: "defaultchat.vercel.app",
     siteName: "DefaultChat",
     images:[
       {
         url: "./defaultchatLogo.png",
+        type: "image/png",
         width: 200,
-        height: 200
+        height: 200,
+        alt: "Default chat logo"
       }
     ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Default Chat",
+    description: "O Default Chat é um aplicativo de chat que permite a comunicação instantânea entre usuários, possibilitando conversas individuais privadas.",
+    images: [
+      {
+        url: "./defaultchatLogo.png",
+        type: "image/png",
+        width: 200,
+        height: 200,
+        alt: "Default chat logo"
+      }
+    ],
   },
   other:{
     'google-site-verification' : "DmBgV8bvCy3fAvRZz6amgmcgm4D0WYS4s1lquERDyGQ"
