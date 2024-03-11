@@ -20,6 +20,9 @@ export const metadata: Metadata ={
         height: 200
       }
     ]
+  },
+  other:{
+    'google-site-verification' : "DmBgV8bvCy3fAvRZz6amgmcgm4D0WYS4s1lquERDyGQ"
   }
 }
 
