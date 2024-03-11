@@ -12,7 +12,9 @@ import Loading from "../_ui/Loading";
 import ErrorText from "../_ui/ErrorText";
 
 const LoginForm = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null) 
 
   const {
     register,
@@ -24,12 +26,18 @@ const LoginForm = () => {
   const onSubmitHandler = async (data: IloginRequest) => {
     try {
       setLoading(true);
+      setErrorMessage(null)
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: true,
-        callbackUrl: "/me",
+        redirect: false,
       });
+
+      if(result && result.ok) router.push("/me");
+      if(result && result.error){
+        setErrorMessage("Usuário incorreto, tente novamente")
+      }
+      console.log(result)
     } catch (err) {
     } finally {
       setLoading(false);
@@ -59,12 +67,17 @@ const LoginForm = () => {
           {...register("password")}
         />
         <ErrorText>{errors?.password && errors.password.message}</ErrorText>
+        <div className="flex justify-center">
+          {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
+        </div>
         <button
           type="submit"
           className="button mt-10 mb-2 py-3 bg-chatPrimary rounded text-chatText text-lg hover:shadow-lg"
         >
           Entrar
         </button>
+        
+        
       </form>
     </section>
   );

@@ -2,6 +2,27 @@ import ChatList from "@/components/ChatList";
 import NavButtons from "@/components/Nav";
 import User from "@/components/User";
 import { SocketProvider } from "@/contexts/socketContext";
+import { Metadata } from "next";
+
+export const metadata: Metadata ={
+  title: "Me - Default Chat",
+  description: "Página inicial do usuário ao fazer login, onde você pode visualizar suas conversas e interagir com seus contatos.",
+  authors: [{name: "Kelvin Crepaldi", url: "https://kelvincrepaldi.vercel.app"}],
+  openGraph:{
+    title: "Me - Default Chat",
+    description: "Página inicial do usuário ao fazer login, onde você pode visualizar suas conversas e interagir com seus contatos.",
+    url: "https://defaultchat.vercel.app/me",
+    siteName: "DefaultChat",
+    images:[
+      {
+        url: "/defaultchatlogo.svg",
+        width: 200,
+        height: 200
+      }
+    ]
+  }
+}
+
 export default function RootLayout({
   children,
 }: {

@@ -1,4 +1,5 @@
 import HeaderSection from "@/components/_ui/HeaderSection";
+import ImageUploader from "@/components/imageUploader";
 
 export default function Config() {
   return (
@@ -8,6 +9,8 @@ export default function Config() {
         <h1 className="text-center p-5 text-3xl text-yellow-200">
           Em construção
         </h1>
+
+        <ImageUploader/>
       </section>
     </>
   );
