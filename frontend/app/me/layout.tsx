@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <SocketProvider>
       <main className="flex h-[100vh] overflow-hidden ">
-        <section className={`${isHidden ? "w-[70px]" : "w-[250px]"}  overflow-hidden transition-all`}>
+        <section className={`${isHidden ? "max-w-[70px]" : "max-w-[250px]"}  overflow-hidden transition-all w-full`}>
           <div className={`w-[250px] bg-chatBackground0 pl-1 pr-0 pt-1  `}>
             <div className="m-2">
               <IconSquare>
@@ -41,7 +41,7 @@ export default function RootLayout({
           </div>
           
         </section>
-        <div className="grow bg-chatBackground1">{children}</div>
+        <div className={`grow bg-chatBackground1 ${isHidden ? "max-w-[calc(100vw-70px)]" : "max-w-[calc(100vw-250px)]"} transition-all`}>{children}</div>
       
       </main>
     </SocketProvider>

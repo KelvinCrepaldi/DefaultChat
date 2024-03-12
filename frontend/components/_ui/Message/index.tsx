@@ -8,7 +8,8 @@ import Image from "next/image";
 const Message = ({ msg }: { msg: IMessage }) => {
   const {data: session} = useSession();
   return (
-    <div className={`p-1 m-[2px] shadow rounded text-chatTextWhite flex ${session?.user.name === msg.user.name ? "bg-chatMessageBox1" : "bg-chatMessageBox2"}`}>
+    <div className={`p-1 m-[2px] shadow rounded text-chatTextWhite flex w-full
+    ${session?.user.name === msg.user.name ? "bg-chatMessageBox1" : "bg-chatMessageBox2"}`}>
       <Image
         src={msg.user.image || ""}
         className="rounded-full w-[30px] h-[30px] object-cover bg-black m-1 mr-4"
