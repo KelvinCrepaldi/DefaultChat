@@ -55,10 +55,10 @@ export default function Chat() {
   },[privateRooms, roomId])
 
   return (
-    <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col">
+    <section className=" p-2 bg-chatBackground2  w-full h-full m-auto flex flex-col ">
       {room && <ChatHeader room={room} />}
       <div
-        className="m-2 p-2 rounded overflow-y-auto flex flex-col grow"
+        className="m-2 p-2 rounded overflow-y-scroll overflow-x-clip flex flex-col grow"
       >
         {room?.messages?.map((msg: any, index: number) => {
           return <Message msg={msg} key={index} />
