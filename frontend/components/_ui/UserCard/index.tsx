@@ -12,13 +12,15 @@ const UserCard = ({ user, children }: UserCardProps) => {
       key={user.id}
     >
       <div className="flex items-center gap-3">
+        <div>
         <Image
-          src={user.image}
-          className="rounded-full w-[50px] h-[50px] object-cover bg-black"
-          width={55}
-          height={55}
-          alt="User profile image"
-        ></Image>
+            src={user.image}
+            className="rounded-full w-[40px] h-[40px] object-cover bg-black"
+            width={50}
+            height={50}
+            alt="User profile image"
+        />
+        </div>
         <div className="flex flex-col truncate ">
           <p className="text-lg text-chatTitle font-semibold">{user.name}</p>
           <p className="truncate text-chatText text-xs opacity-80">
