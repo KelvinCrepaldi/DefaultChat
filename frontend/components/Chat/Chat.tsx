@@ -17,6 +17,7 @@ export default function Chat() {
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
   const divRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
   const room = privateRooms?.filter((room: IPrivateRoom) => room.user.id === roomId)[0]
 
   const handleChange = (event: any) => {
@@ -38,6 +39,12 @@ export default function Chat() {
   useEffect(()=>{
     resetPrivateNotificationCount({roomId: room?.id})
   },[])
+
+  useEffect(() => {
+    if(inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   useEffect(() => {
     if(divRef.current){
@@ -66,7 +73,8 @@ export default function Chat() {
           value={message}
           onChange={handleChange}
           onKeyDown={handleKeyPress}
-          className="w-full bg-chatBackground2 rounded border border-chatBorder p-2 text-chatText my-1"
+          ref={inputRef}
+          className="w-full bg-chatBackground2 rounded border border-chatBorder p-2 text-chatText my-1 focus:ring-0 focus:outline-none"
         ></input>
         <button className="border-chatBorder p-2 text-chatText m-1 hover:bg-chatBorder rounded bg-chatBackground0" onClick={handleSend}>
           Send
