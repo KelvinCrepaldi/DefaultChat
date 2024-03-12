@@ -1,9 +1,6 @@
 import { FaUserFriends } from "react-icons/fa";
 import { FaGear, FaUserPlus } from "react-icons/fa6";
-
 import NavLinkButton from "../_ui/buttons/NavLinkButton";
-import IconSquare from "../_ui/IconSquare";
-import NavContent from "../_ui/NavContent";
 
 export default function NavButtons({isHidden}: {isHidden: boolean}) {
   return (
