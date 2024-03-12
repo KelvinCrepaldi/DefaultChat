@@ -4,10 +4,9 @@ import NavButtons from "@/components/Nav";
 import User from "@/components/User";
 import IconSquare from "@/components/_ui/IconSquare";
 import Loading from "@/components/_ui/Loading";
-import NavContent from "@/components/_ui/NavContent";
-import { SocketContext, SocketProvider } from "@/contexts/socketContext";
+import { SocketProvider } from "@/contexts/socketContext";
 import { useSession } from "next-auth/react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { IoMenu } from "react-icons/io5";
 export default function RootLayout({
   children,
