@@ -25,7 +25,7 @@ const initSocketController = (io: Server) =>{
       if(users) usersOnline = users;
     });
   
-    socket.on("send_message", async ({message, user, roomId}: IClientMessage) => {
+    socket.on("message:send", async ({message, user, roomId}: IClientMessage) => {
       messageServices(io, socket).sendMessage(usersOnline, {message, user, roomId})
     });
   
