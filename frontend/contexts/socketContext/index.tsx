@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { api, socket } from "@/services";
 import { ISendMessage } from "@/interfaces/message";
 import { useParams, useRouter } from "next/navigation";
@@ -184,14 +184,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-    socket.on("send_message", receiveMessage);
+    socket.on("message:send", receiveMessage);
     socket.on("friendsOnline", friendsOnline);
     socket.on("friendIsOnline", friendIsOnline);
     socket.on("friendIsOffline", friendIsOffline);
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
-      socket.off("send_message", receiveMessage);
+      socket.off("message:send", receiveMessage);
       socket.off("friendsOnline", friendsOnline);
       socket.off("friendIsOnline", friendIsOnline);
       socket.off("friendIsOffline", friendIsOffline);
@@ -211,7 +211,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         headers: { Authorization: `Bearer ${session?.user.accessToken}` },
       });
       const data = response.data;
-
+      
       const privateRooms = data.privateRooms.map((chat: IPrivateRoomRequest) =>{
         return {
           ...chat,
@@ -224,7 +224,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       //criar logica de grupos usando data.groupRooms
       socket.emit("userListReady", {userEmail: session?.user.email, activeRooms: roomsId})
     } catch (error) {
-      console.log(error);
+        signOut({redirect: true, callbackUrl: "/login"});
     } 
   };
 
@@ -263,10 +263,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   const sendMessage = async ({ message , roomId }: ISendMessage) => {
     if (session?.user.accessToken) {
+      
       try{
-        socket.emit("send_message", {
+        socket.emit("message:send", {
           user: { 
-            id: session.user.id,
+            id: session.user.sub,
             name: session.user.name,
             image: session.user.picture ,
             token: session.user.accessToken

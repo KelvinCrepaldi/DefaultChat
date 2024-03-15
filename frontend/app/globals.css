@@ -45,3 +45,19 @@ body {
 .section-page {
   @apply p-5;
 }
+
+::-webkit-scrollbar {
+  background: transparent;
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #3B3B3B;
+  border-radius: 25px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #181818;
+  border-radius: 25px;
+  cursor: pointer;
+}

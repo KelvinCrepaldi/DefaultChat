@@ -5,7 +5,8 @@ import User from "@/components/User";
 import IconSquare from "@/components/_ui/IconSquare";
 import Loading from "@/components/_ui/Loading";
 import { SocketProvider } from "@/contexts/socketContext";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 import { IoMenu } from "react-icons/io5";
 export default function RootLayout({
@@ -14,7 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [isHidden, setIsHidden] = useState<boolean>(true);
-  const {data: session} = useSession();
+  const {data: session} = useSession({required: true, 
+    onUnauthenticated(){
+      redirect('/login')
+    },
+});
 
   if(!session?.user.accessToken) {
     return <div className="w-full h-[100vh] flex items-center justify-center"><Loading></Loading></div>
@@ -28,7 +33,7 @@ export default function RootLayout({
     <SocketProvider>
       <main className="flex h-[100vh] overflow-hidden ">
         <section className={`${isHidden ? "max-w-[70px]" : "max-w-[250px]"}  overflow-hidden transition-all w-full`}>
-          <div className={`w-[250px] bg-chatBackground0 pl-1 pr-0 pt-1  `}>
+          <div className={`w-[250px] bg-chatBackground0 pl-1 pr-0 pt-1 overflow-y-auto h-[100vh] `}>
             <div className="m-2">
               <IconSquare>
               <button onClick={hiddenMenu} className=" text-4xl text-chatText hover:text-chatTextWhite">{<IoMenu/>}</button>

@@ -17,7 +17,7 @@ const NavLinkButton = ({ text, urlPath, icon, isHidden }: NavLinkButtonProps) =>
   return (
     <Link
       href={urlPath}
-      className={`w-full flex  items-center  rounded my-[1px] hover:bg-chatBackground1 mr-[2px]  group ${pathname === urlPath ? "bg-chatBackground1 mr-[0px] rounded-r-none" : "bg-chatBackground0"}`}
+      className={`w-full flex  items-center  rounded my-[1px] hover:bg-chatBackground1 mr-[2px] transition-all  group ${pathname === urlPath ? "bg-chatBackground1 mr-[0px] rounded-r-none" : "bg-chatBackground0"}`}
     >
       <NavContent
        hidden={isHidden}

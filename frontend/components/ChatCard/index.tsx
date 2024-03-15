@@ -7,6 +7,7 @@ import { IPrivateRoom, SocketContext } from "@/contexts/socketContext";
 import { BiMessageDetail } from "react-icons/bi";
 import IconSquare from "../_ui/IconSquare";
 import NavContent from "../_ui/NavContent";
+import { usePathname } from "next/navigation";
 
 type ChatCardProps = {
   room: IPrivateRoom,
@@ -14,6 +15,7 @@ type ChatCardProps = {
 }
 
 const ChatCard = ({ room, isHidden }: ChatCardProps) => {
+  const pathname = usePathname()?.split('/')[3];
   const [isOpen, setIsOpen] = useState(true);
   const { closeRoom, openRoom, setActiveRoom } = useContext(
     SocketContext
@@ -31,12 +33,15 @@ const ChatCard = ({ room, isHidden }: ChatCardProps) => {
 
   if(isOpen){
     return (
-      <div className="relative group cursor-pointer hover:bg-chatBackground1 py-1" onClick={goToChat}>
+      <div className={`${pathname === room.user.id ? "bg-chatBackground2 rounded-r-none" : "bg-chatBackground0"} 
+      relative group cursor-pointer hover:bg-chatBackground1 py-1 rounded-l transition-all`} 
+      onClick={goToChat}
+      >
         <NavContent 
           hidden={isHidden}
           firstContent={
             <IconSquare>
-              <div className="relative w-[40px] h-[40px] ">
+              <div className="relative w-[40px] h-[40px] ml-[10px]">
                 <Image
                   src={room.image}
                   className={`relative aspect-square rounded-full object-cover object-center bg-black `}
@@ -62,20 +67,23 @@ const ChatCard = ({ room, isHidden }: ChatCardProps) => {
             </IconSquare>
           }
           secondContent={
-            <div className="flex justify-between items-center grow">
-              <div className="truncate ... max-w-[150px] w-full text-chatCardHover">
-                <span className="text-lg text-chatTitle font-semibold gap-x-2  flex items-center justify-between w-full">
-                  {room.name} 
-                </span>
+            <div className="flex justify-between w-full">
+              <div className="flex justify-between items-center relative">
+                <div className="truncate ... max-w-[100px] text-chatCardHover">
+                  <span className="pl-2 text-lg text-chatTitle font-semibold">
+                    {room.name} 
+                  </span>
+                </div>
               </div>
-
+              
               <button
-                onClick={handleCloseChat}
-                className="pr-3 rounded-full opacity-0 group-hover:opacity-100 text-chatTextWhite hover:text-chatBackground0 "
-              >
-                <FaXmark />
-              </button>
+                  onClick={handleCloseChat}
+                  className=" rounded-full opacity-0 group-hover:opacity-100 text-chatTextWhite hover:text-chatBackground0 "
+                >
+                  <FaXmark />
+                </button>
             </div>
+            
           }
         />
       </div>
