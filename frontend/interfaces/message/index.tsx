@@ -9,6 +9,7 @@ export interface ISendMessage {
 }
 
 export interface IMessage {
+  id: string;
   message: string,
   user: {
     id: string,

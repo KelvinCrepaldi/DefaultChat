@@ -58,8 +58,8 @@ const ImageUploader = () => {
   },[session])
 
   return (
-    <div className=' flex flex-col items-center gap-5 max-w-[250px] mx-auto'>
-      <h1 className='text-xl text-chatTitle'>Alterar imagem de perfil</h1>
+    <div className=' flex flex-col items-center gap-5 max-w-[500px] p-10'>
+      <h1 className='text-3xl text-chatTitle'>Alterar imagem de perfil</h1>
       <div> 
         {previewImage && <img
           src={previewImage}
@@ -69,16 +69,20 @@ const ImageUploader = () => {
           alt="Previwe profile image"
         ></img>}
       </div>
-      <input type="file" onChange={handleFileChange} id="custom-input" hidden
-      />
-      <label htmlFor="custom-input"
-      className='button'
-      >Escolher imagem</label>
-     
-     
-      <button onClick={handleSubmit} disabled={isLoading} className='button'> 
-        {isLoading ? 'Enviando...' : 'Enviar'}
-      </button>
+
+      <div className='max-w-[250px] w-full gap-1 flex flex-col'>
+        <input type="file" onChange={handleFileChange} id="custom-input" hidden
+        />
+        <label htmlFor="custom-input"
+        className='button'
+        >Escolher imagem</label>
+      
+      
+        <button onClick={handleSubmit} disabled={isLoading} className='button'> 
+          {isLoading ? 'Enviando...' : 'Enviar'}
+        </button>
+      </div>
+      
       <p className='text-center text-chatTextWhite'>Necessario fazer login novamente ao atualizar a imagem.</p>
       {errorMessage && <p className='text-center text-red-500'>{errorMessage}</p>}
     </div>

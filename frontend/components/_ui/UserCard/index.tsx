@@ -8,7 +8,7 @@ interface UserCardProps {
 const UserCard = ({ user, children }: UserCardProps) => {
   return (
     <div
-      className="p-3 rounded flex justify-between items-center hover:shadow hover:bg-chatCard"
+      className="p-3 rounded flex justify-between items-center hover:shadow hover:bg-chatBackground0 transition-all"
       key={user.id}
     >
       <div className="flex items-center gap-3">

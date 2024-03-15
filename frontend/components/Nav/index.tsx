@@ -4,7 +4,7 @@ import NavLinkButton from "../_ui/buttons/NavLinkButton";
 
 export default function NavButtons({isHidden}: {isHidden: boolean}) {
   return (
-    <nav className="flex flex-col items-start  pb-1"> 
+    <nav className="flex flex-col items-start  pb-1 "> 
       <NavLinkButton
         icon={<FaUserFriends />}
         text="Amigos"
