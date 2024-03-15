@@ -83,12 +83,13 @@ export const listActiveRoomsService = async ({
 
         if (friendInfo && userRoom.room.type === 'private') {
             const filterNotifications = userRoom.room.messageNotifications.filter((notification) => notification.user.id === userId && notification.viewed === false);
-            /* const notifications = filterNotifications.map((notification) => ({
-                id: notification.id,
-                messageId: notification.message.id,
-            })); */
-
-            console.log(filterNotifications)
+            
+            const sortMessage = userRoom.room.messages.sort((a,b) => {
+              const dateA = new Date(b.createdAt) 
+              const dateB = new Date(b.createdAt) 
+              return dateA.getTime() - dateB.getTime();
+            });
+            console.log(sortMessage)
 
             return {
                 id: userRoom.room.id,
@@ -100,7 +101,7 @@ export const listActiveRoomsService = async ({
                     email: friendInfo.user.email,
                     image: friendInfo.user.image,
                 },
-                messages: userRoom.room.messages,
+                messages: sortMessage,
                 notification: filterNotifications.length
             };
         } else {

@@ -18,7 +18,7 @@ const messageServices = (io: Server, socket: Socket)=>{
   const sendMessage = async (usersOnline: IUsersOnline[], {message, user, roomId}: IClientMessage) =>{
       const dateNow = Date.now();
       const createdAt = new Date(dateNow)
-      io.to(roomId).emit("send_message", {message, user, roomId, createdAt})
+      io.to(roomId).emit("message:send", {message, user, roomId, createdAt})
   
       try {
         const room = await roomRepository.findOne({where: {id: roomId}, relations: ['roomUsers', 'roomUsers.user'] })
