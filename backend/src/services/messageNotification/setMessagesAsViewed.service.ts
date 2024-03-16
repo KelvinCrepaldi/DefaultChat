@@ -3,11 +3,7 @@ import { MessageNotification } from "../../entities/messageNotification.entity";
 import { Room } from "../../entities/room.entity";
 import { User } from "../../entities/user.entity";
 import { AppError } from "../../errors/appErrors";
-
-interface ISetMessageAsViewed {
-  userId: string,
-  roomId: string
-}
+import { ISetMessageAsViewed } from "../../interface/messageNotification/setMessagesAsViewed.interface";
 
 const setMessagesAsViewedService = async ({userId, roomId}:ISetMessageAsViewed): Promise<void> =>{
   const userRepository = AppDataSource.getRepository(User);

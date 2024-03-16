@@ -51,7 +51,6 @@ const uploadUserImageController = async (req: Request, res: Response) =>{
    try {
       const file = req.file;
       const userId = req.user.id
-      console.log(file?.path);
 
       const image = await uploadUserImageService({file, userId });
       return res.status(200).send(image);

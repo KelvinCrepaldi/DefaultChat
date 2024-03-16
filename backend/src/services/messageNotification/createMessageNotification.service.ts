@@ -4,13 +4,9 @@ import { MessageNotification } from "../../entities/messageNotification.entity"
 import { Message } from "../../entities/messages.enitity"
 import { Room } from "../../entities/room.entity"
 import { AppError } from "../../errors/appErrors"
+import { ICreateMessageNotification } from "../../interface/messageNotification/createMessageNotification.interface"
 
-export interface ICreateMessageNotification {
-  messageId: string,
-  userId: string
-}
-
-const createMessageNotification = async  ({messageId, userId}: ICreateMessageNotification) =>{
+const createMessageNotification = async  ({messageId, userId}: ICreateMessageNotification): Promise<void> =>{
   const messageRepository = AppDataSource.getRepository(Message)
   const messageNotificationRepository = AppDataSource.getRepository(MessageNotification)
 

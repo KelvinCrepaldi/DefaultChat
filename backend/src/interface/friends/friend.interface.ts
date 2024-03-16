@@ -14,10 +14,12 @@ export interface IListFriendsRequest {
 
 export interface FriendRequestsResponse {
   id: string
-  user: {
-    id: string
-    name: string
-  }
+  user: IUser
+}
+
+interface IUser {
+  id: string
+  name: string
 }
 
 export interface IAcceptFriendRequest {

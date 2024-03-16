@@ -1,15 +1,7 @@
 import AppDataSource from "../../data-source";
 import { UserRoom } from "../../entities/userRoom.entity";
 import { AppError } from "../../errors/appErrors";
-
-interface ICloseChatService {
-  roomId: string;
-  userId: string;
-}
-
-interface ICloseChatServiceResponse{
-  message: string
-}
+import { ICloseChatService, ICloseChatServiceResponse } from "../../interface/room/closeChat.interface";
 
 const closeChatService = async ({roomId, userId}: ICloseChatService): Promise<ICloseChatServiceResponse> =>{
   const userRoomRepository = AppDataSource.getRepository(UserRoom)
