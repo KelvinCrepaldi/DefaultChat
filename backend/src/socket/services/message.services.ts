@@ -40,7 +40,6 @@ const messageServices = (io: Server, socket: Socket)=>{
         //save message on database 
           const newMessage: Message = await createMessageService({message, roomId, userId: user.id})
   
-        
           if(newMessage){
             //create notification on database for offline users
             const removeSender = room.roomUsers.filter((x) => x.user.id !== user.id  )

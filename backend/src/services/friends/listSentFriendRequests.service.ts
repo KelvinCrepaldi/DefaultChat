@@ -1,12 +1,11 @@
 import AppDataSource from '../../data-source'
 import { Relationship } from '../../entities/relationship.entity'
 import { type FriendRequestsResponse } from '../../interface/friends/friend.interface'
+import { IListSentFrienshipRequestsRequest } from '../../interface/friends/listSentFriendsRequests.interface';
 
 const listSentFriendshipRequests = async ({
   userId
-}: {
-  userId: string
-}): Promise<Relationship[]> => {
+}: IListSentFrienshipRequestsRequest): Promise<Relationship[]> => {
   const relationshipRepository = AppDataSource.getRepository(Relationship);
 
   const requests = await relationshipRepository.find({

@@ -3,40 +3,7 @@ import { MessageNotification } from "../../entities/messageNotification.entity";
 import { Message } from "../../entities/messages.enitity";
 import { User } from "../../entities/user.entity";
 import { AppError } from "../../errors/appErrors";
-
-interface IListActiveRooms {
-  userId: string;
-}
-
-interface IPrivateRoom {
-  id: string,
-  name: string,
-  image: string,
-  user: {
-    id: string
-    name: string,
-    email: string,
-    image:string,
-  },
-  messages: any[],
-  notification: number;
-} 
-interface IGroupRoom{ 
-  id: string,
-  name: string,
-  image: string,
-  users: {
-    id: string
-    name: string,
-    email: string,
-    image:string,
-  }[],
-}
-
-interface IListActiveRoomsResponse{
-  privateRooms: IPrivateRoom[],
-  groupRooms:IGroupRoom[],
-}
+import { IListActiveRooms, IListActiveRoomsResponse, IPrivateRoom } from "../../interface/room/listActiveRooms.interface";
 
 export const listActiveRoomsService = async ({
   userId
@@ -82,7 +49,8 @@ export const listActiveRoomsService = async ({
         const friendInfo = userRoom.room.roomUsers.find((roomUser) => roomUser.user.id !== userId);
 
         if (friendInfo && userRoom.room.type === 'private') {
-            const filterNotifications = userRoom.room.messageNotifications.filter((notification) => notification.user.id === userId && notification.viewed === false);
+            const filterNotifications = userRoom.room.messageNotifications.filter((notification) => 
+            notification.user.id === userId && notification.viewed === false);
             
             const sortMessage = userRoom.room.messages.sort((a,b) => {
               const dateA = new Date(b.createdAt) 

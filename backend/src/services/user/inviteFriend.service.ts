@@ -2,9 +2,9 @@ import AppDataSource from '../../data-source';
 import { Relationship } from '../../entities/relationship.entity';
 import { User } from '../../entities/user.entity';
 import { AppError } from '../../errors/appErrors';
-import { IInviteFriendRequest } from '../../interface/user/inviteFriend.interface';
+import { IInviteFriendRequest, IInviteFriendResponse } from '../../interface/user/inviteFriend.interface';
 
-const inviteFriendService = async ({ userId, friendId }: IInviteFriendRequest): Promise<{ message: string }> => {
+const inviteFriendService = async ({ userId, friendId }: IInviteFriendRequest): Promise<IInviteFriendResponse> => {
    const userRepository = AppDataSource.getRepository(User);
    const relationshipRepository = AppDataSource.getRepository(Relationship);
 

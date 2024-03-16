@@ -2,26 +2,26 @@
 import { Server, Socket } from "socket.io";
 import AppDataSource from "../../data-source";
 import { Relationship } from "../../entities/relationship.entity";
-import { IUsersOnline } from "../../interface/socket";
+import { IUserReadySocket, IUserRegisterSocket, IUsersOnline } from "../../interface/socket";
 
 const userServices = (io: Server, socket: Socket) =>{
-  const registerUser = (usersOnline: IUsersOnline[], data: any) =>{
+  const registerUser = (usersOnline: IUsersOnline[], {userEmail}: IUserRegisterSocket) =>{
     for (let room in socket.rooms) {
       if (room !== socket.id) {
           socket.leave(room);
       }
     }
 
-    const alreadyRegistered = usersOnline.find((user) => user.userEmail === data.userEmail);
+    const alreadyRegistered = usersOnline.find((user) => user.userEmail === userEmail);
     if(!alreadyRegistered){
       usersOnline.push({
         socketId: socket.id,
-        userEmail: data.userEmail
+        userEmail: userEmail
       })
     }
   }
 
-  const userListReady = async (usersOnline: IUsersOnline[], {userEmail, activeRooms}: any) =>{
+  const userListReady = async (usersOnline: IUsersOnline[], {userEmail, activeRooms}: IUserReadySocket) =>{
     try {
       const friends = await AppDataSource.getRepository(Relationship).find({
         where:{

@@ -4,19 +4,7 @@ import { Room } from "../../entities/room.entity";
 import { User } from "../../entities/user.entity";
 import { UserRoom } from "../../entities/userRoom.entity";
 import { AppError } from "../../errors/appErrors";
-
-interface IPrivateRoom {
-    id: string,
-    name: string,
-    image: string,
-    user: {
-      id: string,
-      name: string,
-      email: string,
-      image: string,
-    },
-    messages: any
-}
+import { IPrivateRoom } from "../../interface/room/privateRooms.interface";
 
 const privateRoomService = async ({friendId, userId}:{friendId: string, userId: string}): Promise<IPrivateRoom> =>{
   const userRepository = AppDataSource.getRepository(User);
