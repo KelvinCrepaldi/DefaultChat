@@ -57,7 +57,6 @@ export const listActiveRoomsService = async ({
               const dateB = new Date(b.createdAt) 
               return dateA.getTime() - dateB.getTime();
             });
-            console.log(sortMessage)
 
             return {
                 id: userRoom.room.id,
