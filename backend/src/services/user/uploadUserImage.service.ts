@@ -1,3 +1,4 @@
+import "dotenv/config"
 import s3 from "../../aws-config";
 import AppDataSource from "../../data-source";
 import { User } from "../../entities/user.entity";
@@ -16,9 +17,11 @@ const uploadUserImageService = async ({file, userId }: IUploadUserImageRequest) 
     throw new AppError(404, "File not found.")
   }
 
+  const fileExtension = file.originalname.split('.')[1]
+
   const params = {
-    Bucket: "fuinha",
-    Key: user.id + "_profile",
+    Bucket: process.env.AWS_BUCKETNAME as string,
+    Key: user.id + "." + fileExtension,
     Body: file.buffer
   }
 
