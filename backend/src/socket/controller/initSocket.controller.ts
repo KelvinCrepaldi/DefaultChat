@@ -11,12 +11,12 @@ const initSocketController = (io: Server) =>{
     socket.on("connect", ()=>{
     })
   
-    socket.on("user:register", ({userEmail}: IUserRegisterSocket)=>{
-      userServices(io, socket).registerUser(usersOnline, {userEmail});
+    socket.on("user:register", ({userId}: IUserRegisterSocket)=>{
+      userServices(io, socket).registerUser(usersOnline, {userId});
     })
 
-    socket.on("user:ready", async ({userEmail, activeRooms}: IUserReadySocket)=>{
-      userServices(io, socket).userListReady(usersOnline, {userEmail, activeRooms});
+    socket.on("user:ready", async ({userId, activeRooms}: IUserReadySocket)=>{
+      userServices(io, socket).userListReady(usersOnline, {userId, activeRooms});
     })
   
     socket.on("disconnect", async () => {

@@ -5,28 +5,28 @@ import { Relationship } from "../../entities/relationship.entity";
 import { IUserReadySocket, IUserRegisterSocket, IUsersOnline } from "../../interface/socket";
 
 const userServices = (io: Server, socket: Socket) =>{
-  const registerUser = (usersOnline: IUsersOnline[], {userEmail}: IUserRegisterSocket) =>{
+  const registerUser = (usersOnline: IUsersOnline[], {userId}: IUserRegisterSocket) =>{
     for (let room in socket.rooms) {
       if (room !== socket.id) {
           socket.leave(room);
       }
     }
 
-    const alreadyRegistered = usersOnline.find((user) => user.userEmail === userEmail);
+    const alreadyRegistered = usersOnline.find((user) => user.userId === userId);
     if(!alreadyRegistered){
       usersOnline.push({
         socketId: socket.id,
-        userEmail: userEmail
+        userId: userId
       })
     }
   }
 
-  const userListReady = async (usersOnline: IUsersOnline[], {userEmail, activeRooms}: IUserReadySocket) =>{
+  const userListReady = async (usersOnline: IUsersOnline[], {userId, activeRooms}: IUserReadySocket) =>{
     try {
       const friends = await AppDataSource.getRepository(Relationship).find({
         where:{
           requester:{
-            email: userEmail
+            id: userId
           },
           type: "accepted"
         },
@@ -35,16 +35,16 @@ const userServices = (io: Server, socket: Socket) =>{
     
       if (friends) {
         const onlineFriends = usersOnline.filter((user: IUsersOnline) =>
-        friends.some((friend: Relationship) => friend.addressee.email === user.userEmail)
+        friends.some((friend: Relationship) => friend.addressee.id === user.userId)
         );
         
         //Notifying friends that the user has come online
         onlineFriends.forEach((friend: IUsersOnline) => {
-          io.to(friend.socketId).emit('friendIsOnline', { userEmail: userEmail });
+          io.to(friend.socketId).emit('friend:isOnline', { userId: userId });
         });
         
         //Returning to the user the friends who are online
-        io.to(socket.id).emit('friendsOnline', onlineFriends);
+        io.to(socket.id).emit('friend:listOnline', onlineFriends);
       }
 
       activeRooms.forEach((room: any) =>{
@@ -56,12 +56,12 @@ const userServices = (io: Server, socket: Socket) =>{
   }
 
   const disconnect = async (usersOnline: IUsersOnline[]) =>{
-    const userEmail = usersOnline.find((user)=> user.socketId === socket.id)?.userEmail
-    if(userEmail){
+    const userId = usersOnline.find((user)=> user.socketId === socket.id)?.userId
+    if(userId){
       const friends = await AppDataSource.getRepository(Relationship).find({
         where:{
           requester:{
-            email: userEmail
+            id: userId
           },
           type: "accepted"
         },
@@ -71,11 +71,11 @@ const userServices = (io: Server, socket: Socket) =>{
       if (friends) {
         const onlineFriends = usersOnline.filter((user: IUsersOnline) =>
 
-        friends.some((friend: Relationship) => friend.addressee.email === user.userEmail)
+        friends.some((friend: Relationship) => friend.addressee.id === user.userId)
         );
   
         onlineFriends.forEach((friend: IUsersOnline) => {
-          io.to(friend.socketId).emit('friendIsOffline', { userEmail: userEmail });
+          io.to(friend.socketId).emit('friend:isOffline', { userId: userId });
         });
       }
 

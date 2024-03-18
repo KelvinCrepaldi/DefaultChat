@@ -12,15 +12,15 @@ export interface IClientMessage{
 
 export interface IUsersOnline {
   socketId: string,
-  userEmail:string
+  userId: string,
 }
 
 export interface IUserRegisterSocket {
-  userEmail: string;
+  userId: string;
 }
 
 export interface IUserReadySocket {
-  userEmail: string;
+  userId: string;
   activeRooms: string[]
 }
 
