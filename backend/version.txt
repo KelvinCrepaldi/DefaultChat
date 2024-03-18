@@ -1,0 +1,14 @@
+
+
+0.2 _____________________
+refact:
+- Objeto que representa o usuário logado nos sockets agora recebe o ID do usuário, 
+  para que as comparações sejam feitas pelo id em vez de email.
+- Todas as comparações de sockets que usavam o e-mail do usuário agora comparam pelo ID.
+- Email do usuário removido do registro de usuário online nos sockets.
+
+fix:
+- Filtro de usuários não retorna mais usuários que já possuem algum tipo de convite.
+- Filtro não retorna mais o usuário ao tentar buscar pelo próprio nome.
+
+0.1 _____________________
