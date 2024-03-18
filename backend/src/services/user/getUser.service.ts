@@ -1,15 +1,9 @@
 import AppDataSource from "../../data-source";
 import { User } from "../../entities/user.entity";
 import { AppError } from "../../errors/appErrors";
+import { IGetUser, IGetUserRequest } from "../../interface/user/getUser.interface";
 
-interface IGetUser {
-  id: string;
-  name: string;
-  image: string;
-  email: string;
-}
-
-const getUserService = async ({ id } : { id:string }):Promise<IGetUser> =>{
+const getUserService = async ({ id } : IGetUserRequest):Promise<IGetUser> =>{
   const userRepository = AppDataSource.getRepository(User)
 
   const user = await userRepository.findOne({where:{id: id}})

@@ -1,16 +1,6 @@
 import AppDataSource from "../../data-source"
 import { Message } from "../../entities/messages.enitity"
-import { IListMessagesService } from "../../interface/messages/listMessages.interface"
-
-export interface IListMessageServiceResponse {
-  message: string,
-      user: {
-        id: string,
-        name: string,
-        image: string
-      },
-      createdAt: Date
-}
+import { IListMessageServiceResponse, IListMessagesService } from "../../interface/messages/listMessages.interface"
 
 const listMessagesService = async ({roomId}: IListMessagesService): Promise<IListMessageServiceResponse[]> =>{
   const messageRepository = AppDataSource.getRepository(Message)

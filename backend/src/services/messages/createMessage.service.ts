@@ -5,8 +5,6 @@ import { User } from "../../entities/user.entity";
 import { AppError } from "../../errors/appErrors";
 import { ICreateMessageService } from "../../interface/messages/createMessage.interface";
 
-
-
 const createMessageService = async ({message, userId, roomId}:ICreateMessageService): Promise<Message> =>{
   const messageRepository = AppDataSource.getRepository(Message)
   const userRepository = AppDataSource.getRepository(User)

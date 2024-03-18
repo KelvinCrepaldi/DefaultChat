@@ -1,5 +1,5 @@
 import { Socket, Server } from "socket.io"
-import { IClientMessage, IUsersOnline } from "../../interface/socket";
+import { IClientMessage, IUserJoinRoomSocket, IUserReadySocket, IUserRegisterSocket, IUsersOnline } from "../../interface/socket";
 import userServices from "../services/user.services";
 import messageServices from "../services/message.services";
 
@@ -11,17 +11,16 @@ const initSocketController = (io: Server) =>{
     socket.on("connect", ()=>{
     })
   
-    socket.on("registerUser", (data)=>{
-      userServices(io, socket).registerUser(usersOnline, data);
+    socket.on("user:register", ({userId}: IUserRegisterSocket)=>{
+      userServices(io, socket).registerUser(usersOnline, {userId});
     })
 
-    socket.on("userListReady", async ({userEmail, activeRooms})=>{
-      userServices(io, socket).userListReady(usersOnline, {userEmail, activeRooms});
+    socket.on("user:ready", async ({userId, activeRooms}: IUserReadySocket)=>{
+      userServices(io, socket).userListReady(usersOnline, {userId, activeRooms});
     })
   
     socket.on("disconnect", async () => {
       const users = await userServices(io, socket).disconnect(usersOnline);
-
       if(users) usersOnline = users;
     });
   
@@ -29,7 +28,7 @@ const initSocketController = (io: Server) =>{
       messageServices(io, socket).sendMessage(usersOnline, {message, user, roomId})
     });
   
-    socket.on('join_room', ({room})=>{
+    socket.on('user:joinRoom', ({room}: IUserJoinRoomSocket)=>{
       socket.join(room);
     })
   });
