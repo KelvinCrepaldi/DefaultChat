@@ -86,8 +86,7 @@ export type IPrivateRoom = {
 }
 
 interface IUsersOnline {
-  socketId: string,
-  userEmail:string
+  userId: string;
 }
 
 export const SocketContext = createContext<any>(undefined);
@@ -134,10 +133,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function friendsOnline(friends: IUsersOnline[]){
+    console.log(friends)
     setPrivateRooms(prevRooms => {
       const newRooms = [...prevRooms]
       friends.forEach((friend)=> {
-        const roomIndex = newRooms.findIndex((room)=> room.user.email === friend.userEmail)
+        const roomIndex = newRooms.findIndex((room)=> room.user.id === friend.userId)
         if(roomIndex !== -1){
           newRooms[roomIndex].status = "online"
         }
@@ -146,10 +146,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
   }
 
-  function friendIsOnline(data: any){
+  function friendIsOnline({userId}: IUsersOnline){
       setPrivateRooms(prevRooms => {
         const newRooms = [...prevRooms];
-        const roomIndex = newRooms.findIndex(room => room.user.email === data.userEmail);
+        const roomIndex = newRooms.findIndex(room => room.user.id === userId);
         if (roomIndex !== -1) {
           newRooms[roomIndex].status = "online";
         }
@@ -157,12 +157,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       });
   }
 
-  
-
-  function friendIsOffline(data: any){
+  function friendIsOffline(data: IUsersOnline){
     setPrivateRooms(prevRooms => {
       const newRooms = [...prevRooms];
-      const roomIndex = newRooms.findIndex(room => room.user.email === data.userEmail);
+      const roomIndex = newRooms.findIndex(room => room.user.id === data.userId);
       if (roomIndex !== -1) {
         newRooms[roomIndex].status = "offline";
       }
@@ -170,11 +168,32 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
   }
 
+  async function openRoomSocket({userId}: {userId: IPrivateRoom}) {
+    if (session?.user.accessToken) {
+      try {
+        const responseChat = await api.get(`api/room/user?id=${userId}`, {
+          headers: { Authorization: `Bearer ${session?.user.accessToken}` },
+        });
+        const room = responseChat.data;
+        socket.emit("user:joinRoom", { room: room.id });
+        setPrivateRooms(prevRooms => {
+          return [...prevRooms, {
+            ...room,
+            notification: 1,
+            status: 'online'
+          }];
+        });
+      } catch (error: any) {
+        setError(error.code);
+      }
+    }
+  }
+
   useEffect(() => {
     socket.connect();
 
     return () => {
-      socket.emit("disconnectUser", {userEmail: session?.user.email})
+      socket.emit("disconnectUser", {userId: session?.user.sub})
       socket.disconnect();
     };
   }, []);
@@ -185,22 +204,24 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("message:send", receiveMessage);
-    socket.on("friendsOnline", friendsOnline);
-    socket.on("friendIsOnline", friendIsOnline);
-    socket.on("friendIsOffline", friendIsOffline);
+    socket.on("message:openRoom", openRoomSocket);
+    socket.on("friend:listOnline", friendsOnline);
+    socket.on("friend:isOnline", friendIsOnline);
+    socket.on("friend:isOffline", friendIsOffline);
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("message:send", receiveMessage);
-      socket.off("friendsOnline", friendsOnline);
-      socket.off("friendIsOnline", friendIsOnline);
-      socket.off("friendIsOffline", friendIsOffline);
+      socket.off("message:openRoom", openRoomSocket)
+      socket.off("friend:listOnline", friendsOnline);
+      socket.off("friend:isOnline", friendIsOnline);
+      socket.off("friend:isOffline", friendIsOffline);
     };
   }, []);
 
   useEffect(()=>{
     if (session?.user.accessToken) {
-      socket.emit('registerUser', {userEmail: session.user.email})
+      socket.emit('user:register', {userId: session.user.sub})
       fetchChatList();
     }
   },[session])
@@ -222,7 +243,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       
       setPrivateRooms(privateRooms);
       //criar logica de grupos usando data.groupRooms
-      socket.emit("userListReady", {userEmail: session?.user.email, activeRooms: roomsId})
+      socket.emit("user:ready", {userId: session?.user.sub, activeRooms: roomsId})
     } catch (error) {
         signOut({redirect: true, callbackUrl: "/login"});
     } 
@@ -231,7 +252,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const openRoom = async ({userId} : {userId: string}) =>{
     const roomExists = privateRooms.find((room)=> room.user.id === userId)
     if(roomExists){
-      socket.emit("join_room", { room: roomExists.id });
+      socket.emit("user:joinRoom", { room: roomExists.id });
       push(`/me/chat/${userId}`)
     } else{
       if (session?.user.accessToken) {
@@ -240,7 +261,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             headers: { Authorization: `Bearer ${session?.user.accessToken}` },
           });
           const room = responseChat.data;
-          socket.emit("join_room", { room: room.id });
+          socket.emit("user:joinRoom", { room: room.id });
           setPrivateRooms(prevRooms => {
             return [...prevRooms, {
               ...room,
@@ -256,10 +277,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }
-
-  /* const leaveRoom = async ({roomId} : {roomId: string}) => {
-    socket.emit("leaveRoom", { room: roomId });
-  }; */
 
   const sendMessage = async ({ message , roomId }: ISendMessage) => {
     if (session?.user.accessToken) {
