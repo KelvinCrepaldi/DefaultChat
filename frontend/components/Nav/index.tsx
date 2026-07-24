@@ -1,5 +1,6 @@
 import { FaUserFriends } from "react-icons/fa";
 import { FaGear, FaUserPlus } from "react-icons/fa6";
+import { MdGroups } from "react-icons/md";
 import NavLinkButton from "../_ui/buttons/NavLinkButton";
 
 export default function NavButtons({isHidden}: {isHidden: boolean}) {
@@ -16,6 +17,13 @@ export default function NavButtons({isHidden}: {isHidden: boolean}) {
         icon={<FaUserPlus />}
         text="Buscar usuários"
         urlPath="/me/requests"
+        isHidden={isHidden}
+      />
+
+      <NavLinkButton
+        icon={<MdGroups />}
+        text="Grupos"
+        urlPath="/me/groups"
         isHidden={isHidden}
       />
 

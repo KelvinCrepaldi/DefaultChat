@@ -1,15 +1,13 @@
 import AppDataSource from "../../data-source";
 import { MessageNotification } from "../../entities/messageNotification.entity";
-import { Message } from "../../entities/messages.enitity";
 import { User } from "../../entities/user.entity";
 import { AppError } from "../../errors/appErrors";
-import { IListActiveRooms, IListActiveRoomsResponse, IPrivateRoom } from "../../interface/room/listActiveRooms.interface";
+import { IGroupRoom, IListActiveRooms, IListActiveRoomsResponse, IPrivateRoom } from "../../interface/room/listActiveRooms.interface";
 
 export const listActiveRoomsService = async ({
   userId
 }:IListActiveRooms): Promise<IListActiveRoomsResponse> =>{
   const userRepository = AppDataSource.getRepository(User);
-  const messageNotificationRepository = AppDataSource.getRepository(MessageNotification)
 
   const user = await userRepository.findOne({where: {id: userId}})
 
@@ -77,29 +75,39 @@ export const listActiveRoomsService = async ({
     })
   );
 
-  // Filter out null values after resolving promises
   const filteredPrivateRooms = privateRooms.filter((room): room is IPrivateRoom => room !== null);
 
   const groupRooms = roomsList.userRooms.map((userRoom) => {
-    const friendsInfo = userRoom.room.roomUsers.filter((roomUser) => roomUser.user.id !== userId);
-    const friendsList = friendsInfo.map((friend) => ({
-      id: friend.user.id,
-      name: friend.user.name,
-      email: friend.user.email,
-      image: friend.user.image,
-    }));
-    if (userRoom.room.type === 'group') {
-      return {
-        id: userRoom.room.id,
-        name: userRoom.room.name,
-        image: userRoom.room.image,
-        users: friendsList,
-      };
+    if (userRoom.room.type !== 'group') {
+      return null;
     }
-  })
-  .filter((room): room is NonNullable<typeof room> => !!room);
 
-  // Find notifications
+    const membersList = userRoom.room.roomUsers.map((member) => ({
+      id: member.user.id,
+      name: member.user.name,
+      email: member.user.email,
+      image: member.user.image,
+    }));
+
+    const filterNotifications = userRoom.room.messageNotifications.filter((notification) =>
+      notification.user.id === userId && notification.viewed === false
+    );
+
+    const sortMessage = [...userRoom.room.messages].sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    return {
+      id: userRoom.room.id,
+      name: userRoom.room.name,
+      image: userRoom.room.image,
+      users: membersList,
+      messages: sortMessage,
+      notification: filterNotifications.length,
+    } as IGroupRoom;
+  }).filter((room): room is IGroupRoom => room !== null);
 
   return {
     privateRooms: filteredPrivateRooms,

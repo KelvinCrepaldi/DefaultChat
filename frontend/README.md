@@ -7,6 +7,7 @@ Projeto de portfólio: front-end de um chat 1:1 em tempo real. Demo pensada para
 - Contas e login (NextAuth no front)
 - Busca de usuários, amigos e pedidos de amizade
 - Salas privadas 1:1
+- Grupos públicos (criar, buscar e entrar)
 - Mensagens em tempo real com Socket.io
 - Status online de amigos conectados
 

@@ -7,7 +7,7 @@ const About = () => {
       <p className="homeText">
         O DefaultChat é um projeto de portfólio feito para praticar chat em
         tempo real. Inclui contas, amigos, pedidos de amizade, salas privadas
-        1:1, status online e mensagens via Socket.io.
+        1:1, grupos públicos, status online e mensagens via Socket.io.
       </p>
       <p className="homeText">
         O front usa Next.js com NextAuth; a API é Express com TypeORM e

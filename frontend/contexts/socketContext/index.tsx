@@ -10,7 +10,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { api, socket } from "@/services";
 import { ISendMessage } from "@/interfaces/message";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export type socketMessage = {
   user: IUser;
@@ -32,16 +32,19 @@ export type IPrivateRoomRequest = {
   notifications: number,
   messages: any[]
 }
+
 export type IGroupRoomRequest = {
   id: string,
+  name: string,
+  image: string,
+  users: {
+    id: string
     name: string,
-    image: string,
-    users: {
-      id: string
-      name: string,
-      email: string,
-      image:string;
+    email: string,
+    image:string;
   }[],
+  messages: any[],
+  notification: number,
 }
 
 export type IUser = {
@@ -50,24 +53,6 @@ export type IUser = {
   name: string;
   picture: string;
   image: string;
-}
-
-export type IGroupRoom = {
-  id:string,
-  type: string //group or private
-  image: string;
-  title: string;
-  messages:socketMessage[],
-  notification: number,
-  users:[
-    {
-      id?: string;
-      email: string;
-      name: string;
-      picture: string;
-      image: string;
-    }
-  ]
 }
 
 export type IPrivateRoom = {
@@ -85,6 +70,20 @@ export type IPrivateRoom = {
   messages:socketMessage[],
 }
 
+export type IGroupRoom = {
+  id: string;
+  name: string;
+  image: string;
+  users: {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+  }[];
+  notification: number;
+  messages: socketMessage[];
+}
+
 interface IUsersOnline {
   userId: string;
 }
@@ -95,6 +94,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [error, setError] = useState<IErrorResponse | null>(null);
   const [privateRooms, setPrivateRooms] = useState<IPrivateRoom[]>([]);
+  const [groupRooms, setGroupRooms] = useState<IGroupRoom[]>([]);
 
   const { data: session } = useSession();
   const { push } = useRouter();
@@ -106,22 +106,53 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  function isViewingRoom(roomId: string, friendUserId?: string) {
+    const parts = window.location.pathname.split("/");
+    // /me/chat/group/[roomId]
+    if (parts[3] === "group" && parts[4] === roomId) {
+      return true;
+    }
+    // /me/chat/[userId]
+    if (friendUserId && parts[3] === friendUserId) {
+      return true;
+    }
+    return false;
+  }
+
   function receiveMessage({ message, user, createdAt, roomId }: socketMessage) {
     setPrivateRooms(prevRooms => {
+      const roomIndex = prevRooms.findIndex(room => room.id === roomId);
+      if (roomIndex === -1) return prevRooms;
       const newRooms = [...prevRooms];
-      const roomIndex = newRooms.findIndex(room => room.id === roomId);
-      if (roomIndex !== -1) {
-        newRooms[roomIndex].messages = [...newRooms[roomIndex].messages,
-           {message, user, createdAt, roomId}
-        ]
-        const path = window.location.pathname.split("/")[3]
-        if(path !== newRooms[roomIndex].user.id){
-          newRooms[roomIndex].notification = newRooms[roomIndex].notification + 1
-        }
-      }
+      newRooms[roomIndex] = {
+        ...newRooms[roomIndex],
+        messages: [
+          ...newRooms[roomIndex].messages,
+          { message, user, createdAt, roomId },
+        ],
+        notification: isViewingRoom(roomId, newRooms[roomIndex].user.id)
+          ? newRooms[roomIndex].notification
+          : newRooms[roomIndex].notification + 1,
+      };
       return newRooms;
     });
 
+    setGroupRooms(prevRooms => {
+      const roomIndex = prevRooms.findIndex(room => room.id === roomId);
+      if (roomIndex === -1) return prevRooms;
+      const newRooms = [...prevRooms];
+      newRooms[roomIndex] = {
+        ...newRooms[roomIndex],
+        messages: [
+          ...newRooms[roomIndex].messages,
+          { message, user, createdAt, roomId },
+        ],
+        notification: isViewingRoom(roomId)
+          ? newRooms[roomIndex].notification
+          : newRooms[roomIndex].notification + 1,
+      };
+      return newRooms;
+    });
   }
 
   function onConnect() {
@@ -133,7 +164,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function friendsOnline(friends: IUsersOnline[]){
-    console.log(friends)
     setPrivateRooms(prevRooms => {
       const newRooms = [...prevRooms]
       friends.forEach((friend)=> {
@@ -168,24 +198,46 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
   }
 
-  async function openRoomSocket({userId}: {userId: IPrivateRoom}) {
-    if (session?.user.accessToken) {
+  async function openRoomSocket(payload: {userId: string, roomId?: string, roomType?: string}) {
+    if (!session?.user.accessToken) return;
+
+    if (payload.roomType === "group" && payload.roomId) {
       try {
-        const responseChat = await api.get(`api/room/user?id=${userId}`, {
-          headers: { Authorization: `Bearer ${session?.user.accessToken}` },
+        const response = await api.get(`api/room/group/${payload.roomId}`, {
+          headers: { Authorization: `Bearer ${session.user.accessToken}` },
         });
-        const room = responseChat.data;
+        const room = response.data;
         socket.emit("user:joinRoom", { room: room.id, token: session.user.accessToken });
-        setPrivateRooms(prevRooms => {
+        setGroupRooms(prevRooms => {
+          if (prevRooms.some(r => r.id === room.id)) return prevRooms;
           return [...prevRooms, {
             ...room,
             notification: 1,
-            status: 'online'
+            messages: room.messages || [],
           }];
         });
       } catch (error: any) {
         setError(error.code);
       }
+      return;
+    }
+
+    try {
+      const responseChat = await api.get(`api/room/user?id=${payload.userId}`, {
+        headers: { Authorization: `Bearer ${session?.user.accessToken}` },
+      });
+      const room = responseChat.data;
+      socket.emit("user:joinRoom", { room: room.id, token: session.user.accessToken });
+      setPrivateRooms(prevRooms => {
+        if (prevRooms.some(r => r.id === room.id)) return prevRooms;
+        return [...prevRooms, {
+          ...room,
+          notification: 1,
+          status: 'online'
+        }];
+      });
+    } catch (error: any) {
+      setError(error.code);
     }
   }
 
@@ -199,8 +251,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-  
-
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("message:send", receiveMessage);
@@ -217,7 +267,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       socket.off("friend:isOnline", friendIsOnline);
       socket.off("friend:isOffline", friendIsOffline);
     };
-  }, []);
+  }, [session]);
 
   useEffect(()=>{
     if (session?.user.accessToken) {
@@ -233,16 +283,28 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       });
       const data = response.data;
       
-      const privateRooms = data.privateRooms.map((chat: IPrivateRoomRequest) =>{
+      const mappedPrivateRooms = data.privateRooms.map((chat: IPrivateRoomRequest) =>{
         return {
           ...chat,
           status: 'offline'
         }
       })
-      const roomsId = privateRooms.map((room: IPrivateRoomRequest)=> room.id)
+      const mappedGroupRooms: IGroupRoom[] = (data.groupRooms || []).map((chat: IGroupRoomRequest) => ({
+        id: chat.id,
+        name: chat.name,
+        image: chat.image,
+        users: chat.users || [],
+        messages: chat.messages || [],
+        notification: chat.notification || 0,
+      }))
+
+      const roomsId = [
+        ...mappedPrivateRooms.map((room: IPrivateRoomRequest)=> room.id),
+        ...mappedGroupRooms.map((room) => room.id),
+      ]
       
-      setPrivateRooms(privateRooms);
-      //criar logica de grupos usando data.groupRooms
+      setPrivateRooms(mappedPrivateRooms);
+      setGroupRooms(mappedGroupRooms);
       socket.emit("user:ready", {userId: session?.user.sub, activeRooms: roomsId, token: session.user.accessToken})
     } catch (error) {
         signOut({redirect: true, callbackUrl: "/login"});
@@ -277,6 +339,104 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }
+
+  const openGroupRoom = async ({ roomId }: { roomId: string }) => {
+    const roomExists = groupRooms.find((room) => room.id === roomId);
+    if (roomExists) {
+      socket.emit("user:joinRoom", { room: roomExists.id, token: session?.user.accessToken });
+      push(`/me/chat/group/${roomId}`);
+      return;
+    }
+
+    if (!session?.user.accessToken) return;
+
+    try {
+      const response = await api.get(`api/room/group/${roomId}`, {
+        headers: { Authorization: `Bearer ${session.user.accessToken}` },
+      });
+      const room = response.data;
+      socket.emit("user:joinRoom", { room: room.id, token: session.user.accessToken });
+      setGroupRooms((prev) => {
+        if (prev.some((r) => r.id === room.id)) return prev;
+        return [
+          ...prev,
+          {
+            ...room,
+            notification: room.notification || 0,
+            messages: room.messages || [],
+          },
+        ];
+      });
+      push(`/me/chat/group/${roomId}`);
+    } catch (error: any) {
+      setError(error.code);
+    }
+  };
+
+  const createGroup = async ({ name }: { name: string }) => {
+    if (!session?.user.accessToken) return null;
+    const response = await api.post(
+      "api/room/group",
+      { name },
+      { headers: { Authorization: `Bearer ${session.user.accessToken}` } }
+    );
+    const group = response.data;
+    socket.emit("user:joinRoom", { room: group.id, token: session.user.accessToken });
+    setGroupRooms((prev) => [
+      ...prev,
+      {
+        id: group.id,
+        name: group.name,
+        image: group.image,
+        users: [
+          {
+            id: session.user.sub as string,
+            name: session.user.name || "",
+            email: session.user.email || "",
+            image: (session.user.picture as string) || "",
+          },
+        ],
+        messages: [],
+        notification: 0,
+      },
+    ]);
+    return group;
+  };
+
+  const joinGroup = async ({ roomId }: { roomId: string }) => {
+    if (!session?.user.accessToken) return null;
+    const response = await api.post(
+      `api/room/group/${roomId}/join`,
+      {},
+      { headers: { Authorization: `Bearer ${session.user.accessToken}` } }
+    );
+    const room = response.data;
+    socket.emit("user:joinRoom", { room: room.id, token: session.user.accessToken });
+    setGroupRooms((prev) => {
+      if (prev.some((r) => r.id === room.id)) return prev;
+      return [
+        ...prev,
+        {
+          id: room.id,
+          name: room.name,
+          image: room.image,
+          users: room.users || [],
+          messages: room.messages || [],
+          notification: room.notification || 0,
+        },
+      ];
+    });
+    push(`/me/chat/group/${roomId}`);
+    return room;
+  };
+
+  const searchGroups = async ({ letters }: { letters: string }) => {
+    if (!session?.user.accessToken) return [];
+    const response = await api.get(`api/room/group/search?letters=${encodeURIComponent(letters)}`, {
+      headers: { Authorization: `Bearer ${session.user.accessToken}` },
+    });
+    return response.data;
+  };
 
   const sendMessage = async ({ message , roomId }: ISendMessage) => {
     if (session?.user.accessToken) {
@@ -316,6 +476,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           }
           return newRooms;
         });
+
+        setGroupRooms(prevRooms => {
+          const newRooms = [...prevRooms];
+          const roomIndex = newRooms.findIndex(room => room.id === roomId);
+          if (roomIndex !== -1) {
+            newRooms[roomIndex].messages = [...messages];
+          }
+          return newRooms;
+        });
       } catch (error) {
         console.log(error)
       }
@@ -330,10 +499,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             Authorization: `Bearer ${session?.user.accessToken}`
           }
         })
-        setPrivateRooms(prevRooms => {
-          const filterRooms = prevRooms.filter((room) => room.id !== roomId);
-          return filterRooms;
-        });
+        setPrivateRooms(prevRooms => prevRooms.filter((room) => room.id !== roomId));
+        setGroupRooms(prevRooms => prevRooms.filter((room) => room.id !== roomId));
       } catch (error) {
         console.log(error)
       }
@@ -342,7 +509,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const resetPrivateNotificationCount = ({roomId}: {roomId: string}) =>{
-
     if(roomId !== undefined){
       api.post(`api/notification/${roomId}`,{}, {
         headers: {
@@ -357,8 +523,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         }
         return newRooms
       })
+      setGroupRooms(prevRooms => {
+        const newRooms = [...prevRooms];
+        const roomIndex = newRooms.findIndex((room)=> room.id === roomId);
+        if(roomIndex !== -1){
+          newRooms[roomIndex].notification = 0;
+        }
+        return newRooms
+      })
     }
-
   }
 
   return (
@@ -370,12 +543,18 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         socket,
         error,
         privateRooms,
+        groupRooms,
         listRef,
         fetchMessage,
         closeRoom,
         fetchChatList,
         openRoom,
+        openGroupRoom,
+        createGroup,
+        joinGroup,
+        searchGroups,
         setPrivateRooms,
+        setGroupRooms,
         resetPrivateNotificationCount,
       }}
     >

@@ -16,16 +16,28 @@ const messageServices = (io: Server, socket: Socket)=>{
   const userRoomRepository = AppDataSource.getRepository(UserRoom)
 
   const sendMessage = async (usersOnline: IUsersOnline[], {message, user, roomId}: IClientMessage) =>{
-      const dateNow = Date.now();
-      const createdAt = new Date(dateNow)
-      io.to(roomId).emit("message:send", {message, user, roomId, createdAt})
-  
       try {
+        const membership = await userRoomRepository.findOne({
+          where: {
+            room: { id: roomId },
+            user: { id: user.id },
+            isActive: true,
+          },
+        });
+
+        if (!membership) {
+          return;
+        }
+
+        const dateNow = Date.now();
+        const createdAt = new Date(dateNow)
+        io.to(roomId).emit("message:send", {message, user, roomId, createdAt})
+
         const room = await roomRepository.findOne({where: {id: roomId}, relations: ['roomUsers', 'roomUsers.user'] })
         const messageNotificationRepository = AppDataSource.getRepository(MessageNotification)
       
         if(!room){
-          throw new Error
+          return;
         }
 
         //open room to all users if is closed
@@ -36,7 +48,7 @@ const messageServices = (io: Server, socket: Socket)=>{
   
             //if user online, refresh rooms list on client.
             const userOnline = usersOnline.find(userOn => userOn.userId === roomUser.user.id);
-            if(userOnline) io.to(userOnline?.socketId).emit('message:openRoom',{userId: user.id})
+            if(userOnline) io.to(userOnline?.socketId).emit('message:openRoom',{userId: user.id, roomId, roomType: room.type})
           }
         })
   
@@ -46,11 +58,11 @@ const messageServices = (io: Server, socket: Socket)=>{
           if(newMessage){
             //create notification on database for offline users
             const removeSender = room.roomUsers.filter((x) => x.user.id !== user.id  )
-            removeSender.forEach(async (user)=>{
-              const userIsOffline = usersOnline.some((userOnline)=>userOnline.userId === user.user.id)
+            removeSender.forEach(async (member)=>{
+              const userIsOffline = usersOnline.some((userOnline)=>userOnline.userId === member.user.id)
               
               if(!userIsOffline){
-                const userExists = await userRepository.findOne({where: {id: user.user.id}})
+                const userExists = await userRepository.findOne({where: {id: member.user.id}})
                 if(userExists){
                   const newNotification = new MessageNotification();
                   newNotification.message = newMessage

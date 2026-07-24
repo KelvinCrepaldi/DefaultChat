@@ -16,6 +16,7 @@ backend/    # Express + Socket.io + TypeORM + PostgreSQL
 - Contas e login
 - Busca de usuários, amigos e pedidos de amizade
 - Salas privadas 1:1
+- Grupos públicos (criar, buscar e entrar)
 - Mensagens em tempo real (Socket.io)
 - Status online de amigos conectados
 

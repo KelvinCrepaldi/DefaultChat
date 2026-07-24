@@ -23,6 +23,8 @@ export interface IGroupRoom{
   name: string,
   image: string,
   users: IUser[],
+  messages: any[],
+  notification: number,
 }
 
 export interface IListActiveRoomsResponse{

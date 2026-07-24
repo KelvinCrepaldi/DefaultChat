@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import { AppError, handleError } from "../errors/appErrors";
 import privateRoomService from "../services/rooms/privateRoom.service";
-import { Room } from "../entities/room.entity";
 import listActiveRoomsService from "../services/rooms/listActiveRooms.service";
 import closeChatService from "../services/rooms/closeChat.service";
+import createGroupService from "../services/rooms/createGroup.service";
+import searchGroupsService from "../services/rooms/searchGroups.service";
+import joinGroupService from "../services/rooms/joinGroup.service";
+import getGroupService from "../services/rooms/getGroup.service";
 
 const privateRoomController = async (req: Request, res: Response) => {
   try {
@@ -47,6 +50,64 @@ const closeChatController = async (req: Request, res: Response) => {
    }
 };
 
+const createGroupController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const { name } = req.body;
+    const group = await createGroupService({ userId, name });
+    return res.status(201).send(group);
+  } catch (error) {
+    if (error instanceof AppError) {
+      handleError(error, res);
+    }
+  }
+};
 
+const searchGroupsController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const letters = req.query.letters as string;
+    const groups = await searchGroupsService({ userId, letters });
+    return res.status(200).send(groups);
+  } catch (error) {
+    if (error instanceof AppError) {
+      handleError(error, res);
+    }
+  }
+};
 
-export {privateRoomController, listActiveRoomsController, closeChatController}
+const joinGroupController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const roomId = req.params.roomId;
+    const group = await joinGroupService({ userId, roomId });
+    return res.status(200).send(group);
+  } catch (error) {
+    if (error instanceof AppError) {
+      handleError(error, res);
+    }
+  }
+};
+
+const getGroupController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const roomId = req.params.roomId;
+    const group = await getGroupService({ userId, roomId });
+    return res.status(200).send(group);
+  } catch (error) {
+    if (error instanceof AppError) {
+      handleError(error, res);
+    }
+  }
+};
+
+export {
+  privateRoomController,
+  listActiveRoomsController,
+  closeChatController,
+  createGroupController,
+  searchGroupsController,
+  joinGroupController,
+  getGroupController,
+};

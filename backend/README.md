@@ -20,7 +20,7 @@ Front-end neste monorepo: [`../frontend`](../frontend)
 - Notificações de mensagem não vista
 - Status online via Socket.io
 
-Não há chat em grupo implementado.
+Grupos públicos: criar, buscar por nome e entrar.
 
 ## Variáveis de ambiente
 
@@ -73,6 +73,10 @@ Prefixo `/api`:
 | `DELETE` | `/api/friend/:friendId` | Remover amigo |
 | `GET` | `/api/room/list` | Listar salas ativas |
 | `GET` | `/api/room/user` | Obter/criar sala privada 1:1 |
+| `POST` | `/api/room/group` | Criar grupo público |
+| `GET` | `/api/room/group/search` | Buscar grupos por nome |
+| `POST` | `/api/room/group/:roomId/join` | Entrar em um grupo |
+| `GET` | `/api/room/group/:roomId` | Detalhe do grupo (membro) |
 | `POST` | `/api/room/:roomId/close` | Fechar chat (desativar sala para o usuário) |
 | `POST` | `/api/message/:roomId` | Criar mensagem (HTTP) |
 | `GET` | `/api/message/:roomId` | Listar mensagens da sala |
