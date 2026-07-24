@@ -6,6 +6,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SocketContext } from "@/contexts/socketContext";
 import CounterText from "../_ui/CounterText";
+import EmptyState from "../_ui/EmptyState";
 import { MdGroups, MdLogin, MdOpenInNew } from "react-icons/md";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 
@@ -177,7 +178,11 @@ const GroupsPanel = () => {
         <CounterText list={availableGroups} text="grupos" />
         <div className="space-y-2 mt-3">
           {availableGroups.length === 0 && !listError && (
-            <p className="text-chatText text-sm">Nenhum grupo criado ainda.</p>
+            <EmptyState
+              className="py-10"
+              title="Nenhum grupo disponível"
+              description="Ainda não existem grupos públicos. Crie o primeiro grupo acima para outras pessoas poderem entrar."
+            />
           )}
           {availableGroups.map((group) => renderGroupRow(group, "both"))}
         </div>
@@ -206,6 +211,13 @@ const GroupsPanel = () => {
         <CounterText list={searchResults} text="Grupos encontrados" />
 
         <div className="space-y-2 mt-3">
+          {searchResults.length === 0 && (
+            <EmptyState
+              className="py-8"
+              title="Nenhum resultado de busca"
+              description="Busque pelo nome de um grupo para encontrar salas em que você ainda não entrou."
+            />
+          )}
           {searchResults.map((group) => renderGroupRow(group, "join"))}
         </div>
       </div>

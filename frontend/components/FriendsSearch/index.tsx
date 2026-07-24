@@ -10,6 +10,7 @@ import UserCard from "../_ui/UserCard";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import { FaUserPlus } from "react-icons/fa6";
 import CounterText from "../_ui/CounterText";
+import EmptyState from "../_ui/EmptyState";
 
 const searchSchema = yup.object().shape({
   letters: yup.string().required(),
@@ -17,7 +18,7 @@ const searchSchema = yup.object().shape({
 
 const FriendsSearch = () => {
   const { data: session } = useSession();
-  const [letters, setLetters] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const { searchUser, loading, error, usersList, inviteFriendUser } =
     useContext(UserSearchContext);
 
@@ -31,6 +32,7 @@ const FriendsSearch = () => {
   }, []);
 
   const handleSearchSubmit = (e: any) => {
+    setHasSearched(true);
     searchUser(e);
   };
 
@@ -40,6 +42,7 @@ const FriendsSearch = () => {
         <div className="flex">
           <input
             {...register("letters")}
+            placeholder="Digite o nome do usuário"
             className="w-full bg-chatBackground2 rounded border border-chatBorder p-2 text-chatText my-1"
           ></input>
           <button
@@ -53,6 +56,22 @@ const FriendsSearch = () => {
 
       <div>
         <CounterText list={usersList} text="Usuários encontrados" />
+
+        {!hasSearched && !loading && (
+          <EmptyState
+            className="py-12"
+            title="Encontre pessoas para adicionar"
+            description="Digite um nome acima e busque usuários. Depois envie um pedido de amizade para começar a conversar."
+          />
+        )}
+
+        {hasSearched && !loading && (!usersList || usersList.length === 0) && (
+          <EmptyState
+            className="py-12"
+            title="Nenhum usuário encontrado"
+            description="Tente outro nome. Se a pessoa ainda não tiver conta, peça para ela se cadastrar no DefaultChat."
+          />
+        )}
 
         {usersList?.map((user: IUser) => (
           <UserCard key={user.id} user={user}>

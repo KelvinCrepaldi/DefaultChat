@@ -1,7 +1,6 @@
 "use client";
 
 import { FriendRequestsContext } from "@/contexts/friendRequestContext";
-import { api } from "@/services";
 import { useSession } from "next-auth/react";
 import { useContext, useEffect } from "react";
 import UserCard from "../_ui/UserCard";
@@ -10,7 +9,7 @@ import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import { FaCheck } from "react-icons/fa";
 import CounterText from "../_ui/CounterText";
 import { FaTimes } from "react-icons/fa";
-import Loading from "../_ui/Loading";
+import EmptyState from "../_ui/EmptyState";
 
 type requestTypes = {
   id: string;
@@ -41,6 +40,14 @@ const FriendsRequestsReceived = () => {
       <CounterText list={requests} text="Pedidos de amizade" />
 
       {error && <div>{error}</div>}
+
+      {!loading && (!requests || requests.length === 0) && (
+        <EmptyState
+          className="py-10"
+          title="Nenhum pedido pendente"
+          description="Quando alguém te enviar um pedido de amizade, ele aparece aqui para você aceitar ou recusar."
+        />
+      )}
 
       {requests?.map((request: requestTypes) => (
         <UserCard user={request.requester} key={request.id}>

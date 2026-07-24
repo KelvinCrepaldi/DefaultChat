@@ -112,7 +112,14 @@ const GroupMembersSidebar = ({ members }: GroupMembersSidebarProps) => {
       </div>
       <div className="overflow-y-auto grow p-2">
         {members.length === 0 && (
-          <p className="text-chatText text-sm p-2">Nenhum membro listado.</p>
+          <div className="flex flex-col items-center justify-center text-center px-3 py-10">
+            <p className="text-chatTitle text-sm font-semibold mb-1">
+              Sem membros
+            </p>
+            <p className="text-chatText text-xs leading-relaxed">
+              Os membros do grupo aparecem aqui quando a sala carregar.
+            </p>
+          </div>
         )}
         {members.map((member) => (
           <MemberCard key={member.id} member={member} />
