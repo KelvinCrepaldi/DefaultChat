@@ -2,7 +2,7 @@
 
 API do **DefaultChat**, projeto de portfólio para chat 1:1 em tempo real. Pensada para rodar **localmente** com PostgreSQL — não é um servidor de produção sempre online.
 
-Front-end correspondente: [KelvinCrepaldi/defaultchat](https://github.com/KelvinCrepaldi/defaultchat)
+Front-end neste monorepo: [`../frontend`](../frontend)
 
 ## Stack
 

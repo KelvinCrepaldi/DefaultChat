@@ -15,12 +15,12 @@ Projeto de portfólio: front-end de um chat 1:1 em tempo real. Demo pensada para
 - **Next.js** (App Router) + React
 - **NextAuth** para sessão no front
 - Cliente **Socket.io**
-- Consome a API [DefaultChatAPI](https://github.com/KelvinCrepaldi/DefaultChatAPI) (Express + TypeORM + PostgreSQL)
+- Consome a API em [`../backend`](../backend) (Express + TypeORM + PostgreSQL)
 
 ## Como rodar
 
-1. Suba a API e o PostgreSQL (veja o README do [DefaultChatAPI](https://github.com/KelvinCrepaldi/DefaultChatAPI)).
-2. Neste repositório:
+1. Suba a API e o PostgreSQL (veja [`../backend/README.md`](../backend/README.md)).
+2. Neste diretório (`frontend/`):
 
 ```bash
 npm install
@@ -54,6 +54,6 @@ hooks/          # Hooks auxiliares
 public/         # Assets estáticos
 ```
 
-## Repositório da API
+## API neste monorepo
 
-Backend separado: [KelvinCrepaldi/DefaultChatAPI](https://github.com/KelvinCrepaldi/DefaultChatAPI)
+Backend: [`../backend`](../backend)
