@@ -6,6 +6,7 @@ import {
   getGroupController,
   joinGroupController,
   listActiveRoomsController,
+  listGroupsController,
   privateRoomController,
   searchGroupsController,
 } from "../controllers/room.controllers";
@@ -17,6 +18,7 @@ roomRoutes.get('/list', verifyAuthTokenMiddleware, listActiveRoomsController)
 roomRoutes.get('/user', verifyAuthTokenMiddleware, privateRoomController)
 
 roomRoutes.post('/group', verifyAuthTokenMiddleware, createGroupController)
+roomRoutes.get('/group', verifyAuthTokenMiddleware, listGroupsController)
 roomRoutes.get('/group/search', verifyAuthTokenMiddleware, searchGroupsController)
 roomRoutes.post('/group/:roomId/join', verifyAuthTokenMiddleware, joinGroupController)
 roomRoutes.get('/group/:roomId', verifyAuthTokenMiddleware, getGroupController)

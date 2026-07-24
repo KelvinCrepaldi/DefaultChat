@@ -5,6 +5,7 @@ import listActiveRoomsService from "../services/rooms/listActiveRooms.service";
 import closeChatService from "../services/rooms/closeChat.service";
 import createGroupService from "../services/rooms/createGroup.service";
 import searchGroupsService from "../services/rooms/searchGroups.service";
+import listGroupsService from "../services/rooms/listGroups.service";
 import joinGroupService from "../services/rooms/joinGroup.service";
 import getGroupService from "../services/rooms/getGroup.service";
 
@@ -63,10 +64,22 @@ const createGroupController = async (req: Request, res: Response) => {
   }
 };
 
+const listGroupsController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const groups = await listGroupsService({ userId });
+    return res.status(200).send(groups);
+  } catch (error) {
+    if (error instanceof AppError) {
+      handleError(error, res);
+    }
+  }
+};
+
 const searchGroupsController = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
-    const letters = req.query.letters as string;
+    const letters = (req.query.letters as string) || "";
     const groups = await searchGroupsService({ userId, letters });
     return res.status(200).send(groups);
   } catch (error) {
@@ -107,6 +120,7 @@ export {
   listActiveRoomsController,
   closeChatController,
   createGroupController,
+  listGroupsController,
   searchGroupsController,
   joinGroupController,
   getGroupController,

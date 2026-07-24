@@ -432,12 +432,25 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     return room;
   };
 
-  const searchGroups = async ({ letters }: { letters: string }) => {
+  const listGroups = async () => {
     if (!session?.user.accessToken) return [];
-    const response = await api.get(`api/room/group/search?letters=${encodeURIComponent(letters)}`, {
+    const response = await api.get("api/room/group", {
       headers: { Authorization: `Bearer ${session.user.accessToken}` },
     });
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : [];
+  };
+
+  const searchGroups = async ({ letters }: { letters: string }) => {
+    if (!session?.user.accessToken) return [];
+    const response = await api.get(
+      `api/room/group/search?letters=${encodeURIComponent(letters || "")}`,
+      {
+        headers: { Authorization: `Bearer ${session.user.accessToken}` },
+      }
+    );
+    const data = response.data;
+    return Array.isArray(data) ? data : data ? [data] : [];
   };
 
   const sendMessage = async ({ message , roomId }: ISendMessage) => {
@@ -554,6 +567,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         openGroupRoom,
         createGroup,
         joinGroup,
+        listGroups,
         searchGroups,
         setPrivateRooms,
         setGroupRooms,

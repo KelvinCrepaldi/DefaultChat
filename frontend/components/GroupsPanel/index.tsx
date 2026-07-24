@@ -1,50 +1,68 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SocketContext } from "@/contexts/socketContext";
 import CounterText from "../_ui/CounterText";
-import { MdGroups, MdLogin } from "react-icons/md";
+import { MdGroups, MdLogin, MdOpenInNew } from "react-icons/md";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 
 const searchSchema = yup.object().shape({
-  letters: yup.string().required(),
+  letters: yup.string().default(""),
 });
 
 const createSchema = yup.object().shape({
   name: yup.string().required().min(2),
 });
 
-type SearchGroupItem = {
+type GroupListItem = {
   id: string;
   name: string;
   image: string | null;
   memberCount: number;
+  isMember?: boolean;
 };
 
 const GroupsPanel = () => {
-  const { searchGroups, joinGroup, createGroup, openGroupRoom } =
+  const { searchGroups, joinGroup, createGroup, openGroupRoom, listGroups } =
     useContext(SocketContext);
-  const [groupsList, setGroupsList] = useState<SearchGroupItem[]>([]);
+  const [availableGroups, setAvailableGroups] = useState<GroupListItem[]>([]);
+  const [searchResults, setSearchResults] = useState<GroupListItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [listError, setListError] = useState<string | null>(null);
 
   const searchForm = useForm({
     resolver: yupResolver(searchSchema),
+    defaultValues: { letters: "" },
   });
   const createForm = useForm({
     resolver: yupResolver(createSchema),
   });
 
-  const handleSearchSubmit = async (data: { letters: string }) => {
+  const loadGroups = async () => {
+    setListError(null);
+    try {
+      const results = await listGroups();
+      setAvailableGroups(results || []);
+    } catch (error: any) {
+      setListError("Não foi possível carregar os grupos.");
+    }
+  };
+
+  useEffect(() => {
+    loadGroups();
+  }, []);
+
+  const handleSearchSubmit = async (data: { letters?: string }) => {
     setSearchError(null);
     setLoading(true);
     try {
-      const results = await searchGroups({ letters: data.letters });
-      setGroupsList(results || []);
+      const results = await searchGroups({ letters: data.letters || "" });
+      setSearchResults(results || []);
     } catch (error: any) {
       setSearchError("Não foi possível buscar grupos.");
     } finally {
@@ -58,6 +76,7 @@ const GroupsPanel = () => {
     try {
       const group = await createGroup({ name: data.name });
       createForm.reset();
+      await loadGroups();
       if (group?.id) {
         openGroupRoom({ roomId: group.id });
       }
@@ -72,13 +91,60 @@ const GroupsPanel = () => {
     setLoading(true);
     try {
       await joinGroup({ roomId });
-      setGroupsList((prev) => prev.filter((g) => g.id !== roomId));
+      setSearchResults((prev) => prev.filter((g) => g.id !== roomId));
+      await loadGroups();
     } catch (error: any) {
       setSearchError("Não foi possível entrar no grupo.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleOpen = (roomId: string) => {
+    openGroupRoom({ roomId });
+  };
+
+  const renderGroupRow = (
+    group: GroupListItem,
+    action: "join" | "open" | "both"
+  ) => (
+    <div
+      key={group.id}
+      className="flex items-center justify-between bg-chatBackground2 border border-chatBorder rounded p-3"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-chatBackground0 flex items-center justify-center text-chatTitle text-xl">
+          <MdGroups />
+        </div>
+        <div>
+          <p className="text-chatTitle font-semibold">{group.name}</p>
+          <p className="text-chatText text-sm">
+            {group.memberCount}{" "}
+            {group.memberCount === 1 ? "membro" : "membros"}
+            {group.isMember ? " · você está neste grupo" : ""}
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        {(action === "open" || (action === "both" && group.isMember)) && (
+          <UserActionBtn
+            handleFunction={handleOpen}
+            actionId={group.id}
+            icon={<MdOpenInNew />}
+            color="blue"
+          />
+        )}
+        {(action === "join" || (action === "both" && !group.isMember)) && (
+          <UserActionBtn
+            handleFunction={handleJoin}
+            actionId={group.id}
+            icon={<MdLogin />}
+            color="green"
+          />
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <section className="space-y-8">
@@ -104,6 +170,20 @@ const GroupsPanel = () => {
       </div>
 
       <div>
+        <h2 className="text-chatTitle text-xl font-semibold mb-3">
+          Grupos disponíveis
+        </h2>
+        {listError && <p className="text-red-400 text-sm mb-2">{listError}</p>}
+        <CounterText list={availableGroups} text="grupos" />
+        <div className="space-y-2 mt-3">
+          {availableGroups.length === 0 && !listError && (
+            <p className="text-chatText text-sm">Nenhum grupo criado ainda.</p>
+          )}
+          {availableGroups.map((group) => renderGroupRow(group, "both"))}
+        </div>
+      </div>
+
+      <div>
         <h2 className="text-chatTitle text-xl font-semibold mb-3">Buscar grupos</h2>
         <form onSubmit={searchForm.handleSubmit(handleSearchSubmit)} className="mb-5">
           <div className="flex">
@@ -123,34 +203,10 @@ const GroupsPanel = () => {
           {searchError && <p className="text-red-400 text-sm">{searchError}</p>}
         </form>
 
-        <CounterText list={groupsList} text="Grupos encontrados" />
+        <CounterText list={searchResults} text="Grupos encontrados" />
 
         <div className="space-y-2 mt-3">
-          {groupsList.map((group) => (
-            <div
-              key={group.id}
-              className="flex items-center justify-between bg-chatBackground2 border border-chatBorder rounded p-3"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-chatBackground0 flex items-center justify-center text-chatTitle text-xl">
-                  <MdGroups />
-                </div>
-                <div>
-                  <p className="text-chatTitle font-semibold">{group.name}</p>
-                  <p className="text-chatText text-sm">
-                    {group.memberCount}{" "}
-                    {group.memberCount === 1 ? "membro" : "membros"}
-                  </p>
-                </div>
-              </div>
-              <UserActionBtn
-                handleFunction={handleJoin}
-                actionId={group.id}
-                icon={<MdLogin />}
-                color="green"
-              />
-            </div>
-          ))}
+          {searchResults.map((group) => renderGroupRow(group, "join"))}
         </div>
       </div>
     </section>

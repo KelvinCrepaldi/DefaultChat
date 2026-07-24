@@ -74,6 +74,7 @@ Prefixo `/api`:
 | `GET` | `/api/room/list` | Listar salas ativas |
 | `GET` | `/api/room/user` | Obter/criar sala privada 1:1 |
 | `POST` | `/api/room/group` | Criar grupo público |
+| `GET` | `/api/room/group` | Listar grupos públicos |
 | `GET` | `/api/room/group/search` | Buscar grupos por nome |
 | `POST` | `/api/room/group/:roomId/join` | Entrar em um grupo |
 | `GET` | `/api/room/group/:roomId` | Detalhe do grupo (membro) |

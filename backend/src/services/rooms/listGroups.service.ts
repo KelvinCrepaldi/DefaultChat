@@ -1,20 +1,19 @@
-import { ILike } from "typeorm";
 import AppDataSource from "../../data-source";
 import { Room } from "../../entities/room.entity";
 import { User } from "../../entities/user.entity";
 import { UserRoom } from "../../entities/userRoom.entity";
 import { AppError } from "../../errors/appErrors";
-import {
-  ISearchGroupItem,
-  ISearchGroupsService,
-} from "../../interface/room/groupRooms.interface";
+import { ISearchGroupItem } from "../../interface/room/groupRooms.interface";
 
-const searchGroupsService = async ({
+export type IListGroupItem = ISearchGroupItem & {
+  isMember: boolean;
+};
+
+const listGroupsService = async ({
   userId,
-  letters,
-}: ISearchGroupsService): Promise<ISearchGroupItem[]> => {
-  const trimmed = letters?.trim() || "";
-
+}: {
+  userId: string;
+}): Promise<IListGroupItem[]> => {
   const userRepository = AppDataSource.getRepository(User);
   const roomRepository = AppDataSource.getRepository(Room);
   const userRoomRepository = AppDataSource.getRepository(UserRoom);
@@ -25,14 +24,7 @@ const searchGroupsService = async ({
   }
 
   const rooms = await roomRepository.find({
-    where: trimmed
-      ? {
-          type: "group",
-          name: ILike(`%${trimmed}%`),
-        }
-      : {
-          type: "group",
-        },
+    where: { type: "group" },
     relations: ["roomUsers", "roomUsers.user"],
     order: { name: "ASC" },
   });
@@ -47,14 +39,13 @@ const searchGroupsService = async ({
   });
   const activeRoomIds = new Set(activeMemberships.map((m) => m.room.id));
 
-  return rooms
-    .filter((room) => !activeRoomIds.has(room.id))
-    .map((room) => ({
-      id: room.id,
-      name: room.name,
-      image: room.image ?? null,
-      memberCount: room.roomUsers?.length ?? 0,
-    }));
+  return rooms.map((room) => ({
+    id: room.id,
+    name: room.name,
+    image: room.image ?? null,
+    memberCount: room.roomUsers?.length ?? 0,
+    isMember: activeRoomIds.has(room.id),
+  }));
 };
 
-export default searchGroupsService;
+export default listGroupsService;
