@@ -5,35 +5,30 @@ const About = () => {
     <section className="section">
       <h1 className="homeTitle">O que é o DefaultChat?</h1>
       <p className="homeText">
-        O DefaultChat é um projeto de portfólio concebido para oferecer uma
-        experiência de texto genérica e descomplicada, incorporando funções
-        básicas.
+        O DefaultChat é um projeto de portfólio feito para praticar chat em
+        tempo real. Inclui contas, amigos, pedidos de amizade, salas privadas
+        1:1, status online e mensagens via Socket.io.
       </p>
       <p className="homeText">
-      Criado com a finalidade de explorar e aprender os fundamentos da troca de 
-      informações através de APIs e Sockets, o DefaultChat se destaca por 
-      proporcionar conversas privadas seguras. Seja para trocar mensagens 
-      pessoais, discutir tópicos sensíveis ou simplesmente manter uma 
-      comunicação discreta, nossa plataforma intuitiva está aqui para tornar 
-      suas conversas online diretas e eficientes.
+        O front usa Next.js com NextAuth; a API é Express com TypeORM e
+        PostgreSQL. Foi pensado para rodar localmente com a API e um banco
+        Postgres — não é um serviço de produção sempre online.
       </p>
       <section className="flex my-20 space-x-4">
         <HighlightTech 
             imageSrc="./nextSVG.svg" 
-            text="  DefaultChat é ágil e responsivo graças ao Next.js, garantindo uma
-            experiência web envolvente. Mensagens em tempo real, com estilo."
+            text=" Front em Next.js com App Router e NextAuth para sessão de
+            usuários na interface do chat."
         />
         <HighlightTech 
             imageSrc="./ExpressSVG.svg" 
-            text=" Usamos Express API para eficiência na comunicação. Seguro e rápido,
-            o DefaultChat oferece uma experiência de troca de mensagens
-            simplificada."
+            text=" API em Express com TypeORM e PostgreSQL: contas, amigos,
+            salas privadas e histórico de mensagens."
         />
         <HighlightTech 
             imageSrc="./socketSVG.svg" 
-            text=" DefaultChat proporciona interação instantânea com a tecnologia de
-            sockets. Conversas em tempo real, sem atrasos, para uma comunicação
-            fluida."
+            text=" Socket.io para chat 1:1 em tempo real e atualização de
+            status online entre amigos conectados."
         />
       </section>
     </section>

@@ -6,11 +6,11 @@ import { Metadata } from "next";
 
 export const metadata: Metadata ={
   title: "Default Chat",
-  description: "O Default Chat é um aplicativo de chat que permite a comunicação instantânea entre usuários, possibilitando conversas individuais privadas.",
+  description: "Projeto de portfólio: chat 1:1 em tempo real com contas, amigos e Socket.io. Demo local com Next.js, Express, TypeORM/PostgreSQL e NextAuth.",
   authors: [{name: "Kelvin Crepaldi", url: "https://kelvincrepaldi.vercel.app"}],
   openGraph:{
     title: "Default Chat",
-    description: "O Default Chat é um aplicativo de chat que permite a comunicação instantânea entre usuários, possibilitando conversas individuais privadas.",
+    description: "Projeto de portfólio: chat 1:1 em tempo real com contas, amigos e Socket.io. Demo local com Next.js, Express, TypeORM/PostgreSQL e NextAuth.",
     url: "defaultchat.vercel.app",
     siteName: "DefaultChat",
     images:[
