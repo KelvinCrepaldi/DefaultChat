@@ -277,9 +277,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   },[session])
 
   const fetchChatList = async () => {
+    if (!session?.user.accessToken) return;
+
     try {
       const response = await api.get("/api/room/list", {
-        headers: { Authorization: `Bearer ${session?.user.accessToken}` },
+        headers: { Authorization: `Bearer ${session.user.accessToken}` },
       });
       const data = response.data;
       
@@ -305,7 +307,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       
       setPrivateRooms(mappedPrivateRooms);
       setGroupRooms(mappedGroupRooms);
-      socket.emit("user:ready", {userId: session?.user.sub, activeRooms: roomsId, token: session.user.accessToken})
+      socket.emit("user:ready", {userId: session.user.sub, activeRooms: roomsId, token: session.user.accessToken})
     } catch (error) {
         signOut({redirect: true, callbackUrl: "/login"});
     } 
