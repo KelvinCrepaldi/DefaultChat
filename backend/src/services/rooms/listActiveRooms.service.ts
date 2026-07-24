@@ -53,7 +53,7 @@ export const listActiveRoomsService = async ({
             notification.user.id === userId && notification.viewed === false);
             
             const sortMessage = userRoom.room.messages.sort((a,b) => {
-              const dateA = new Date(b.createdAt) 
+              const dateA = new Date(a.createdAt) 
               const dateB = new Date(b.createdAt) 
               return dateA.getTime() - dateB.getTime();
             });

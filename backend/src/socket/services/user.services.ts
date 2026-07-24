@@ -21,21 +21,33 @@ const userServices = (io: Server, socket: Socket) =>{
     }
   }
 
+  const getAcceptedFriendIds = async (userId: string): Promise<string[]> => {
+    const relationships = await AppDataSource.getRepository(Relationship).find({
+      where: [
+        { requester: { id: userId }, type: "accepted" },
+        { addressee: { id: userId }, type: "accepted" },
+      ],
+      relations: ['addressee', 'requester']
+    })
+
+    const friendIds = new Set<string>()
+    for (const relationship of relationships) {
+      const otherUserId =
+        relationship.requester.id === userId
+          ? relationship.addressee.id
+          : relationship.requester.id
+      friendIds.add(otherUserId)
+    }
+    return Array.from(friendIds)
+  }
+
   const userListReady = async (usersOnline: IUsersOnline[], {userId, activeRooms}: IUserReadySocket) =>{
     try {
-      const friends = await AppDataSource.getRepository(Relationship).find({
-        where:{
-          requester:{
-            id: userId
-          },
-          type: "accepted"
-        },
-        relations: ['addressee', 'requester']
-      })
+      const friendIds = await getAcceptedFriendIds(userId)
     
-      if (friends) {
+      if (friendIds.length) {
         const onlineFriends = usersOnline.filter((user: IUsersOnline) =>
-        friends.some((friend: Relationship) => friend.addressee.id === user.userId)
+          friendIds.includes(user.userId)
         );
         
         //Notifying friends that the user has come online
@@ -58,20 +70,11 @@ const userServices = (io: Server, socket: Socket) =>{
   const disconnect = async (usersOnline: IUsersOnline[]) =>{
     const userId = usersOnline.find((user)=> user.socketId === socket.id)?.userId
     if(userId){
-      const friends = await AppDataSource.getRepository(Relationship).find({
-        where:{
-          requester:{
-            id: userId
-          },
-          type: "accepted"
-        },
-        relations: ['addressee', 'requester']
-      })
+      const friendIds = await getAcceptedFriendIds(userId)
    
-      if (friends) {
+      if (friendIds.length) {
         const onlineFriends = usersOnline.filter((user: IUsersOnline) =>
-
-        friends.some((friend: Relationship) => friend.addressee.id === user.userId)
+          friendIds.includes(user.userId)
         );
   
         onlineFriends.forEach((friend: IUsersOnline) => {

@@ -6,15 +6,36 @@ import { IListFriendsRequest } from '../../interface/friends/friend.interface';
 const listFriendsService = async ({ userId }: IListFriendsRequest): Promise<Relationship[]> => {
    const relationshipRepository = AppDataSource.getRepository(Relationship);
 
-   const friends = await relationshipRepository.find({
-      where: { requester: { id: userId }, type: 'accepted' },
-      relations: [ 'addressee' ],
+   const relationships = await relationshipRepository.find({
+      where: [
+         { requester: { id: userId }, type: 'accepted' },
+         { addressee: { id: userId }, type: 'accepted' },
+      ],
+      relations: [ 'requester', 'addressee' ],
       select: {
-         addressee: { id: true, name: true, email: true, image: true }
+         requester: { id: true, name: true, email: true, image: true },
+         addressee: { id: true, name: true, email: true, image: true },
       }
    });
 
-   return friends;
+   // Normalize so addressee is always the other user (frontend expects friend.addressee)
+   const friendsById = new Map<string, Relationship>();
+
+   for (const relationship of relationships) {
+      const otherUser =
+         relationship.requester.id === userId
+            ? relationship.addressee
+            : relationship.requester;
+
+      if (!friendsById.has(otherUser.id)) {
+         friendsById.set(otherUser.id, {
+            ...relationship,
+            addressee: otherUser,
+         });
+      }
+   }
+
+   return Array.from(friendsById.values());
 };
 
 export default listFriendsService;

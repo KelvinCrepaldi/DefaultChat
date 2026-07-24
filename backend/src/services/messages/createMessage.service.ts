@@ -10,6 +10,10 @@ const createMessageService = async ({message, userId, roomId}:ICreateMessageServ
   const userRepository = AppDataSource.getRepository(User)
   const roomRepository = AppDataSource.getRepository(Room)
 
+  if (!message?.trim()) {
+    throw new AppError(400, "Message cannot be empty")
+  }
+
   const user = await userRepository.findOne({where:{ id: userId}})
   if(!user){
     throw new AppError(404, "user not found")
