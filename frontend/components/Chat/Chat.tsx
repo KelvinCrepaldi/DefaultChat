@@ -25,7 +25,9 @@ export default function Chat() {
   };
 
   const handleSend = () => {
-    if (session?.user ) sendMessage({ message, roomId: room?.id });
+    const trimmed = message.trim();
+    if (!trimmed || !session?.user) return;
+    sendMessage({ message: trimmed, roomId: room?.id });
     setMessage("");
   };
 
