@@ -1,7 +1,8 @@
 interface IUser{
   id: string;
   name: string,
-  image: string
+  image: string,
+  token?: string
 }
 
 export interface IClientMessage{
@@ -17,13 +18,16 @@ export interface IUsersOnline {
 
 export interface IUserRegisterSocket {
   userId: string;
+  token: string;
 }
 
 export interface IUserReadySocket {
   userId: string;
-  activeRooms: string[]
+  activeRooms: string[];
+  token: string;
 }
 
 export interface IUserJoinRoomSocket {
   room: string;
+  token: string;
 }

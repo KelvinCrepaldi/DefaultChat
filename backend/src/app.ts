@@ -28,11 +28,12 @@ const server = createServer(app);
 
 const io = new Server(server, {
   cors: { 
-    origin: '*', 
+    origin: process.env.CORS_ORIGIN, 
     methods: ['PUT', "GET"]
   },
 });
-app.use(cors());
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
+
 app.use(express.json());
 const port = process.env.PORT || 3000;
 
