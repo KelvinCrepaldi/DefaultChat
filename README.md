@@ -71,9 +71,11 @@ cp .env.example .env
 
 | Variável | Exemplo |
 | --- | --- |
-| `NEXT_PUBLIC_API_URL` | `http://localhost:3001` |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:3001` (browser / Socket.io) |
+| `API_URL` | URL da API no servidor Next.js (no Docker: `http://backend:3001`) |
 | `NEXTAUTH_SECRET` | segredo local |
 | `NEXTAUTH_URL` | `http://localhost:3000` |
+
 
 ```bash
 npm run dev

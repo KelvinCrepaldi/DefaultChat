@@ -11,15 +11,25 @@ export const authOptions = {
         email: { label: "Email", type: "text", placeholder: "jsmith" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
-        const { email, password }: any = req.body;
-        const response = await api.post("api/auth/login", { email, password });
-        const { user, token } = response.data;
-
-        if (!user) {
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        return { ...user, token };
+
+        try {
+          const response = await api.post("api/auth/login", {
+            email: credentials.email,
+            password: credentials.password,
+          });
+          const { user, token } = response.data;
+
+          if (!user) {
+            return null;
+          }
+          return { ...user, token };
+        } catch {
+          return null;
+        }
       },
     }),
 
