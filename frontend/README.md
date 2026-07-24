@@ -1,42 +1,69 @@
-# DefaultChat
+# DefaultChat — Frontend
 
-Projeto de portfólio: front-end de um chat 1:1 em tempo real. Demo pensada para rodar **localmente** junto com a API e um PostgreSQL — não é um serviço de produção sempre online.
+Front-end do **DefaultChat**, projeto de portfólio: chat 1:1 e grupos públicos em tempo real.
 
-## O que faz
+Roda junto com a API em [`../backend`](../backend) e um PostgreSQL. Pensado para demo **local** — não é um app de produção sempre online.
 
-- Contas e login (NextAuth no front)
-- Busca de usuários, amigos e pedidos de amizade
-- Salas privadas 1:1
-- Grupos públicos (criar, buscar e entrar)
-- Mensagens em tempo real com Socket.io
-- Status online de amigos conectados
+## O que a interface cobre
+
+- Landing, signup e login (NextAuth + credentials / JWT da API)
+- Área autenticada `/me`
+- Busca de usuários e convites de amizade (“Adicionar amizade” / “Convite já enviado”)
+- Lista de amigos, pedidos recebidos e empty states com links
+- Chat privado 1:1 (`/me/chat/[userId]`)
+- Grupos: criar, listar, buscar e entrar (`/me/groups`, chat em `/me/chat/group/[roomId]`)
+- Sidebar de membros no grupo + menu de convite
+- Avatar com letra e seletor de cor em Configurações
+- Socket.io: mensagens em tempo real e status online
 
 ## Stack
 
-- **Next.js** (App Router) + React
-- **NextAuth** para sessão no front
-- Cliente **Socket.io**
-- Consome a API em [`../backend`](../backend) (Express + TypeORM + PostgreSQL)
+- Next.js 14 (App Router) + React 18
+- NextAuth (Credentials)
+- Socket.io client + Axios
+- Tailwind CSS, React Hook Form, Yup
 
-## Como rodar
+## Pré-requisitos
 
-1. Suba a API e o PostgreSQL (veja [`../backend/README.md`](../backend/README.md)).
-2. Neste diretório (`frontend/`):
+1. API e Postgres rodando (veja [`../backend/README.md`](../backend/README.md) ou Docker na raiz).
+2. Node.js 20+ e npm.
+
+Para subir **tudo** de uma vez (front + API + DB), use o Compose na raiz:
 
 ```bash
-npm install
+# na raiz do monorepo
+docker compose up --build
+```
+
+## Instalação local (sem Docker só no front)
+
+```bash
+cd frontend
+npm install --legacy-peer-deps
 cp .env.example .env
 ```
 
-3. Preencha o `.env` com base em `.env.example`:
+### Variáveis de ambiente
 
-| Variável | Descrição |
-| --- | --- |
-| `NEXT_PUBLIC_API_URL` | URL da API (ex.: `http://localhost:3001`) |
-| `NEXTAUTH_SECRET` | Segredo usado pelo NextAuth |
-| `NEXTAUTH_URL` | URL do front (ex.: `http://localhost:3000`) |
+| Variável | Obrigatória | Exemplo | Descrição |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | sim | `http://localhost:3001` | Base da API no **browser** (HTTP + Socket.io) |
+| `API_URL` | recomendada | `http://localhost:3001` | Base da API no **servidor** Next.js (login NextAuth). No Docker Compose: `http://backend:3001` |
+| `NEXTAUTH_SECRET` | sim | string aleatória | Segredo da sessão |
+| `NEXTAUTH_URL` | sim | `http://localhost:3000` | URL do front |
 
-4. Inicie o front:
+Exemplo de `.env` local:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+API_URL=http://localhost:3001
+NEXTAUTH_SECRET=dev-nextauth-secret-change-me
+NEXTAUTH_URL=http://localhost:3000
+```
+
+> Se `API_URL` estiver errado (comum no Docker apontando para `localhost` de dentro do container), o login via NextAuth falha mesmo com a API ok no host.
+
+### Rodar em desenvolvimento
 
 ```bash
 npm run dev
@@ -44,17 +71,49 @@ npm run dev
 
 Abra [http://localhost:3000](http://localhost:3000).
 
+### Build de produção
+
+```bash
+npm run build
+npm run start
+```
+
+## Rotas principais da UI
+
+| Rota | Conteúdo |
+| --- | --- |
+| `/` | Landing |
+| `/login`, `/signup` | Autenticação |
+| `/me` | Home autenticada |
+| `/me/friends` | Amigos e pedidos |
+| `/me/requests` | Buscar usuários |
+| `/me/groups` | Criar / listar / buscar grupos |
+| `/me/chat/[userId]` | Chat 1:1 |
+| `/me/chat/group/[roomId]` | Chat de grupo + membros |
+| `/me/config` | Cor do avatar |
+
 ## Estrutura (resumo)
 
 ```
-app/            # Rotas (home, login, signup, área /me)
-components/     # UI do chat, amigos, formulários
-contexts/       # Estado compartilhado (ex.: socket)
-services/       # Chamadas HTTP à API
-hooks/          # Hooks auxiliares
-public/         # Assets estáticos
+app/                 # App Router (páginas)
+components/          # Chat, amigos, grupos, UI
+contexts/            # Socket, amigos, busca, pedidos
+services/            # Axios + Socket.io client
+utils/               # Ex.: cores de avatar
+pages/api/auth/      # NextAuth (Credentials)
+public/              # Assets estáticos
 ```
 
-## API neste monorepo
+## Scripts
 
-Backend: [`../backend`](../backend)
+| Script | Uso |
+| --- | --- |
+| `npm run dev` | Desenvolvimento |
+| `npm run build` | Build de produção |
+| `npm run start` | Servir build |
+| `npm run lint` | ESLint |
+
+## API
+
+Backend neste monorepo: [`../backend`](../backend)  
+README geral / Docker: [`../README.md`](../README.md)

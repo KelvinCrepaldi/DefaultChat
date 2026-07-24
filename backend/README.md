@@ -1,138 +1,218 @@
-# DefaultChatAPI
+# DefaultChat — API (backend)
 
-API do **DefaultChat**, projeto de portfólio para chat 1:1 em tempo real. Pensada para rodar **localmente** com PostgreSQL — não é um servidor de produção sempre online.
+API do **DefaultChat**, projeto de portfólio para chat 1:1 e grupos públicos em tempo real.
 
-Front-end neste monorepo: [`../frontend`](../frontend)
+Front neste monorepo: [`../frontend`](../frontend). Pensada para rodar **localmente** com PostgreSQL — não é um servidor de produção sempre online.
 
 ## Stack
 
-- Express
-- Socket.io
+- Express + HTTP server
+- Socket.io (tempo real)
 - TypeORM + PostgreSQL
-- JWT (login), bcrypt, Multer + AWS S3 (upload de imagem de perfil)
+- JWT (login) + bcrypt
+- Multer + AWS S3 (rota de upload antiga; o fluxo atual de avatar usa **cor hex** em `users.image`)
 
-## Funcionalidades reais
+## Funcionalidades
 
-- Contas (signup/login)
-- Usuários (busca, perfil, bloqueio, upload de imagem)
-- Amigos e pedidos de amizade
-- Salas privadas 1:1 e histórico de mensagens
+- Contas: signup / login (JWT)
+- Usuários: busca, perfil, bloqueio, `PATCH` cor do avatar
+- Amigos: convites, aceitar/recusar, listar enviados/recebidos, remover
+- Salas privadas 1:1 + histórico
+- **Grupos públicos**: criar, listar, buscar, entrar, detalhe (membro)
 - Notificações de mensagem não vista
 - Status online via Socket.io
+- Membership validada ao enviar mensagem no socket
 
-Grupos públicos: criar, buscar por nome e entrar.
+## Pré-requisitos
 
-## Variáveis de ambiente
+- Node.js 20+
+- PostgreSQL 14+ (ou o serviço `db` do Docker Compose na raiz)
 
-Copie `.env.example` para `.env` e preencha:
-
-| Variável | Descrição |
-| --- | --- |
-| `DB_HOST` | Host do PostgreSQL |
-| `DB_USER` | Usuário do banco |
-| `DB_PASSWORD` | Senha do banco |
-| `DB` | Nome do banco |
-| `PGPORT` | Porta do Postgres (padrão `5432`) |
-| `PORT` | Porta HTTP/Socket da API |
-| `SECRET_KEY` | Segredo para JWT |
-| `TOKEN_EXPIRES_TIME` | Expiração do token |
-| `CORS_ORIGIN` | Origem permitida (front) |
-| `AWS_ACCESSKEYID` | Credencial AWS (upload) |
-| `AWS_SECRETACCESSKEY` | Credencial AWS (upload) |
-| `AWS_REGION` | Região do bucket |
-| `AWS_BUCKETNAME` | Nome do bucket S3 |
-
-## Como rodar
+## Instalação local
 
 ```bash
+cd backend
 npm install
 cp .env.example .env
-# configure o .env e garanta que o PostgreSQL está acessível
+```
+
+### Variáveis de ambiente
+
+| Variável | Exemplo | Descrição |
+| --- | --- | --- |
+| `DB_HOST` | `localhost` | Host do Postgres (`db` no Docker) |
+| `DB_USER` | `defaultchat` | Usuário |
+| `DB_PASSWORD` | `defaultchat` | Senha |
+| `DB` | `defaultchat` | Nome do banco |
+| `PGPORT` | `5432` | Porta do Postgres |
+| `PORT` | `3001` | Porta HTTP + Socket.io |
+| `SECRET_KEY` | string longa | Segredo JWT |
+| `TOKEN_EXPIRES_TIME` | `24h` | Expiração do token |
+| `CORS_ORIGIN` | `http://localhost:3000` | Origem permitida do front |
+| `AWS_ACCESSKEYID` | opcional | Só se usar upload S3 |
+| `AWS_SECRETACCESSKEY` | opcional | Só se usar upload S3 |
+| `AWS_REGION` | opcional | Região do bucket |
+| `AWS_BUCKETNAME` | opcional | Nome do bucket |
+
+Exemplo mínimo de `.env`:
+
+```env
+DB_HOST=localhost
+DB_USER=defaultchat
+DB_PASSWORD=defaultchat
+DB=defaultchat
+PGPORT=5432
+PORT=3001
+SECRET_KEY=dev-jwt-secret-change-me
+TOKEN_EXPIRES_TIME=24h
+CORS_ORIGIN=http://localhost:3000
+```
+
+### Migrations e start
+
+`synchronize` do TypeORM está **desligado**. Sempre rode as migrations:
+
+```bash
 npm run typeorm migration:run
 npm run dev
 ```
+
+API: http://localhost:3001  
+
+Produção local:
+
+```bash
+npm run build
+npm start
+```
+
+### Com Docker (raiz do monorepo)
+
+```bash
+# na raiz
+docker compose up --build
+```
+
+O entrypoint do backend espera o Postgres saudável, aplica migrations e sobe `node dist/app.js`.
 
 ## Rotas HTTP principais
 
 Prefixo `/api`:
 
+### Auth
+
 | Método | Rota | Descrição |
 | --- | --- | --- |
-| `POST` | `/api/auth/signup` | Criar conta |
+| `POST` | `/api/auth/signup` | Criar conta (avatar cor aleatória) |
 | `POST` | `/api/auth/login` | Login (JWT) |
+
+### Usuário
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
 | `GET` | `/api/user/search` | Buscar usuários |
+| `PATCH` | `/api/user/avatar-color` | Atualizar cor do avatar `{ "color": "#33BBB0" }` |
 | `GET` | `/api/user/:id` | Dados do usuário |
 | `GET` | `/api/user/:id/block` | Bloquear usuário |
-| `POST` | `/api/user/img/upload` | Upload de imagem de perfil |
+| `POST` | `/api/user/img/upload` | Upload de imagem (S3; legado) |
+
+### Amigos
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
 | `GET` | `/api/friend/` | Listar amigos |
 | `GET` | `/api/friend/requests/received` | Pedidos recebidos |
 | `GET` | `/api/friend/requests/sent` | Pedidos enviados |
-| `POST` | `/api/friend/:userId` | Enviar pedido de amizade |
-| `POST` | `/api/friend/:requestId/accept` | Aceitar pedido |
-| `POST` | `/api/friend/:requestId/decline` | Recusar pedido |
+| `POST` | `/api/friend/:userId` | Enviar pedido |
+| `POST` | `/api/friend/:requestId/accept` | Aceitar |
+| `POST` | `/api/friend/:requestId/decline` | Recusar |
 | `DELETE` | `/api/friend/:friendId` | Remover amigo |
-| `GET` | `/api/room/list` | Listar salas ativas |
+
+### Salas e grupos
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
+| `GET` | `/api/room/list` | Salas ativas (private + group) |
 | `GET` | `/api/room/user` | Obter/criar sala privada 1:1 |
 | `POST` | `/api/room/group` | Criar grupo público |
-| `GET` | `/api/room/group` | Listar grupos públicos |
+| `GET` | `/api/room/group` | Listar grupos (com `isMember`) |
 | `GET` | `/api/room/group/search` | Buscar grupos por nome |
-| `POST` | `/api/room/group/:roomId/join` | Entrar em um grupo |
-| `GET` | `/api/room/group/:roomId` | Detalhe do grupo (membro) |
-| `POST` | `/api/room/:roomId/close` | Fechar chat (desativar sala para o usuário) |
+| `POST` | `/api/room/group/:roomId/join` | Entrar no grupo |
+| `GET` | `/api/room/group/:roomId` | Detalhe (somente membro) |
+| `POST` | `/api/room/:roomId/close` | Fechar/desativar sala para o usuário |
+
+### Mensagens e notificações
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
 | `POST` | `/api/message/:roomId` | Criar mensagem (HTTP) |
-| `GET` | `/api/message/:roomId` | Listar mensagens da sala |
-| `POST` | `/api/notification/:roomId` | Marcar mensagens da sala como vistas |
+| `GET` | `/api/message/:roomId` | Listar mensagens |
+| `POST` | `/api/notification/:roomId` | Marcar como vistas |
 
 ## Eventos Socket.io
+
+Autenticação: eventos relevantes enviam JWT e o servidor valida (`verifySocketToken`).
 
 **Cliente → servidor**
 
 | Evento | Uso |
 | --- | --- |
-| `user:register` | Registrar `userId` na lista de online |
-| `user:ready` | Entrar nas salas ativas e sincronizar amigos online |
-| `user:joinRoom` | Entrar em uma sala |
-| `message:send` | Enviar mensagem em tempo real |
-| `disconnect` | Remoção da lista online e aviso aos amigos |
+| `user:register` | Registrar online |
+| `user:ready` | Entrar nas salas ativas + lista de amigos online |
+| `user:joinRoom` | Entrar em uma room |
+| `message:send` | Enviar mensagem (checa membership) |
+| `disconnect` | Sair da lista online |
 
 **Servidor → cliente**
 
 | Evento | Uso |
 | --- | --- |
-| `message:send` | Broadcast da mensagem na sala |
-| `message:openRoom` | Reabrir sala no cliente quando chega mensagem |
-| `friend:isOnline` | Amigo entrou online |
-| `friend:isOffline` | Amigo saiu |
-| `friend:listOnline` | Lista inicial de amigos online |
+| `message:send` | Broadcast na sala |
+| `message:openRoom` | Reabrir sala no cliente |
+| `friend:isOnline` / `friend:isOffline` | Status |
+| `friend:listOnline` | Lista inicial |
 
 ## Migrations (TypeORM)
-
-`synchronize` está desligado. Use as migrations em `src/migrations/`:
 
 ```bash
 npm run typeorm migration:run
 npm run typeorm migration:revert
 ```
 
-Migrations existentes (ordem):
+Ordem atual:
 
-1. `createTables` — usuários, relacionamentos, salas
-2. `addRoomImage` — imagem na sala
-3. `createMessagesTable` — mensagens
-4. `messageNotificationTable` — notificações de mensagem
-5. `addRoomOnMessageNotification` — vínculo sala ↔ notificação
+1. `createTables` — users, relationships, rooms, userRooms  
+2. `addRoomImage`  
+3. `createMessagesTable`  
+4. `messageNotificationTable`  
+5. `addRoomOnMessageNotification`
 
 ## Estrutura (resumo)
 
 ```
 src/
-  app.ts              # Express + HTTP server + Socket.io
+  app.ts              # Express + HTTP + Socket.io
   data-source.ts      # TypeORM + Postgres
-  routes/             # Rotas HTTP
+  routes/
   controllers/
   services/
   entities/
   migrations/
-  socket/             # Eventos e serviços em tempo real
+  socket/             # Tempo real
   middlewares/
+  utils/              # Ex.: paleta de avatar
 ```
+
+## Scripts
+
+| Script | Uso |
+| --- | --- |
+| `npm run dev` | ts-node-dev |
+| `npm run build` | `tsc` → `dist/` |
+| `npm start` | `node dist/app.js` |
+| `npm run typeorm` | CLI TypeORM (migrations) |
+
+## Front e Docker
+
+- Front: [`../frontend`](../frontend)  
+- Compose / visão geral: [`../README.md`](../README.md)
