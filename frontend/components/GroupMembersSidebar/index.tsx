@@ -147,13 +147,10 @@ const GroupMembersSidebar = ({ members }: GroupMembersSidebarProps) => {
           headers: { Authorization: `Bearer ${session.user.accessToken}` },
         });
         const sent = Array.isArray(response.data) ? response.data : [];
-        setInvitedIds(
-          new Set(
-            sent
-              .map((r: { addressee?: { id: string } }) => r.addressee?.id)
-              .filter(Boolean) as string[]
-          )
-        );
+        const ids = sent
+          .map((r: { addressee?: { id: string } }) => r.addressee?.id)
+          .filter((id: string | undefined): id is string => Boolean(id));
+        setInvitedIds(new Set(ids));
       } catch {
         // ignore
       }
