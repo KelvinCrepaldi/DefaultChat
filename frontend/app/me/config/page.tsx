@@ -1,11 +1,11 @@
 import HeaderSection from "@/components/_ui/HeaderSection";
-import ImageUploader from "@/components/imageUploader";
+import AvatarColorPicker from "@/components/AvatarColorPicker";
 
 export default function Config() {
   return (
-      <section >
-        <HeaderSection text="Configurações" />
-        <ImageUploader/>
-      </section>
+    <section>
+      <HeaderSection text="Configurações" />
+      <AvatarColorPicker />
+    </section>
   );
 }

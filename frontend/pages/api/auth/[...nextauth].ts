@@ -1,9 +1,8 @@
 import NextAuth from "next-auth";
-import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { api } from "@/services";
+
 export const authOptions = {
-  // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -32,19 +31,25 @@ export const authOptions = {
         }
       },
     }),
-
-    // ...add more providers here
   ],
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user, trigger, session }: any) {
       if (user) {
         token.accessToken = user.token;
+        token.sub = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.picture = user.image;
       }
+
+      if (trigger === "update" && session?.picture) {
+        token.picture = session.picture;
+      }
+
       return token;
     },
-    async session({ session, token, user }: any) {
+    async session({ session, token }: any) {
       session.user = token;
-      
       return session;
     },
   },

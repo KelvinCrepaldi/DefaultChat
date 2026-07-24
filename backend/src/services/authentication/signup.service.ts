@@ -7,6 +7,7 @@ import {
 } from "../../interface/authentication/signup.interface";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { pickRandomAvatarColor } from "../../utils/avatarColors";
 
 const signupService = async ({
   name,
@@ -31,8 +32,7 @@ const signupService = async ({
   user.email = email;
   user.name = name;
   user.password = hashedPassword;
-  user.image =
-    "https://img.freepik.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg";
+  user.image = pickRandomAvatarColor();
   await userRepository.save(user);
 
   const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, {

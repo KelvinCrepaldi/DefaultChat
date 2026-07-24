@@ -1,20 +1,33 @@
 import { Router } from "express";
-import { blockUserController, getUserController, searchUserController, uploadUserImageController } from "../controllers/user.controllers";
+import {
+  blockUserController,
+  getUserController,
+  searchUserController,
+  updateAvatarColorController,
+  uploadUserImageController,
+} from "../controllers/user.controllers";
 import verifyAuthTokenMiddleware from "../middlewares/verifyAuthToken.middleware";
 import upload from "../multer-config";
 
 const userRoutes = Router();
 
-//find user
-userRoutes.get('/search', verifyAuthTokenMiddleware, searchUserController);
+userRoutes.get("/search", verifyAuthTokenMiddleware, searchUserController);
 
-//get user 
-userRoutes.get('/:id', getUserController)
+userRoutes.patch(
+  "/avatar-color",
+  verifyAuthTokenMiddleware,
+  updateAvatarColorController
+);
 
-//block user 
-userRoutes.get('/:id/block', verifyAuthTokenMiddleware,blockUserController)
+userRoutes.get("/:id", getUserController);
 
-//change user image
-userRoutes.post('/img/upload', upload.single('image'), verifyAuthTokenMiddleware, uploadUserImageController)
+userRoutes.get("/:id/block", verifyAuthTokenMiddleware, blockUserController);
+
+userRoutes.post(
+  "/img/upload",
+  upload.single("image"),
+  verifyAuthTokenMiddleware,
+  uploadUserImageController
+);
 
 export default userRoutes;

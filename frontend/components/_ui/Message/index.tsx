@@ -1,22 +1,17 @@
 'use client'
-import { socketMessage } from "@/contexts/socketContext";
 import { IMessage } from "@/interfaces/message";
 import formatDate from "@/utils/formatDate";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import UserAvatar from "../UserAvatar";
 
 const Message = ({ msg }: { msg: IMessage }) => {
   const {data: session} = useSession();
   return (
     <div className={`p-1 m-[2px] shadow rounded text-chatTextWhite flex w-full
     ${session?.user.name === msg.user.name ? "bg-chatMessageBox1" : "bg-chatMessageBox2"}`}>
-      <Image
-        src={msg.user.image || ""}
-        className="rounded-full w-[30px] h-[30px] object-cover bg-black m-1 mr-4"
-        width={40}
-        height={40}
-        alt="User profile image"
-      ></Image>
+      <div className="m-1 mr-4">
+        <UserAvatar name={msg.user.name} image={msg.user.image} size={30} />
+      </div>
       <div className="flex-col w-full mb-2">
         <div className="flex items-center justify-between">
           <p className="text-chatTitle">{msg.user.name}</p>
