@@ -2,9 +2,7 @@
 
 Projeto de portfólio: chat 1:1 em tempo real (front + API) em um único repositório. Demo pensada para rodar **localmente** com PostgreSQL — não é um serviço de produção sempre online.
 
-Este monorepo reúne o histórico dos projetos originais:
-- Front: [defaultchat](https://github.com/KelvinCrepaldi/defaultchat)
-- API: [DefaultChatAPI](https://github.com/KelvinCrepaldi/DefaultChatAPI)
+Monorepo com o histórico do front e da API reunidos em um só projeto.
 
 ## Estrutura
 
@@ -66,9 +64,3 @@ npm run dev
 ```
 
 Abra [http://localhost:3000](http://localhost:3000).
-
-## Repos originais
-
-Os repositórios separados continuam no GitHub (não foram alterados por este monorepo):
-- https://github.com/KelvinCrepaldi/defaultchat
-- https://github.com/KelvinCrepaldi/DefaultChatAPI
