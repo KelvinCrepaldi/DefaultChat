@@ -8,6 +8,7 @@ import { useContext, useEffect } from "react";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import CounterText from "../_ui/CounterText";
 import EmptyState from "../_ui/EmptyState";
+import Loading from "../_ui/Loading";
 import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
 import { SocketContext } from "@/contexts/socketContext";
 
@@ -30,13 +31,24 @@ const FriendsList = () => {
     }
   }, [session]);
 
+  if (loading && (!friends || friends.length === 0)) {
+    return (
+      <div className="flex justify-center py-16">
+        <Loading />
+      </div>
+    );
+  }
+
   if (!loading && (!friends || friends.length === 0)) {
     return (
       <EmptyState
+        className="min-h-[50vh]"
         title="Nenhum amigo ainda"
-        description="Você ainda não adicionou ninguém. Busque usuários e envie pedidos de amizade para começar a conversar."
-        actionHref="/me/requests"
-        actionLabel="Buscar usuários"
+        description="Você ainda não adicionou ninguém. Busque usuários para enviar pedidos de amizade ou entre em um grupo para conhecer pessoas."
+        actions={[
+          { href: "/me/requests", label: "Buscar usuários" },
+          { href: "/me/groups", label: "Ver grupos" },
+        ]}
       />
     );
   }
@@ -52,13 +64,15 @@ const FriendsList = () => {
             icon={<BiMessageDetail />}
             handleFunction={goToChat}
             color="green"
-          ></UserActionBtn>
+            title="Abrir conversa"
+          />
           <UserActionBtn
             actionId={friend.addressee.id}
             icon={<IoPersonRemove />}
             handleFunction={deleteFriend}
             color="red"
-          ></UserActionBtn>
+            title="Remover amigo"
+          />
         </UserCard>
       ))}
     </section>

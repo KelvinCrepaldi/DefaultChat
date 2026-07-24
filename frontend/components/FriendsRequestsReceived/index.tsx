@@ -9,7 +9,8 @@ import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import { FaCheck } from "react-icons/fa";
 import CounterText from "../_ui/CounterText";
 import { FaTimes } from "react-icons/fa";
-import EmptyState from "../_ui/EmptyState";
+import Loading from "../_ui/Loading";
+import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
 
 type requestTypes = {
   id: string;
@@ -29,6 +30,9 @@ const FriendsRequestsReceived = () => {
     declineFriendRequest,
   } = useContext(FriendRequestsContext);
 
+  const { friends } = useContext(FriendsContext) as FriendsContextType;
+  const hasFriends = friends && friends.length > 0;
+
   useEffect(() => {
     if (session?.user.accessToken) {
       fetchFriendsRequests();
@@ -41,12 +45,16 @@ const FriendsRequestsReceived = () => {
 
       {error && <div>{error}</div>}
 
-      {!loading && (!requests || requests.length === 0) && (
-        <EmptyState
-          className="py-10"
-          title="Nenhum pedido pendente"
-          description="Quando alguém te enviar um pedido de amizade, ele aparece aqui para você aceitar ou recusar."
-        />
+      {loading && (!requests || requests.length === 0) && (
+        <div className="flex justify-center py-6">
+          <Loading />
+        </div>
+      )}
+
+      {!loading && (!requests || requests.length === 0) && hasFriends && (
+        <p className="text-chatText text-sm py-2">
+          Nenhum pedido de amizade pendente.
+        </p>
       )}
 
       {requests?.map((request: requestTypes) => (
@@ -56,12 +64,14 @@ const FriendsRequestsReceived = () => {
             color="green"
             handleFunction={acceptFriendRequest}
             icon={<FaCheck />}
+            title="Aceitar pedido"
           />
           <UserActionBtn
             actionId={request.id}
             color="red"
             handleFunction={declineFriendRequest}
             icon={<FaTimes />}
+            title="Recusar pedido"
           />
         </UserCard>
       ))}

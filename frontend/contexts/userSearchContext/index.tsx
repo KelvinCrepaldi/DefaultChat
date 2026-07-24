@@ -41,17 +41,19 @@ export const UserSearchProvider = ({ children }: { children: ReactNode }) => {
   const inviteFriendUser = async (actionId: string): Promise<boolean> => {
     if (session?.user?.accessToken) {
       try {
-        const response = await api.post(
+        await api.post(
           `api/friend/${actionId}`,
           {},
           {
             headers: { Authorization: `Bearer ${session.user.accessToken}` },
           }
         );
-        const data = response.data;
         return true;
       } catch (error: any) {
-        console.log(error.response.data);
+        if (error?.response?.status === 409) {
+          return true;
+        }
+        console.log(error?.response?.data);
       }
     }
     return false;

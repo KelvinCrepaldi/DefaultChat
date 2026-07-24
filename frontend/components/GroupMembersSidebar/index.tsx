@@ -6,6 +6,8 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { FaUserPlus } from "react-icons/fa6";
 import UserAvatar from "../_ui/UserAvatar";
 import { api } from "@/services";
+import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
+import { useContext } from "react";
 
 type Member = {
   id: string;
@@ -18,12 +20,27 @@ type GroupMembersSidebarProps = {
   members: Member[];
 };
 
-const MemberCard = ({ member }: { member: Member }) => {
+const MemberCard = ({
+  member,
+  invitedIds,
+  onInviteSent,
+}: {
+  member: Member;
+  invitedIds: Set<string>;
+  onInviteSent: (userId: string) => void;
+}) => {
   const { data: session } = useSession();
+  const friendsContext = useContext(FriendsContext) as FriendsContextType | null;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isSelf = session?.user?.sub === member.id;
+
+  const isFriend = friendsContext?.friends?.some(
+    (f) => f.addressee?.id === member.id
+  );
+  const alreadyInvited = invitedIds.has(member.id) || !!isFriend;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,8 +55,11 @@ const MemberCard = ({ member }: { member: Member }) => {
   }, [menuOpen]);
 
   const sendFriendInvite = async () => {
-    if (!session?.user.accessToken || isSelf) return;
-    setFeedback(null);
+    if (!session?.user.accessToken || isSelf || alreadyInvited || sending || cooldown) {
+      return;
+    }
+    setSending(true);
+    setCooldown(true);
     try {
       await api.post(
         `api/friend/${member.id}`,
@@ -48,15 +68,17 @@ const MemberCard = ({ member }: { member: Member }) => {
           headers: { Authorization: `Bearer ${session.user.accessToken}` },
         }
       );
-      setFeedback("Convite enviado");
+      onInviteSent(member.id);
       setMenuOpen(false);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data ||
-        "Não foi possível enviar o convite";
-      setFeedback(typeof message === "string" ? message : "Erro ao enviar convite");
+      const status = error?.response?.status;
+      if (status === 409) {
+        onInviteSent(member.id);
+      }
       setMenuOpen(false);
+    } finally {
+      setSending(false);
+      setTimeout(() => setCooldown(false), 1000);
     }
   };
 
@@ -70,8 +92,11 @@ const MemberCard = ({ member }: { member: Member }) => {
             {isSelf ? " (você)" : ""}
           </p>
           <p className="text-chatText text-xs truncate">{member.email}</p>
-          {feedback && (
-            <p className="text-[11px] text-chatTitle mt-0.5">{feedback}</p>
+          {alreadyInvited && !isSelf && !isFriend && (
+            <p className="text-[11px] text-chatText mt-0.5">Convite já enviado</p>
+          )}
+          {isFriend && !isSelf && (
+            <p className="text-[11px] text-chatText mt-0.5">Já é seu amigo</p>
           )}
         </div>
         {!isSelf && (
@@ -85,14 +110,21 @@ const MemberCard = ({ member }: { member: Member }) => {
               <HiDotsHorizontal />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 top-7 z-20 min-w-[180px] bg-chatBackground2 border border-chatBorder rounded shadow-lg overflow-hidden">
+              <div className="absolute right-0 top-7 z-20 min-w-[200px] bg-chatBackground2 border border-chatBorder rounded shadow-lg overflow-hidden">
                 <button
                   type="button"
                   onClick={sendFriendInvite}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-chatTextWhite hover:bg-chatBackground1"
+                  disabled={alreadyInvited || sending || cooldown}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-chatTextWhite hover:bg-chatBackground1 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-chatBackground2"
                 >
-                  <FaUserPlus className="text-chatTitle" />
-                  Enviar convite de amizade
+                  <FaUserPlus className="text-chatTitle shrink-0" />
+                  {alreadyInvited
+                    ? isFriend
+                      ? "Já é seu amigo"
+                      : "Convite já enviado"
+                    : sending
+                      ? "Enviando..."
+                      : "Adicionar amizade"}
                 </button>
               </div>
             )}
@@ -104,6 +136,35 @@ const MemberCard = ({ member }: { member: Member }) => {
 };
 
 const GroupMembersSidebar = ({ members }: GroupMembersSidebarProps) => {
+  const { data: session } = useSession();
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const loadSent = async () => {
+      if (!session?.user.accessToken) return;
+      try {
+        const response = await api.get("api/friend/requests/sent", {
+          headers: { Authorization: `Bearer ${session.user.accessToken}` },
+        });
+        const sent = Array.isArray(response.data) ? response.data : [];
+        setInvitedIds(
+          new Set(
+            sent
+              .map((r: { addressee?: { id: string } }) => r.addressee?.id)
+              .filter(Boolean) as string[]
+          )
+        );
+      } catch {
+        // ignore
+      }
+    };
+    loadSent();
+  }, [session?.user.accessToken]);
+
+  const handleInviteSent = (userId: string) => {
+    setInvitedIds((prev) => new Set(prev).add(userId));
+  };
+
   return (
     <aside className="w-[250px] min-w-[220px] max-w-[250px] h-full bg-chatBackground0 border-l border-chatBorder flex flex-col overflow-hidden">
       <div className="p-3 border-b border-chatBorder">
@@ -122,7 +183,12 @@ const GroupMembersSidebar = ({ members }: GroupMembersSidebarProps) => {
           </div>
         )}
         {members.map((member) => (
-          <MemberCard key={member.id} member={member} />
+          <MemberCard
+            key={member.id}
+            member={member}
+            invitedIds={invitedIds}
+            onInviteSent={handleInviteSent}
+          />
         ))}
       </div>
     </aside>
