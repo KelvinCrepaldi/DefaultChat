@@ -175,7 +175,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           headers: { Authorization: `Bearer ${session?.user.accessToken}` },
         });
         const room = responseChat.data;
-        socket.emit("user:joinRoom", { room: room.id });
+        socket.emit("user:joinRoom", { room: room.id, token: session.user.accessToken });
         setPrivateRooms(prevRooms => {
           return [...prevRooms, {
             ...room,
@@ -221,7 +221,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(()=>{
     if (session?.user.accessToken) {
-      socket.emit('user:register', {userId: session.user.sub})
+      socket.emit('user:register', {userId: session.user.sub, token: session.user.accessToken})
       fetchChatList();
     }
   },[session])
@@ -243,7 +243,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       
       setPrivateRooms(privateRooms);
       //criar logica de grupos usando data.groupRooms
-      socket.emit("user:ready", {userId: session?.user.sub, activeRooms: roomsId})
+      socket.emit("user:ready", {userId: session?.user.sub, activeRooms: roomsId, token: session.user.accessToken})
     } catch (error) {
         signOut({redirect: true, callbackUrl: "/login"});
     } 
@@ -252,7 +252,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const openRoom = async ({userId} : {userId: string}) =>{
     const roomExists = privateRooms.find((room)=> room.user.id === userId)
     if(roomExists){
-      socket.emit("user:joinRoom", { room: roomExists.id });
+      socket.emit("user:joinRoom", { room: roomExists.id, token: session?.user.accessToken });
       push(`/me/chat/${userId}`)
     } else{
       if (session?.user.accessToken) {
@@ -261,7 +261,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             headers: { Authorization: `Bearer ${session?.user.accessToken}` },
           });
           const room = responseChat.data;
-          socket.emit("user:joinRoom", { room: room.id });
+          socket.emit("user:joinRoom", { room: room.id, token: session.user.accessToken });
           setPrivateRooms(prevRooms => {
             return [...prevRooms, {
               ...room,
