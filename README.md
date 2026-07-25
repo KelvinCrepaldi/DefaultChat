@@ -6,8 +6,11 @@ Projeto de **portfólio**: chat em tempo real (1:1 e grupos públicos) em um mon
 DefaultChat/
 ├── frontend/          # Next.js + NextAuth + Socket.io (pnpm)
 ├── backend/           # Express + Socket.io + TypeORM + PostgreSQL
+├── images/            # Screenshots para o README
 └── docker-compose.yml # Postgres + API (o front NÃO entra no Compose)
 ```
+
+<img src="./images/hero.png" alt="DefaultChat — landing" width="100%" />
 
 ## O que o projeto faz
 
@@ -19,6 +22,20 @@ DefaultChat/
 - Status online de amigos conectados (Socket.io)
 - Avatar com letra e cor escolhível (sem upload obrigatório)
 - Empty states, loadings e feedback de “convite já enviado”
+
+## Demonstração
+
+### Login
+
+<img src="./images/login.png" alt="DefaultChat — tela de login" width="100%" />
+
+### Chat em grupo
+
+<img src="./images/chat.png" alt="DefaultChat — chat em grupo" width="100%" />
+
+### Grupos públicos
+
+<img src="./images/groups.png" alt="DefaultChat — lista de grupos" width="100%" />
 
 ## Stack
 
