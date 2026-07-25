@@ -15,8 +15,10 @@ import { useParams } from "next/navigation";
 import GroupChatHeader from "../GroupChatHeader";
 import GroupMembersSidebar from "../GroupMembersSidebar";
 import { api } from "@/services";
+import { useTranslation } from "react-i18next";
 
 export default function GroupChat() {
+  const { t } = useTranslation();
   const { roomId } = useParams() as { roomId: string };
   const {
     sendMessage,
@@ -137,7 +139,7 @@ export default function GroupChat() {
             className="border-chatBorder p-2 text-chatText m-1 hover:bg-chatBorder rounded bg-chatBackground0"
             onClick={handleSend}
           >
-            Send
+            {t("chat.send")}
           </button>
         </div>
       </section>

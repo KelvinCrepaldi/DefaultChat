@@ -13,6 +13,7 @@ import CounterText from "../_ui/CounterText";
 import EmptyState from "../_ui/EmptyState";
 import Loading from "../_ui/Loading";
 import { api } from "@/services";
+import { useTranslation } from "react-i18next";
 
 const searchSchema = yup.object().shape({
   letters: yup.string().required(),
@@ -23,6 +24,7 @@ type SearchFormValues = {
 };
 
 const FriendsSearch = () => {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const [hasSearched, setHasSearched] = useState(false);
   const [searchCooldown, setSearchCooldown] = useState(false);
@@ -76,7 +78,7 @@ const FriendsSearch = () => {
         <div className="flex">
           <input
             {...register("letters")}
-            placeholder="Digite o nome do usuário"
+            placeholder={t("friends.searchPlaceholder")}
             className="w-full bg-chatBackground2 rounded border border-chatBorder p-2 text-chatText my-1"
           />
           <button
@@ -84,13 +86,13 @@ const FriendsSearch = () => {
             disabled={loading || searchCooldown}
             className="border-chatBorder p-2 text-chatText m-1 hover:bg-chatBorder rounded bg-chatBackground0 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Buscar
+            {t("friends.search")}
           </button>
         </div>
       </form>
 
       <div>
-        <CounterText list={usersList} text="Usuários encontrados" />
+        <CounterText list={usersList} text={t("friends.found")} />
 
         {loading && (
           <div className="flex justify-center py-12">
@@ -101,16 +103,16 @@ const FriendsSearch = () => {
         {!hasSearched && !loading && (
           <EmptyState
             className="py-12 min-h-[40vh]"
-            title="Encontre pessoas para adicionar"
-            description="Digite o nome de um usuário acima e clique em Buscar. Depois use o botão para adicionar amizade."
+            title={t("friends.findTitle")}
+            description={t("friends.findDesc")}
           />
         )}
 
         {hasSearched && !loading && (!usersList || usersList.length === 0) && (
           <EmptyState
             className="py-12 min-h-[40vh]"
-            title="Nenhum usuário encontrado"
-            description="Nenhum resultado para essa busca. Tente outro nome ou peça para a pessoa criar uma conta."
+            title={t("friends.noneFoundTitle")}
+            description={t("friends.noneFoundDesc")}
           />
         )}
 
@@ -125,7 +127,9 @@ const FriendsSearch = () => {
                   icon={<FaUserPlus />}
                   color="green"
                   locked={invited}
-                  title={invited ? "Convite já enviado" : "Adicionar amizade"}
+                  title={
+                    invited ? t("friends.inviteSent") : t("friends.addFriend")
+                  }
                 />
               </UserCard>
             );

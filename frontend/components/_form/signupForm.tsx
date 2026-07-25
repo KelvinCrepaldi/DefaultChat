@@ -3,23 +3,25 @@
 import { ISignupRequest } from "@/interfaces/authentication/signup.interface";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { signupSchema } from "./signupSchema";
-import { useState } from "react";
+import { createSignupSchema } from "./signupSchema";
+import { useMemo, useState } from "react";
 import ErrorText from "../_ui/ErrorText";
 import { api } from "@/services";
 import { signIn } from "next-auth/react";
 import Loading from "../_ui/Loading";
 import { getErrorMessage } from "@/types/api";
+import { useTranslation } from "react-i18next";
 
 const SignupForm = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>();
   const [error, setError] = useState<string | null>(null);
+  const signupSchema = useMemo(() => createSignupSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<ISignupRequest>({ resolver: yupResolver(signupSchema) });
 
   const onSubmitHandler = async (data: ISignupRequest) => {
@@ -28,7 +30,7 @@ const SignupForm = () => {
       const response = await api.post("/api/auth/signup", data);
       console.log(response);
       if (response.status === 200) {
-        const result = await signIn("credentials", {
+        await signIn("credentials", {
           email: data.email,
           password: data.password,
           redirect: true,
@@ -37,7 +39,7 @@ const SignupForm = () => {
       }
     } catch (err: unknown) {
       console.log(err);
-      setError(getErrorMessage(err, "Erro ao criar conta"));
+      setError(getErrorMessage(err, t("auth.signupError")));
     } finally {
       setLoading(false);
     }
@@ -50,34 +52,40 @@ const SignupForm = () => {
   return (
     <section className="flex flex-col w-full max-w-[400px]">
       <form className="flex flex-col" onSubmit={handleSubmit(onSubmitHandler)}>
-        <label className=" text-chatTitle text-lg font-semibold">Nome:</label>
+        <label className=" text-chatTitle text-lg font-semibold">
+          {t("auth.name")}
+        </label>
         <input
           className="text-chatBackground p-1 rounded"
-          placeholder="nome"
+          placeholder={t("auth.namePlaceholder")}
           {...register("name")}
         />
         <ErrorText>{errors?.name && errors.name.message}</ErrorText>
-        <label className=" text-chatTitle text-lg font-semibold">E-mail:</label>
+        <label className=" text-chatTitle text-lg font-semibold">
+          {t("auth.email")}
+        </label>
         <input
           className="text-chatBackground p-1 rounded"
-          placeholder="email"
+          placeholder={t("auth.emailPlaceholder")}
           {...register("email")}
         />
         <ErrorText> {errors?.email && errors.email.message}</ErrorText>
-        <label className=" text-chatTitle text-lg font-semibold">Senha:</label>
+        <label className=" text-chatTitle text-lg font-semibold">
+          {t("auth.password")}
+        </label>
         <input
           className="text-chatBackground p-1 rounded"
-          placeholder="password"
+          placeholder={t("auth.passwordPlaceholder")}
           type="password"
           {...register("password")}
         />
         <ErrorText>{errors?.password && errors.password.message}</ErrorText>
         <label className=" text-chatTitle text-lg font-semibold">
-          Confirmar senha:
+          {t("auth.confirmPassword")}
         </label>
         <input
           className="text-chatBackground p-1 rounded"
-          placeholder="confirmar password"
+          placeholder={t("auth.confirmPasswordPlaceholder")}
           type="password"
           {...register("confirmPassword")}
         />
@@ -89,7 +97,7 @@ const SignupForm = () => {
           className="button mt-10 mb-2 py-3 bg-chatPrimary rounded text-chatText text-lg hover:shadow-lg"
           type="submit"
         >
-          Criar conta
+          {t("auth.createAccount")}
         </button>
       </form>
     </section>

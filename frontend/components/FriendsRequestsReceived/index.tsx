@@ -11,8 +11,10 @@ import CounterText from "../_ui/CounterText";
 import { FaTimes } from "react-icons/fa";
 import Loading from "../_ui/Loading";
 import { useFriends } from "@/contexts/friendsContext";
+import { useTranslation } from "react-i18next";
 
 const FriendsRequestsReceived = () => {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const {
     fetchFriendsRequests,
@@ -34,7 +36,7 @@ const FriendsRequestsReceived = () => {
 
   return (
     <section>
-      <CounterText list={requests} text="Pedidos de amizade" />
+      <CounterText list={requests} text={t("friends.requestsTitle")} />
 
       {error && <div>{error.message}</div>}
 
@@ -45,9 +47,7 @@ const FriendsRequestsReceived = () => {
       )}
 
       {!loading && (!requests || requests.length === 0) && hasFriends && (
-        <p className="text-chatText text-sm py-2">
-          Nenhum pedido de amizade pendente.
-        </p>
+        <p className="text-chatText text-sm py-2">{t("friends.noRequests")}</p>
       )}
 
       {requests?.map((request: FriendRequest) => (
@@ -57,14 +57,14 @@ const FriendsRequestsReceived = () => {
             color="green"
             handleFunction={acceptFriendRequest}
             icon={<FaCheck />}
-            title="Aceitar pedido"
+            title={t("friends.accept")}
           />
           <UserActionBtn
             actionId={request.id}
             color="red"
             handleFunction={declineFriendRequest}
             icon={<FaTimes />}
-            title="Recusar pedido"
+            title={t("friends.decline")}
           />
         </UserCard>
       ))}

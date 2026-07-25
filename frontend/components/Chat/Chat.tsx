@@ -7,8 +7,10 @@ import { useSession } from "next-auth/react";
 import Message from "../_ui/Message";
 import { useParams } from "next/navigation";
 import ChatHeader from "../ChatHeader";
+import { useTranslation } from "react-i18next";
 
 export default function Chat() {
+  const { t } = useTranslation();
   const { roomId } = useParams() as { roomId: string | null };
   const {
     sendMessage,
@@ -84,7 +86,7 @@ export default function Chat() {
           className="border-chatBorder p-2 text-chatText m-1 hover:bg-chatBorder rounded bg-chatBackground0"
           onClick={handleSend}
         >
-          Send
+          {t("chat.send")}
         </button>
       </div>
     </section>

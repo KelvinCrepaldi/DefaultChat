@@ -1,9 +1,15 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
+
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="flex flex-col items-center text-chatText my-10">
-      <p>Criado por Kelvin Crepaldi - 2024</p>
-      <p>Ver código fonte do Front-end, Back-end.</p>
-      <p>Next.js + Express</p>
+      <p>{t("home.footerAuthor")}</p>
+      <p>{t("home.footerSource")}</p>
+      <p>{t("home.footerStack")}</p>
     </footer>
   );
 };

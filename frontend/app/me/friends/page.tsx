@@ -4,6 +4,7 @@ import FriendsList from "@/components/FriendsList";
 import RequestsReceived from "@/components/FriendsRequestsReceived";
 import HeaderSection from "@/components/_ui/HeaderSection";
 import { useFriends } from "@/contexts/friendsContext";
+import { useTranslation } from "react-i18next";
 
 function FriendsContent() {
   const { friends, loading } = useFriends();
@@ -23,9 +24,11 @@ function FriendsContent() {
 }
 
 export default function Friends() {
+  const { t } = useTranslation();
+
   return (
     <section className="h-full overflow-y-auto">
-      <HeaderSection text="Amigos" />
+      <HeaderSection text={t("nav.friends")} />
       <FriendsContent />
     </section>
   );

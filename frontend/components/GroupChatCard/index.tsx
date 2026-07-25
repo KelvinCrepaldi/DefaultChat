@@ -9,6 +9,7 @@ import { MdGroups } from "react-icons/md";
 import IconSquare from "../_ui/IconSquare";
 import NavContent from "../_ui/NavContent";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 type GroupChatCardProps = {
   room: IGroupRoom;
@@ -16,6 +17,7 @@ type GroupChatCardProps = {
 };
 
 const GroupChatCard = ({ room, isHidden }: GroupChatCardProps) => {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
   const { closeRoom, openGroupRoom } = useSocket();
@@ -53,7 +55,7 @@ const GroupChatCard = ({ room, isHidden }: GroupChatCardProps) => {
                   className="relative aspect-square rounded-full object-cover object-center bg-black"
                   width={60}
                   height={60}
-                  alt="Group image"
+                  alt={t("groups.groupImageAlt")}
                 />
               ) : (
                 <div className="w-[40px] h-[40px] rounded-full bg-chatBackground2 flex items-center justify-center text-chatTitle text-xl">

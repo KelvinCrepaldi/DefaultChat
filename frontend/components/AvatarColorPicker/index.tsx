@@ -4,8 +4,10 @@ import { api } from "@/services";
 import { useSession } from "next-auth/react";
 import UserAvatar from "../_ui/UserAvatar";
 import { AVATAR_COLORS } from "@/utils/avatarColors";
+import { useTranslation } from "react-i18next";
 
 const AvatarColorPicker = () => {
+  const { t } = useTranslation();
   const { data: session, update } = useSession();
   const [selectedColor, setSelectedColor] = useState<string>(AVATAR_COLORS[0]);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,9 +39,9 @@ const AvatarColorPicker = () => {
       );
       const user = response.data;
       await update({ picture: user.image });
-      setSuccessMessage("Cor do perfil atualizada.");
+      setSuccessMessage(t("config.colorUpdated"));
     } catch (error) {
-      setErrorMessage("Não foi possível salvar a cor. Tente novamente.");
+      setErrorMessage(t("config.colorSaveError"));
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +49,7 @@ const AvatarColorPicker = () => {
 
   return (
     <div className="flex flex-col items-center gap-5 max-w-[500px] p-10">
-      <h1 className="text-3xl text-chatTitle">Cor do perfil</h1>
+      <h1 className="text-3xl text-chatTitle">{t("config.profileColor")}</h1>
 
       <UserAvatar
         name={session?.user?.name || "?"}
@@ -67,7 +69,7 @@ const AvatarColorPicker = () => {
                 : "border-transparent hover:scale-105"
             }`}
             style={{ backgroundColor: color }}
-            aria-label={`Escolher cor ${color}`}
+            aria-label={t("config.chooseColor", { color })}
           />
         ))}
       </div>
@@ -77,7 +79,7 @@ const AvatarColorPicker = () => {
         disabled={isLoading}
         className="button max-w-[250px] w-full"
       >
-        {isLoading ? "Salvando..." : "Salvar cor"}
+        {isLoading ? t("config.saving") : t("config.saveColor")}
       </button>
 
       {successMessage && (

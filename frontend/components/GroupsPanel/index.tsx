@@ -11,6 +11,7 @@ import EmptyState from "../_ui/EmptyState";
 import Loading from "../_ui/Loading";
 import { MdGroups, MdLogin, MdOpenInNew } from "react-icons/md";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
+import { useTranslation } from "react-i18next";
 
 const searchSchema = yup.object().shape({
   letters: yup.string().default(""),
@@ -21,6 +22,7 @@ const createSchema = yup.object().shape({
 });
 
 const GroupsPanel = () => {
+  const { t } = useTranslation();
   const { searchGroups, joinGroup, createGroup, openGroupRoom, listGroups } =
     useSocket();
   const [availableGroups, setAvailableGroups] = useState<GroupListItem[]>([]);
@@ -49,7 +51,7 @@ const GroupsPanel = () => {
       const results = await listGroups();
       setAvailableGroups(results || []);
     } catch {
-      setListError("Não foi possível carregar os grupos.");
+      setListError(t("groups.loadError"));
     } finally {
       setListLoading(false);
     }
@@ -69,7 +71,7 @@ const GroupsPanel = () => {
       const results = await searchGroups({ letters: data.letters || "" });
       setSearchResults(results || []);
     } catch {
-      setSearchError("Não foi possível buscar grupos.");
+      setSearchError(t("groups.searchError"));
     } finally {
       setLoading(false);
       setTimeout(() => setSearchCooldown(false), 1000);
@@ -89,7 +91,7 @@ const GroupsPanel = () => {
         openGroupRoom({ roomId: group.id });
       }
     } catch {
-      setCreateError("Não foi possível criar o grupo.");
+      setCreateError(t("groups.createError"));
     } finally {
       setLoading(false);
       setTimeout(() => setCreateCooldown(false), 1000);
@@ -103,7 +105,7 @@ const GroupsPanel = () => {
       setSearchResults((prev) => prev.filter((g) => g.id !== roomId));
       await loadGroups();
     } catch {
-      setSearchError("Não foi possível entrar no grupo.");
+      setSearchError(t("groups.joinError"));
     } finally {
       setLoading(false);
     }
@@ -129,8 +131,10 @@ const GroupsPanel = () => {
           <p className="text-chatTitle font-semibold">{group.name}</p>
           <p className="text-chatText text-sm">
             {group.memberCount}{" "}
-            {group.memberCount === 1 ? "membro" : "membros"}
-            {group.isMember ? " · você está neste grupo" : ""}
+            {group.memberCount === 1
+              ? t("groups.member")
+              : t("groups.members")}
+            {group.isMember ? t("groups.youInGroup") : ""}
           </p>
         </div>
       </div>
@@ -141,7 +145,7 @@ const GroupsPanel = () => {
             actionId={group.id}
             icon={<MdOpenInNew />}
             color="blue"
-            title="Abrir grupo"
+            title={t("groups.openGroup")}
           />
         )}
         {(action === "join" || (action === "both" && !group.isMember)) && (
@@ -150,7 +154,7 @@ const GroupsPanel = () => {
             actionId={group.id}
             icon={<MdLogin />}
             color="green"
-            title="Entrar no grupo"
+            title={t("groups.joinGroup")}
           />
         )}
       </div>
@@ -160,12 +164,14 @@ const GroupsPanel = () => {
   return (
     <section className="space-y-8">
       <div>
-        <h2 className="text-chatTitle text-xl font-semibold mb-3">Criar grupo</h2>
+        <h2 className="text-chatTitle text-xl font-semibold mb-3">
+          {t("groups.createGroup")}
+        </h2>
         <form onSubmit={createForm.handleSubmit(handleCreateSubmit)}>
           <div className="flex">
             <input
               {...createForm.register("name")}
-              placeholder="Nome do grupo"
+              placeholder={t("groups.groupNamePlaceholder")}
               className="w-full bg-chatBackground2 rounded border border-chatBorder p-2 text-chatText my-1"
             />
             <button
@@ -173,7 +179,7 @@ const GroupsPanel = () => {
               disabled={loading || createCooldown}
               className="border-chatBorder p-2 text-chatText m-1 hover:bg-chatBorder rounded bg-chatBackground0 whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Criar
+              {t("groups.create")}
             </button>
           </div>
           {createError && <p className="text-red-400 text-sm">{createError}</p>}
@@ -182,10 +188,10 @@ const GroupsPanel = () => {
 
       <div>
         <h2 className="text-chatTitle text-xl font-semibold mb-3">
-          Grupos disponíveis
+          {t("groups.available")}
         </h2>
         {listError && <p className="text-red-400 text-sm mb-2">{listError}</p>}
-        <CounterText list={availableGroups} text="grupos" />
+        <CounterText list={availableGroups} text={t("groups.groupsCount")} />
         {listLoading ? (
           <div className="flex justify-center py-10">
             <Loading />
@@ -195,8 +201,8 @@ const GroupsPanel = () => {
             {availableGroups.length === 0 && !listError && (
               <EmptyState
                 className="py-10"
-                title="Nenhum grupo disponível"
-                description="Ainda não existem grupos públicos. Crie o primeiro grupo acima para outras pessoas poderem entrar."
+                title={t("groups.noneAvailableTitle")}
+                description={t("groups.noneAvailableDesc")}
               />
             )}
             {availableGroups.map((group) => renderGroupRow(group, "both"))}
@@ -205,12 +211,17 @@ const GroupsPanel = () => {
       </div>
 
       <div>
-        <h2 className="text-chatTitle text-xl font-semibold mb-3">Buscar grupos</h2>
-        <form onSubmit={searchForm.handleSubmit(handleSearchSubmit)} className="mb-5">
+        <h2 className="text-chatTitle text-xl font-semibold mb-3">
+          {t("groups.searchGroups")}
+        </h2>
+        <form
+          onSubmit={searchForm.handleSubmit(handleSearchSubmit)}
+          className="mb-5"
+        >
           <div className="flex">
             <input
               {...searchForm.register("letters")}
-              placeholder="Nome do grupo"
+              placeholder={t("groups.groupNamePlaceholder")}
               className="w-full bg-chatBackground2 rounded border border-chatBorder p-2 text-chatText my-1"
             />
             <button
@@ -218,13 +229,13 @@ const GroupsPanel = () => {
               disabled={loading || searchCooldown}
               className="border-chatBorder p-2 text-chatText m-1 hover:bg-chatBorder rounded bg-chatBackground0 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Buscar
+              {t("groups.search")}
             </button>
           </div>
           {searchError && <p className="text-red-400 text-sm">{searchError}</p>}
         </form>
 
-        <CounterText list={searchResults} text="Grupos encontrados" />
+        <CounterText list={searchResults} text={t("groups.found")} />
 
         {loading && hasSearched ? (
           <div className="flex justify-center py-10">
@@ -235,15 +246,15 @@ const GroupsPanel = () => {
             {!hasSearched && (
               <EmptyState
                 className="py-8"
-                title="Busque um grupo"
-                description="Digite o nome de um grupo e clique em Buscar para encontrar salas em que você ainda não entrou."
+                title={t("groups.searchTitle")}
+                description={t("groups.searchDesc")}
               />
             )}
             {hasSearched && searchResults.length === 0 && (
               <EmptyState
                 className="py-8"
-                title="Nenhum grupo encontrado"
-                description="Nenhum resultado para essa busca. Tente outro nome ou crie um grupo novo."
+                title={t("groups.noneFoundTitle")}
+                description={t("groups.noneFoundDesc")}
               />
             )}
             {searchResults.map((group) => renderGroupRow(group, "join"))}

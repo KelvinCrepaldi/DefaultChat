@@ -10,6 +10,7 @@ import { FriendsContext } from "@/contexts/friendsContext";
 import { useContext } from "react";
 import axios from "axios";
 import type { UserSummary } from "@/types/user";
+import { useTranslation } from "react-i18next";
 
 type Member = UserSummary;
 
@@ -26,6 +27,7 @@ const MemberCard = ({
   invitedIds: Set<string>;
   onInviteSent: (userId: string) => void;
 }) => {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const friendsContext = useContext(FriendsContext);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,7 +54,13 @@ const MemberCard = ({
   }, [menuOpen]);
 
   const sendFriendInvite = async () => {
-    if (!session?.user.accessToken || isSelf || alreadyInvited || sending || cooldown) {
+    if (
+      !session?.user.accessToken ||
+      isSelf ||
+      alreadyInvited ||
+      sending ||
+      cooldown
+    ) {
       return;
     }
     setSending(true);
@@ -85,14 +93,18 @@ const MemberCard = ({
         <div className="flex-1 min-w-0">
           <p className="text-chatTitle font-semibold truncate text-sm">
             {member.name}
-            {isSelf ? " (você)" : ""}
+            {isSelf ? ` ${t("common.you")}` : ""}
           </p>
           <p className="text-chatText text-xs truncate">{member.email}</p>
           {alreadyInvited && !isSelf && !isFriend && (
-            <p className="text-[11px] text-chatText mt-0.5">Convite já enviado</p>
+            <p className="text-[11px] text-chatText mt-0.5">
+              {t("groups.inviteSent")}
+            </p>
           )}
           {isFriend && !isSelf && (
-            <p className="text-[11px] text-chatText mt-0.5">Já é seu amigo</p>
+            <p className="text-[11px] text-chatText mt-0.5">
+              {t("groups.alreadyFriend")}
+            </p>
           )}
         </div>
         {!isSelf && (
@@ -101,7 +113,7 @@ const MemberCard = ({
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
               className="text-chatText hover:text-chatTextWhite p-1 rounded"
-              aria-label="Opções do membro"
+              aria-label={t("groups.memberOptions")}
             >
               <HiDotsHorizontal />
             </button>
@@ -116,11 +128,11 @@ const MemberCard = ({
                   <FaUserPlus className="text-chatTitle shrink-0" />
                   {alreadyInvited
                     ? isFriend
-                      ? "Já é seu amigo"
-                      : "Convite já enviado"
+                      ? t("groups.alreadyFriend")
+                      : t("groups.inviteSent")
                     : sending
-                      ? "Enviando..."
-                      : "Adicionar amizade"}
+                      ? t("groups.sending")
+                      : t("groups.addFriend")}
                 </button>
               </div>
             )}
@@ -132,6 +144,7 @@ const MemberCard = ({
 };
 
 const GroupMembersSidebar = ({ members }: GroupMembersSidebarProps) => {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
 
@@ -161,17 +174,21 @@ const GroupMembersSidebar = ({ members }: GroupMembersSidebarProps) => {
   return (
     <aside className="w-[250px] min-w-[220px] max-w-[250px] h-full bg-chatBackground0 border-l border-chatBorder flex flex-col overflow-hidden">
       <div className="p-3 border-b border-chatBorder">
-        <h2 className="text-chatTitle font-semibold">Membros</h2>
-        <p className="text-chatText text-xs">{members.length} no grupo</p>
+        <h2 className="text-chatTitle font-semibold">
+          {t("groups.membersTitle")}
+        </h2>
+        <p className="text-chatText text-xs">
+          {t("groups.inGroup", { count: members.length })}
+        </p>
       </div>
       <div className="overflow-y-auto grow p-2">
         {members.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center px-3 py-10">
             <p className="text-chatTitle text-sm font-semibold mb-1">
-              Sem membros
+              {t("groups.noMembersTitle")}
             </p>
             <p className="text-chatText text-xs leading-relaxed">
-              Os membros do grupo aparecem aqui quando a sala carregar.
+              {t("groups.noMembersDesc")}
             </p>
           </div>
         )}

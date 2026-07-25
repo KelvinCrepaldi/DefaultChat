@@ -11,8 +11,10 @@ import EmptyState from "../_ui/EmptyState";
 import Loading from "../_ui/Loading";
 import { useFriends } from "@/contexts/friendsContext";
 import { useSocket } from "@/contexts/socketContext";
+import { useTranslation } from "react-i18next";
 
 const FriendsList = () => {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const { fetchFriends, deleteFriend, friends, loading } = useFriends();
   const { openRoom } = useSocket();
@@ -39,11 +41,11 @@ const FriendsList = () => {
     return (
       <EmptyState
         className="min-h-[50vh]"
-        title="Nenhum amigo ainda"
-        description="Você ainda não adicionou ninguém. Busque usuários para enviar pedidos de amizade ou entre em um grupo para conhecer pessoas."
+        title={t("friends.emptyTitle")}
+        description={t("friends.emptyDesc")}
         actions={[
-          { href: "/me/requests", label: "Buscar usuários" },
-          { href: "/me/groups", label: "Ver grupos" },
+          { href: "/me/requests", label: t("friends.searchUsers") },
+          { href: "/me/groups", label: t("friends.viewGroups") },
         ]}
       />
     );
@@ -51,7 +53,7 @@ const FriendsList = () => {
 
   return (
     <section className="w-full h-full ">
-      <CounterText list={friends} text="Amigos adicionados" />
+      <CounterText list={friends} text={t("friends.added")} />
 
       {friends?.map((friend: IFriend) => (
         <UserCard key={friend.id} user={friend.addressee}>
@@ -60,14 +62,14 @@ const FriendsList = () => {
             icon={<BiMessageDetail />}
             handleFunction={goToChat}
             color="green"
-            title="Abrir conversa"
+            title={t("friends.openChat")}
           />
           <UserActionBtn
             actionId={friend.addressee.id}
             icon={<IoPersonRemove />}
             handleFunction={deleteFriend}
             color="red"
-            title="Remover amigo"
+            title={t("friends.remove")}
           />
         </UserCard>
       ))}

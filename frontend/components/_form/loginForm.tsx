@@ -1,43 +1,43 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
-import { useSession } from "next-auth/react";
-
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IloginRequest } from "@/interfaces/authentication/login.interface";
-import { loginSchema } from "./loginSchema";
-import { useState } from "react";
+import { createLoginSchema } from "./loginSchema";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "../_ui/Loading";
 import ErrorText from "../_ui/ErrorText";
+import { useTranslation } from "react-i18next";
 
 const LoginForm = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null) 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const loginSchema = useMemo(() => createLoginSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<IloginRequest>({ resolver: yupResolver(loginSchema) });
 
   const onSubmitHandler = async (data: IloginRequest) => {
     try {
       setLoading(true);
-      setErrorMessage(null)
+      setErrorMessage(null);
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       });
 
-      if(result && result.ok) router.push("/me");
-      if(result && result.error){
-        setErrorMessage("Usuário incorreto, tente novamente")
+      if (result && result.ok) router.push("/me");
+      if (result && result.error) {
+        setErrorMessage(t("auth.invalidUser"));
       }
-      console.log(result)
+      console.log(result);
     } catch (err) {
     } finally {
       setLoading(false);
@@ -51,18 +51,22 @@ const LoginForm = () => {
   return (
     <section className="flex flex-col w-full max-w-[400px]">
       <form className="flex flex-col" onSubmit={handleSubmit(onSubmitHandler)}>
-        <label className=" text-chatTitle text-lg font-semibold">E-mail:</label>
+        <label className=" text-chatTitle text-lg font-semibold">
+          {t("auth.email")}
+        </label>
         <input
           className="text-chatBackground p-1 rounded"
-          placeholder="email"
+          placeholder={t("auth.emailPlaceholder")}
           {...register("email")}
         />
         <ErrorText>{errors?.email && errors.email.message}</ErrorText>
 
-        <label className=" text-chatTitle text-lg font-semibold">Senha:</label>
+        <label className=" text-chatTitle text-lg font-semibold">
+          {t("auth.password")}
+        </label>
         <input
           className="text-chatBackground p-1 rounded"
-          placeholder="password"
+          placeholder={t("auth.passwordPlaceholder")}
           type="password"
           {...register("password")}
         />
@@ -74,10 +78,8 @@ const LoginForm = () => {
           type="submit"
           className="button mt-10 mb-2 py-3 bg-chatPrimary rounded text-chatText text-lg hover:shadow-lg"
         >
-          Entrar
+          {t("auth.enter")}
         </button>
-        
-        
       </form>
     </section>
   );

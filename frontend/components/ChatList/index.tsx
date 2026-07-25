@@ -3,8 +3,10 @@
 import { IGroupRoom, IPrivateRoom, useSocket } from "@/contexts/socketContext";
 import ChatCard from "../ChatCard";
 import GroupChatCard from "../GroupChatCard";
+import { useTranslation } from "react-i18next";
 
 const ChatList = ({ isHidden }: { isHidden: boolean }) => {
+  const { t } = useTranslation();
   const { privateRooms, groupRooms } = useSocket();
   const hasPrivate = privateRooms?.length > 0;
   const hasGroups = groupRooms?.length > 0;
@@ -14,8 +16,7 @@ const ChatList = ({ isHidden }: { isHidden: boolean }) => {
     <section>
       {isEmpty && !isHidden && (
         <p className="text-chatText text-xs text-center px-3 py-4 leading-relaxed">
-          Nenhuma conversa aberta. Adicione amigos ou entre em um grupo para
-          começar.
+          {t("nav.noConversations")}
         </p>
       )}
 
