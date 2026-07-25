@@ -12,6 +12,7 @@ export const resources = {
       },
       home: {
         brand: "DefaultChat",
+        heroEyebrow: "Chat em tempo real",
         heroSubtitle:
           "Demo de portfólio: chat 1:1 em tempo real para rodar localmente.",
         login: "Fazer login",
@@ -192,6 +193,7 @@ export const resources = {
       },
       home: {
         brand: "DefaultChat",
+        heroEyebrow: "Real-time chat",
         heroSubtitle:
           "Portfolio demo: real-time 1:1 chat to run locally.",
         login: "Log in",

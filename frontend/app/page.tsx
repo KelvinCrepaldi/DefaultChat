@@ -2,8 +2,8 @@ import React from "react";
 import Hero from "@/components/_ui/Hero";
 import About from "@/components/About";
 import Header from "@/components/_ui/Header";
+import Footer from "@/components/_ui/Footer";
 import { Metadata } from "next";
-import HomeActions from "@/components/HomeActions";
 
 export const metadata: Metadata = {
   title: "Default Chat",
@@ -35,11 +35,11 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main>
+    <main className="overflow-x-hidden">
       <Header />
       <Hero />
-      <HomeActions />
       <About />
+      <Footer />
     </main>
   );
 }

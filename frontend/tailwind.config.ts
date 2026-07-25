@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "sans-serif"],
+        display: ["var(--font-display)", "sans-serif"],
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -24,7 +28,7 @@ const config: Config = {
         chatCardHover: "#464f5d",
         chatTextWhite: "#FFFFFF",
         chatMessageBox1: "#2d2d2d",
-        chatMessageBox2: "#3b3b3b"
+        chatMessageBox2: "#3b3b3b",
       },
     },
   },

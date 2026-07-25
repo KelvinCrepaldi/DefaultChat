@@ -17,13 +17,15 @@
 }
 
 body {
-  background: radial-gradient(
-    42.38% 52.72% at 71.22% 22.94%,
-    #253143 3.34%,
-    #181818 100%
-  );
-
+  background:
+    radial-gradient(
+      55% 45% at 70% 18%,
+      #253143 0%,
+      transparent 65%
+    ),
+    #181818;
   min-height: 100vh;
+  color: #ffffff;
 }
 
 .section {
@@ -32,6 +34,15 @@ body {
 
 .button {
   @apply bg-chatBackground2 border border-chatBorder text-chatTitle rounded-xl flex justify-center items-center  p-2 text-xl  w-full hover:shadow-xl;
+}
+
+/* Keep auth input text light when browser autofill paints a fill */
+input.auth-input:-webkit-autofill,
+input.auth-input:-webkit-autofill:hover,
+input.auth-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff;
+  transition: background-color 9999s ease-in-out 0s;
+  box-shadow: 0 0 0 1000px transparent inset;
 }
 
 .homeTitle {

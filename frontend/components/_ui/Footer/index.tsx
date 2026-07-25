@@ -6,10 +6,10 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="flex flex-col items-center text-chatText my-10">
-      <p>{t("home.footerAuthor")}</p>
-      <p>{t("home.footerSource")}</p>
-      <p>{t("home.footerStack")}</p>
+    <footer className="border-t border-chatBorder/50 px-6 py-10 text-center text-sm text-chatText">
+      <p className="text-chatTextWhite/70">{t("home.footerAuthor")}</p>
+      <p className="mt-1">{t("home.footerSource")}</p>
+      <p className="mt-2 text-chatTitle/70">{t("home.footerStack")}</p>
     </footer>
   );
 };
