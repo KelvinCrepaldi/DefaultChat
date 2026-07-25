@@ -30,7 +30,7 @@ export default function GroupChat() {
   } = useSocket();
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
-  const divRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const room = groupRooms?.find((r: IGroupRoom) => r.id === roomId);
 
@@ -109,20 +109,23 @@ export default function GroupChat() {
   }, []);
 
   useEffect(() => {
-    if (divRef.current) {
-      divRef.current.scrollIntoView();
+    const el = messagesRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
     }
   }, [groupRooms, roomId]);
 
   return (
-    <div className="flex h-full w-full overflow-hidden">
-      <section className="p-2 bg-chatBackground2 grow h-full m-auto flex flex-col min-w-0">
+    <div className="flex h-full min-h-0 w-full overflow-hidden">
+      <section className="flex h-full min-h-0 min-w-0 grow flex-col bg-chatBackground2 p-2">
         {room && <GroupChatHeader room={room} />}
-        <div className="m-2 p-2 rounded overflow-y-scroll overflow-x-clip flex flex-col grow">
+        <div
+          ref={messagesRef}
+          className="m-2 flex min-h-0 grow flex-col overflow-x-clip overflow-y-scroll rounded p-2"
+        >
           {room?.messages?.map((msg: ChatMessage, index: number) => {
             return <Message msg={msg} key={index} />;
           })}
-          <div ref={divRef}></div>
           <div>{error?.message}</div>
         </div>
 

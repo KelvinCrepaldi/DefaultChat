@@ -11,7 +11,7 @@ export default function Me() {
     <main className="text-chatText m-10 overflow-y-auto h-[90vh] ">
       <Image
         alt={t("common.logoAlt")}
-        src={"/defaultchatLogo.svg"}
+        src={"/defaultchatlogo.svg"}
         width={200}
         height={200}
       />

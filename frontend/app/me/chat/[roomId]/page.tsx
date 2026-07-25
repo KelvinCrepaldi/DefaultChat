@@ -1,12 +1,9 @@
 import Chat from "@/components/Chat/Chat";
 
 export default function Chats() {
-  
   return (
-    <section>
-      <div className="h-[100vh] overflow-hidden">
-       <Chat />
-      </div>
-    </section>
+    <div className="h-full min-h-0 overflow-hidden">
+      <Chat />
+    </div>
   );
 }

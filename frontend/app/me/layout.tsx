@@ -1,4 +1,5 @@
-'use client'
+"use client";
+
 import ChatList from "@/components/ChatList";
 import NavButtons from "@/components/Nav";
 import User from "@/components/User";
@@ -17,41 +18,59 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [isHidden, setIsHidden] = useState<boolean>(true);
-  const {data: session} = useSession({required: true, 
-    onUnauthenticated(){
-      redirect('/login')
+  const { data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect("/login");
     },
-});
+  });
 
-  if(!session?.user.accessToken) {
-    return <div className="w-full h-[100vh] flex items-center justify-center"><Loading></Loading></div>
+  if (!session?.user.accessToken) {
+    return (
+      <div className="flex h-dvh w-full items-center justify-center">
+        <Loading />
+      </div>
+    );
   }
 
-  const hiddenMenu = () =>{
-    setIsHidden((prev)=> !prev)
-  }
+  const hiddenMenu = () => {
+    setIsHidden((prev) => !prev);
+  };
 
   return (
     <SocketProvider>
-      <div className="flex flex-col h-[100vh] overflow-hidden">
+      <div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)] overflow-hidden">
         <Header />
-        <main className="flex grow overflow-hidden min-h-0">
-          <section className={`${isHidden ? "max-w-[70px]" : "max-w-[250px]"}  overflow-hidden transition-all w-full`}>
-            <div className={`w-[250px] bg-chatBackground0 pl-1 pr-0 pt-1 overflow-y-auto h-full`}>
+        <main className="flex min-h-0 overflow-hidden">
+          <section
+            className={`${
+              isHidden ? "max-w-[70px]" : "max-w-[250px]"
+            } w-full overflow-hidden transition-all`}
+          >
+            <div className="h-full w-[250px] overflow-y-auto bg-chatBackground0 pl-1 pr-0 pt-1">
               <div className="m-2">
                 <IconSquare>
-                <button onClick={hiddenMenu} className=" text-4xl text-chatText hover:text-chatTextWhite">{<IoMenu/>}</button>
+                  <button
+                    onClick={hiddenMenu}
+                    className="text-4xl text-chatText hover:text-chatTextWhite"
+                  >
+                    <IoMenu />
+                  </button>
                 </IconSquare>
               </div>
-              
-              <User isHidden={isHidden}/>
-              <NavButtons isHidden={isHidden}/>
-              <ChatList isHidden={isHidden}/>
+
+              <User isHidden={isHidden} />
+              <NavButtons isHidden={isHidden} />
+              <ChatList isHidden={isHidden} />
             </div>
-            
           </section>
-          <div className={`grow bg-chatBackground1 ${isHidden ? "max-w-[calc(100vw-70px)]" : "max-w-[calc(100vw-250px)]"} transition-all overflow-hidden`}>{children}</div>
-        
+          <div
+            className={`min-h-0 min-w-0 grow overflow-hidden bg-chatBackground1 transition-all ${
+              isHidden ? "max-w-[calc(100vw-70px)]" : "max-w-[calc(100vw-250px)]"
+            }`}
+          >
+            {children}
+          </div>
         </main>
       </div>
     </SocketProvider>
