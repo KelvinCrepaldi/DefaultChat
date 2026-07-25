@@ -36,20 +36,5 @@ services:
       db:
         condition: service_healthy
 
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        NEXT_PUBLIC_API_URL: http://localhost:3001
-    ports:
-      - "3000:3000"
-    environment:
-      NEXTAUTH_SECRET: docker-demo-nextauth-secret
-      NEXTAUTH_URL: http://localhost:3000
-      NEXT_PUBLIC_API_URL: http://localhost:3001
-      API_URL: http://backend:3001
-    depends_on:
-      - backend
-
 volumes:
   postgres_data:

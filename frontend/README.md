@@ -25,21 +25,14 @@ Roda junto com a API em [`../backend`](../backend) e um PostgreSQL. Pensado para
 
 ## Pré-requisitos
 
-1. API e Postgres rodando (veja [`../backend/README.md`](../backend/README.md) ou Docker na raiz).
-2. Node.js 20+ e npm.
+1. API e Postgres rodando (veja [`../backend/README.md`](../backend/README.md) ou Docker na raiz — só `db` + `backend`).
+2. Node.js 20+ e [pnpm](https://pnpm.io/).
 
-Para subir **tudo** de uma vez (front + API + DB), use o Compose na raiz:
-
-```bash
-# na raiz do monorepo
-docker compose up --build
-```
-
-## Instalação local (sem Docker só no front)
+## Instalação
 
 ```bash
 cd frontend
-npm install --legacy-peer-deps
+pnpm install
 cp .env.example .env
 ```
 
@@ -48,7 +41,7 @@ cp .env.example .env
 | Variável | Obrigatória | Exemplo | Descrição |
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | sim | `http://localhost:3001` | Base da API no **browser** (HTTP + Socket.io) |
-| `API_URL` | recomendada | `http://localhost:3001` | Base da API no **servidor** Next.js (login NextAuth). No Docker Compose: `http://backend:3001` |
+| `API_URL` | recomendada | `http://localhost:3001` | Base da API no **servidor** Next.js (login NextAuth) |
 | `NEXTAUTH_SECRET` | sim | string aleatória | Segredo da sessão |
 | `NEXTAUTH_URL` | sim | `http://localhost:3000` | URL do front |
 
@@ -61,12 +54,10 @@ NEXTAUTH_SECRET=dev-nextauth-secret-change-me
 NEXTAUTH_URL=http://localhost:3000
 ```
 
-> Se `API_URL` estiver errado (comum no Docker apontando para `localhost` de dentro do container), o login via NextAuth falha mesmo com a API ok no host.
-
 ### Rodar em desenvolvimento
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Abra [http://localhost:3000](http://localhost:3000).
@@ -74,8 +65,8 @@ Abra [http://localhost:3000](http://localhost:3000).
 ### Build de produção
 
 ```bash
-npm run build
-npm run start
+pnpm run build
+pnpm run start
 ```
 
 ## Rotas principais da UI

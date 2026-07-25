@@ -1,12 +1,12 @@
 # DefaultChat
 
-Projeto de **portfólio**: chat em tempo real (1:1 e grupos públicos) em um monorepo com front e API. Feito para rodar **localmente** (Docker ou Node + Postgres) — não é um serviço de produção sempre online.
+Projeto de **portfólio**: chat em tempo real (1:1 e grupos públicos) em um monorepo com front e API. Feito para rodar **localmente** — não é um serviço de produção sempre online.
 
 ```
 DefaultChat/
-├── frontend/     # Next.js + NextAuth + Socket.io client
-├── backend/      # Express + Socket.io + TypeORM + PostgreSQL
-└── docker-compose.yml
+├── frontend/          # Next.js + NextAuth + Socket.io (pnpm)
+├── backend/           # Express + Socket.io + TypeORM + PostgreSQL
+└── docker-compose.yml # Postgres + API (o front NÃO entra no Compose)
 ```
 
 ## O que o projeto faz
@@ -24,20 +24,23 @@ DefaultChat/
 
 | Camada | Tecnologias |
 | --- | --- |
-| Frontend | Next.js 14 (App Router), React, NextAuth, Socket.io client, Tailwind |
+| Frontend | Next.js 14 (App Router), React, NextAuth, Socket.io client, Tailwind, pnpm |
 | Backend | Express, Socket.io, TypeORM, PostgreSQL, JWT, bcrypt |
-| Infra local | Docker Compose (Postgres + API + front) |
+| Infra local | Docker Compose (**só** Postgres + API) |
 
 ---
 
-## Opção A — Docker (recomendado)
+## Como rodar (recomendado)
+
+Fluxo atual: **Docker sobe API + Postgres**; o **front roda na máquina** com pnpm.
 
 ### Requisitos
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (ou Docker Engine + Compose v2)
-- Portas livres: **3000** (front) e **3001** (API)
+- Node.js **20+** e [pnpm](https://pnpm.io/)
+- Portas livres: **3001** (API) e **3000** (front)
 
-### Subir tudo
+### 1. API e banco (Docker)
 
 Na **raiz** do repositório:
 
@@ -47,9 +50,44 @@ docker compose up --build
 
 Na primeira vez o build pode demorar alguns minutos. O Compose sobe:
 
-1. **Postgres** (`db`) — healthcheck antes da API
-2. **Backend** — roda migrations e inicia em `:3001`
-3. **Frontend** — Next.js em produção em `:3000`
+1. **Postgres** (`db`) — healthcheck antes da API  
+2. **Backend** — migrations e API em `:3001`
+
+O frontend **não** faz parte do Compose.
+
+Variáveis de demo já vêm no `docker-compose.yml` (Postgres `defaultchat` / `defaultchat`, CORS para `http://localhost:3000`).
+
+Comandos úteis:
+
+```bash
+docker compose logs -f
+docker compose logs -f backend
+docker compose down      # mantém o volume do Postgres
+docker compose down -v   # apaga o banco local do Compose
+```
+
+### 2. Frontend (local, pnpm)
+
+Em **outro terminal**:
+
+```bash
+cd frontend
+pnpm install
+cp .env.example .env
+```
+
+Edite `frontend/.env` se precisar:
+
+| Variável | Exemplo | Descrição |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:3001` | API no browser e Socket.io |
+| `API_URL` | `http://localhost:3001` | API no servidor Next.js (NextAuth) |
+| `NEXTAUTH_SECRET` | `outro-segredo-longo` | Segredo da sessão NextAuth |
+| `NEXTAUTH_URL` | `http://localhost:3000` | URL pública do front |
+
+```bash
+pnpm run dev
+```
 
 ### URLs
 
@@ -58,53 +96,24 @@ Na primeira vez o build pode demorar alguns minutos. O Compose sobe:
 | Front | http://localhost:3000 |
 | API | http://localhost:3001 |
 
-### Comandos úteis
-
-```bash
-# logs
-docker compose logs -f
-
-# só o front / só a API
-docker compose logs -f frontend
-docker compose logs -f backend
-
-# parar (mantém volume do Postgres)
-docker compose down
-
-# parar e apagar o banco local do Compose
-docker compose down -v
-```
-
-### Variáveis no Docker
-
-Já vêm definidas no `docker-compose.yml` para demo:
-
-- Front no browser fala com a API em `http://localhost:3001`
-- NextAuth (servidor, dentro do container) usa `API_URL=http://backend:3001`
-- Postgres interno: usuário/senha/db `defaultchat`
-
-Upload S3 / AWS não é necessário para o fluxo principal (chat, amigos, grupos, avatar por cor).
-
 ### Fluxo rápido para testar
 
-1. Abra http://localhost:3000 → criar conta
-2. Em outra sessão/navegador, crie um segundo usuário
-3. **Buscar usuários** → adicionar amizade → aceitar em **Amigos**
-4. Abra o chat 1:1 ou vá em **Grupos** → criar / entrar → conversar
+1. Compose no ar + front em http://localhost:3000 → criar conta  
+2. Em outra sessão/navegador, crie um segundo usuário  
+3. **Buscar usuários** → pedido de amizade → aceitar em **Amigos**  
+4. Chat 1:1 ou **Grupos** → criar / entrar → conversar  
 
 ---
 
-## Opção B — Sem Docker (Node + Postgres local)
+## Alternativa — sem Docker (Node + Postgres local)
 
 ### Requisitos
 
-- **Node.js** 20+ (recomendado) e npm
-- **PostgreSQL** 14+ rodando e acessível
-- Portas **3000** e **3001** (ou ajuste nos `.env`)
+- Node.js 20+ (npm no back, pnpm no front)
+- PostgreSQL 14+ acessível
+- Portas **3000** e **3001**
 
-### 1. Banco de dados
-
-Crie um database e um usuário, por exemplo:
+### 1. Banco
 
 ```sql
 CREATE USER defaultchat WITH PASSWORD 'defaultchat';
@@ -119,7 +128,7 @@ npm install
 cp .env.example .env
 ```
 
-Edite `backend/.env` (mínimo):
+Mínimo no `backend/.env`:
 
 | Variável | Exemplo | Descrição |
 | --- | --- | --- |
@@ -133,9 +142,7 @@ Edite `backend/.env` (mínimo):
 | `TOKEN_EXPIRES_TIME` | `24h` | Expiração do token |
 | `CORS_ORIGIN` | `http://localhost:3000` | Origem do front |
 
-AWS (`AWS_*`) pode ficar vazio/placeholder se você não for usar upload de imagem antigo.
-
-Rode migrations e a API:
+AWS (`AWS_*`) pode ficar vazio se você não usar upload S3 (avatar atual usa cor hex).
 
 ```bash
 npm run typeorm migration:run
@@ -144,34 +151,18 @@ npm run dev
 
 Confirme: http://localhost:3001 deve responder algo como “Default chat app!”.
 
-Detalhes e rotas: [`backend/README.md`](backend/README.md).
+Detalhes: [`backend/README.md`](backend/README.md).
 
 ### 3. Frontend
 
-Em **outro terminal**:
-
 ```bash
 cd frontend
-npm install --legacy-peer-deps
+pnpm install
 cp .env.example .env
+pnpm run dev
 ```
 
-Edite `frontend/.env`:
-
-| Variável | Exemplo | Descrição |
-| --- | --- | --- |
-| `NEXT_PUBLIC_API_URL` | `http://localhost:3001` | API no browser e Socket.io |
-| `API_URL` | `http://localhost:3001` | API no servidor Next.js (NextAuth). Em Docker usa `http://backend:3001` |
-| `NEXTAUTH_SECRET` | `outro-segredo-longo` | Segredo da sessão NextAuth |
-| `NEXTAUTH_URL` | `http://localhost:3000` | URL pública do front |
-
-```bash
-npm run dev
-```
-
-Abra http://localhost:3000.
-
-Detalhes da UI: [`frontend/README.md`](frontend/README.md).
+Mesmas variáveis da seção recomendada. Detalhes: [`frontend/README.md`](frontend/README.md).
 
 ---
 
@@ -186,4 +177,4 @@ Detalhes da UI: [`frontend/README.md`](frontend/README.md).
 
 - Demo de portfólio: estado online em memória no processo da API (não escala multi-instância).
 - Avatar: a coluna `users.image` guarda a **cor hex** do avatar (letra + fundo).
-- Se o login falhar só no Docker, confira se `API_URL` aponta para o hostname do serviço backend na rede Compose.
+- Upload S3 / AWS não é necessário para o fluxo principal (chat, amigos, grupos, avatar por cor).
