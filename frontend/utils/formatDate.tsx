@@ -1,5 +1,5 @@
-const formatDate = (date: Date) => {
-  const datex = new Date(date.toString());
+const formatDate = (date: Date | string) => {
+  const datex = new Date(typeof date === "string" ? date : date.toString());
   const s = datex.getSeconds();
   const m = datex.getMinutes();
   const h = datex.getHours();

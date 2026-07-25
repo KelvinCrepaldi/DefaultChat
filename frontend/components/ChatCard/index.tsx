@@ -1,8 +1,8 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useState, MouseEvent } from "react";
 import { FaXmark } from "react-icons/fa6";
-import { IPrivateRoom, SocketContext } from "@/contexts/socketContext";
+import { IPrivateRoom, useSocket } from "@/contexts/socketContext";
 import { BiMessageDetail } from "react-icons/bi";
 import IconSquare from "../_ui/IconSquare";
 import NavContent from "../_ui/NavContent";
@@ -17,13 +17,13 @@ type ChatCardProps = {
 const ChatCard = ({ room, isHidden }: ChatCardProps) => {
   const pathname = usePathname()?.split("/")[3];
   const [isOpen, setIsOpen] = useState(true);
-  const { closeRoom, openRoom } = useContext(SocketContext);
+  const { closeRoom, openRoom } = useSocket();
 
   const goToChat = () => {
     openRoom({ userId: room.user.id });
   };
 
-  const handleCloseChat = (e: any) => {
+  const handleCloseChat = (e: MouseEvent<HTMLButtonElement>) => {
     closeRoom({ roomId: room.id });
     e.stopPropagation();
     setIsOpen((prev) => !prev);

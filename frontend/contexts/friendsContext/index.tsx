@@ -1,36 +1,44 @@
 "use client";
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useContext, useState } from "react";
 import { useSession } from "next-auth/react";
 import { api } from "@/services";
 import { IFriend } from "@/interfaces/friends";
+import { toApiErrorState } from "@/types/api";
 
 export type FriendsContextType = {
   friends: IFriend[];
-  fetchFriends: () => void;
-  deleteFriend: (friendId: string) => void;
+  fetchFriends: () => Promise<void>;
+  deleteFriend: (friendId: string) => Promise<void>;
   loading: boolean;
   error: IErrorResponse | null;
 };
 
 export const FriendsContext = createContext<FriendsContextType | null>(null);
 
+export function useFriends(): FriendsContextType {
+  const ctx = useContext(FriendsContext);
+  if (!ctx) {
+    throw new Error("useFriends must be used within FriendsProvider");
+  }
+  return ctx;
+}
+
 export const FriendsProvider = ({ children }: { children: ReactNode }) => {
-  const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [friends, setFriends] = useState<IFriend[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<IErrorResponse | null>(null);
   const { data: session } = useSession();
 
   const fetchFriends = async () => {
     try {
       setLoading(true);
-      const response = await api.get("api/friend", {
+      setError(null);
+      const response = await api.get<IFriend[]>("api/friend", {
         headers: { Authorization: `Bearer ${session?.user.accessToken}` },
       });
-
-      const data = response.data;
-      setFriends(data);
-    } catch (err: any) {
-      console.log(err);
+      setFriends(response.data);
+    } catch (err: unknown) {
+      setError(toApiErrorState(err));
     } finally {
       setLoading(false);
     }
@@ -38,16 +46,16 @@ export const FriendsProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteFriend = async (friendId: string) => {
     try {
-      const response = await api.delete(`api/friend/${friendId}`, {
+      setError(null);
+      await api.delete(`api/friend/${friendId}`, {
         headers: { Authorization: `Bearer ${session?.user.accessToken}` },
       });
-      fetchFriends();
-    } catch (err: any) {
-      console.log(err);
+    } catch (err: unknown) {
+      setError(toApiErrorState(err));
     } finally {
       setLoading(false);
+      await fetchFriends();
     }
-    fetchFriends();
   };
 
   return (

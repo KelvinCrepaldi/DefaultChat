@@ -7,19 +7,20 @@ import { signOut, useSession } from 'next-auth/react';
 
 const ImageUploader = () => {
   const {data: session, update} = useSession();
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleFileChange = (event: any) => {
-    const file = event.target.files[0];
-    if (file.size > 1024 * 1024) { // Verifica se o tamanho do arquivo é superior a 1 MB
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 1024 * 1024) {
       setErrorMessage('O tamanho da imagem excede 1 MB.');
       return;
     }
-    setSelectedFile(event.target.files[0]);
-    setPreviewImage(URL.createObjectURL(event.target.files[0]));
+    setSelectedFile(file);
+    setPreviewImage(URL.createObjectURL(file));
     setErrorMessage(null);
   };
 

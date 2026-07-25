@@ -1,10 +1,10 @@
 'use client'
-import { IMessage } from "@/interfaces/message";
+import type { ChatMessage } from "@/types/message";
 import formatDate from "@/utils/formatDate";
 import { useSession } from "next-auth/react";
 import UserAvatar from "../UserAvatar";
 
-const Message = ({ msg }: { msg: IMessage }) => {
+const Message = ({ msg }: { msg: ChatMessage }) => {
   const {data: session} = useSession();
   return (
     <div className={`p-1 m-[2px] shadow rounded text-chatTextWhite flex w-full

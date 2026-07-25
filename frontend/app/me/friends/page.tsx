@@ -3,11 +3,10 @@
 import FriendsList from "@/components/FriendsList";
 import RequestsReceived from "@/components/FriendsRequestsReceived";
 import HeaderSection from "@/components/_ui/HeaderSection";
-import { useContext } from "react";
-import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
+import { useFriends } from "@/contexts/friendsContext";
 
 function FriendsContent() {
-  const { friends, loading } = useContext(FriendsContext) as FriendsContextType;
+  const { friends, loading } = useFriends();
   const hasFriends = !loading && friends && friends.length > 0;
 
   return (

@@ -1,23 +1,16 @@
 "use client";
 
-import { FriendRequestsContext } from "@/contexts/friendRequestContext";
+import { useFriendRequests } from "@/contexts/friendRequestContext";
 import { useSession } from "next-auth/react";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import UserCard from "../_ui/UserCard";
-import { IUser } from "@/interfaces/friends";
+import { FriendRequest } from "@/interfaces/friends";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import { FaCheck } from "react-icons/fa";
 import CounterText from "../_ui/CounterText";
 import { FaTimes } from "react-icons/fa";
 import Loading from "../_ui/Loading";
-import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
-
-type requestTypes = {
-  id: string;
-  createdAt: string;
-  type: string;
-  requester: IUser;
-};
+import { useFriends } from "@/contexts/friendsContext";
 
 const FriendsRequestsReceived = () => {
   const { data: session } = useSession();
@@ -28,9 +21,9 @@ const FriendsRequestsReceived = () => {
     loading,
     acceptFriendRequest,
     declineFriendRequest,
-  } = useContext(FriendRequestsContext);
+  } = useFriendRequests();
 
-  const { friends } = useContext(FriendsContext) as FriendsContextType;
+  const { friends } = useFriends();
   const hasFriends = friends && friends.length > 0;
 
   useEffect(() => {
@@ -43,7 +36,7 @@ const FriendsRequestsReceived = () => {
     <section>
       <CounterText list={requests} text="Pedidos de amizade" />
 
-      {error && <div>{error}</div>}
+      {error && <div>{error.message}</div>}
 
       {loading && (!requests || requests.length === 0) && (
         <div className="flex justify-center py-6">
@@ -57,7 +50,7 @@ const FriendsRequestsReceived = () => {
         </p>
       )}
 
-      {requests?.map((request: requestTypes) => (
+      {requests?.map((request: FriendRequest) => (
         <UserCard user={request.requester} key={request.id}>
           <UserActionBtn
             actionId={request.id}

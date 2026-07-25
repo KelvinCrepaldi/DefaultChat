@@ -9,10 +9,11 @@ import ErrorText from "../_ui/ErrorText";
 import { api } from "@/services";
 import { signIn } from "next-auth/react";
 import Loading from "../_ui/Loading";
+import { getErrorMessage } from "@/types/api";
 
 const SignupForm = () => {
   const [loading, setLoading] = useState<boolean>();
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -34,9 +35,9 @@ const SignupForm = () => {
           callbackUrl: "/me",
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log(err);
-      setError(err.response.data.message);
+      setError(getErrorMessage(err, "Erro ao criar conta"));
     } finally {
       setLoading(false);
     }

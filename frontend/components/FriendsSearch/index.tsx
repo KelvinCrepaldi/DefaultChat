@@ -1,7 +1,7 @@
 "use client";
-import { UserSearchContext } from "@/contexts/userSearchContext";
+import { useUserSearch } from "@/contexts/userSearchContext";
 import { useSession } from "next-auth/react";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -18,15 +18,18 @@ const searchSchema = yup.object().shape({
   letters: yup.string().required(),
 });
 
+type SearchFormValues = {
+  letters: string;
+};
+
 const FriendsSearch = () => {
   const { data: session } = useSession();
   const [hasSearched, setHasSearched] = useState(false);
   const [searchCooldown, setSearchCooldown] = useState(false);
   const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
-  const { searchUser, loading, usersList, inviteFriendUser } =
-    useContext(UserSearchContext);
+  const { searchUser, loading, usersList, inviteFriendUser } = useUserSearch();
 
-  const { handleSubmit, register } = useForm({
+  const { handleSubmit, register } = useForm<SearchFormValues>({
     resolver: yupResolver(searchSchema),
   });
 
@@ -49,12 +52,12 @@ const FriendsSearch = () => {
     loadSent();
   }, [session?.user.accessToken]);
 
-  const handleSearchSubmit = async (e: any) => {
+  const handleSearchSubmit = async (data: SearchFormValues) => {
     if (loading || searchCooldown) return;
     setHasSearched(true);
     setSearchCooldown(true);
     try {
-      await searchUser(e);
+      await searchUser(data);
     } finally {
       setTimeout(() => setSearchCooldown(false), 1000);
     }

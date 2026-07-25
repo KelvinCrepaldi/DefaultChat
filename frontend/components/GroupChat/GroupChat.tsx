@@ -1,6 +1,14 @@
 "use client";
-import { useContext, useEffect, useRef, useState } from "react";
-import { IGroupRoom, SocketContext } from "@/contexts/socketContext";
+
+import {
+  useEffect,
+  useRef,
+  useState,
+  ChangeEvent,
+  KeyboardEvent,
+} from "react";
+import { IGroupRoom, useSocket } from "@/contexts/socketContext";
+import type { ChatMessage } from "@/types/message";
 import { useSession } from "next-auth/react";
 import Message from "../_ui/Message";
 import { useParams } from "next/navigation";
@@ -17,14 +25,14 @@ export default function GroupChat() {
     resetPrivateNotificationCount,
     fetchMessage,
     setGroupRooms,
-  } = useContext(SocketContext);
+  } = useSocket();
   const { data: session } = useSession();
   const [message, setMessage] = useState("");
   const divRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const room = groupRooms?.find((r: IGroupRoom) => r.id === roomId);
 
-  const handleChange = (event: any) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
 
@@ -35,7 +43,7 @@ export default function GroupChat() {
     setMessage("");
   };
 
-  const handleKeyPress = (e: any) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleSend();
@@ -59,7 +67,7 @@ export default function GroupChat() {
           headers: { Authorization: `Bearer ${session.user.accessToken}` },
         });
         const detail = response.data;
-        setGroupRooms((prev: IGroupRoom[]) => {
+        setGroupRooms((prev) => {
           const exists = prev.some((r) => r.id === roomId);
           if (!exists) {
             return [
@@ -85,7 +93,7 @@ export default function GroupChat() {
               : r
           );
         });
-      } catch (err) {
+      } catch (err: unknown) {
         console.log(err);
       }
     };
@@ -109,11 +117,11 @@ export default function GroupChat() {
       <section className="p-2 bg-chatBackground2 grow h-full m-auto flex flex-col min-w-0">
         {room && <GroupChatHeader room={room} />}
         <div className="m-2 p-2 rounded overflow-y-scroll overflow-x-clip flex flex-col grow">
-          {room?.messages?.map((msg: any, index: number) => {
+          {room?.messages?.map((msg: ChatMessage, index: number) => {
             return <Message msg={msg} key={index} />;
           })}
           <div ref={divRef}></div>
-          <div>{error}</div>
+          <div>{error?.message}</div>
         </div>
 
         <div className="flex">

@@ -1,9 +1,9 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useState, MouseEvent } from "react";
 import { FaXmark } from "react-icons/fa6";
 import Image from "next/image";
-import { IGroupRoom, SocketContext } from "@/contexts/socketContext";
+import { IGroupRoom, useSocket } from "@/contexts/socketContext";
 import { BiMessageDetail } from "react-icons/bi";
 import { MdGroups } from "react-icons/md";
 import IconSquare from "../_ui/IconSquare";
@@ -18,14 +18,14 @@ type GroupChatCardProps = {
 const GroupChatCard = ({ room, isHidden }: GroupChatCardProps) => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
-  const { closeRoom, openGroupRoom } = useContext(SocketContext);
+  const { closeRoom, openGroupRoom } = useSocket();
   const isActive = pathname === `/me/chat/group/${room.id}`;
 
   const goToChat = () => {
     openGroupRoom({ roomId: room.id });
   };
 
-  const handleCloseChat = (e: any) => {
+  const handleCloseChat = (e: MouseEvent<HTMLButtonElement>) => {
     closeRoom({ roomId: room.id });
     e.stopPropagation();
     setIsOpen((prev) => !prev);

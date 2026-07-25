@@ -4,22 +4,18 @@ import { IFriend } from "@/interfaces/friends";
 import { useSession } from "next-auth/react";
 import { IoPersonRemove } from "react-icons/io5";
 import { BiMessageDetail } from "react-icons/bi";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import UserActionBtn from "../_ui/buttons/UserActionBtn";
 import CounterText from "../_ui/CounterText";
 import EmptyState from "../_ui/EmptyState";
 import Loading from "../_ui/Loading";
-import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
-import { SocketContext } from "@/contexts/socketContext";
+import { useFriends } from "@/contexts/friendsContext";
+import { useSocket } from "@/contexts/socketContext";
 
 const FriendsList = () => {
   const { data: session } = useSession();
-
-  const { fetchFriends, deleteFriend, friends, loading } = useContext(
-    FriendsContext
-  ) as FriendsContextType;
-
-  const { openRoom } = useContext(SocketContext);
+  const { fetchFriends, deleteFriend, friends, loading } = useFriends();
+  const { openRoom } = useSocket();
 
   const goToChat = (userId: string) => {
     openRoom({ userId });

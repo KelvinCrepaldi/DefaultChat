@@ -1,10 +1,11 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { SocketContext } from "@/contexts/socketContext";
+import { useSocket } from "@/contexts/socketContext";
+import type { GroupListItem } from "@/types/room";
 import CounterText from "../_ui/CounterText";
 import EmptyState from "../_ui/EmptyState";
 import Loading from "../_ui/Loading";
@@ -19,17 +20,9 @@ const createSchema = yup.object().shape({
   name: yup.string().required().min(2),
 });
 
-type GroupListItem = {
-  id: string;
-  name: string;
-  image: string | null;
-  memberCount: number;
-  isMember?: boolean;
-};
-
 const GroupsPanel = () => {
   const { searchGroups, joinGroup, createGroup, openGroupRoom, listGroups } =
-    useContext(SocketContext);
+    useSocket();
   const [availableGroups, setAvailableGroups] = useState<GroupListItem[]>([]);
   const [searchResults, setSearchResults] = useState<GroupListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -55,7 +48,7 @@ const GroupsPanel = () => {
     try {
       const results = await listGroups();
       setAvailableGroups(results || []);
-    } catch (error: any) {
+    } catch {
       setListError("Não foi possível carregar os grupos.");
     } finally {
       setListLoading(false);
@@ -75,7 +68,7 @@ const GroupsPanel = () => {
     try {
       const results = await searchGroups({ letters: data.letters || "" });
       setSearchResults(results || []);
-    } catch (error: any) {
+    } catch {
       setSearchError("Não foi possível buscar grupos.");
     } finally {
       setLoading(false);
@@ -95,7 +88,7 @@ const GroupsPanel = () => {
       if (group?.id) {
         openGroupRoom({ roomId: group.id });
       }
-    } catch (error: any) {
+    } catch {
       setCreateError("Não foi possível criar o grupo.");
     } finally {
       setLoading(false);
@@ -109,7 +102,7 @@ const GroupsPanel = () => {
       await joinGroup({ roomId });
       setSearchResults((prev) => prev.filter((g) => g.id !== roomId));
       await loadGroups();
-    } catch (error: any) {
+    } catch {
       setSearchError("Não foi possível entrar no grupo.");
     } finally {
       setLoading(false);

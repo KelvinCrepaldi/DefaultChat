@@ -6,15 +6,12 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { FaUserPlus } from "react-icons/fa6";
 import UserAvatar from "../_ui/UserAvatar";
 import { api } from "@/services";
-import { FriendsContext, FriendsContextType } from "@/contexts/friendsContext";
+import { FriendsContext } from "@/contexts/friendsContext";
 import { useContext } from "react";
+import axios from "axios";
+import type { UserSummary } from "@/types/user";
 
-type Member = {
-  id: string;
-  name: string;
-  email: string;
-  image: string;
-};
+type Member = UserSummary;
 
 type GroupMembersSidebarProps = {
   members: Member[];
@@ -30,7 +27,7 @@ const MemberCard = ({
   onInviteSent: (userId: string) => void;
 }) => {
   const { data: session } = useSession();
-  const friendsContext = useContext(FriendsContext) as FriendsContextType | null;
+  const friendsContext = useContext(FriendsContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [cooldown, setCooldown] = useState(false);
@@ -70,9 +67,8 @@ const MemberCard = ({
       );
       onInviteSent(member.id);
       setMenuOpen(false);
-    } catch (error: any) {
-      const status = error?.response?.status;
-      if (status === 409) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
         onInviteSent(member.id);
       }
       setMenuOpen(false);

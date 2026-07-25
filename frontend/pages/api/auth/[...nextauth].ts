@@ -1,8 +1,17 @@
-import NextAuth from "next-auth";
+import NextAuth, { type AuthOptions, type Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { api } from "@/services";
 
-export const authOptions = {
+type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  image: string;
+  token: string;
+};
+
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -25,7 +34,7 @@ export const authOptions = {
           if (!user) {
             return null;
           }
-          return { ...user, token };
+          return { ...user, token } as AuthUser;
         } catch {
           return null;
         }
@@ -33,13 +42,14 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }: any) {
-      if (user) {
-        token.accessToken = user.token;
-        token.sub = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.picture = user.image;
+    async jwt({ token, user, trigger, session }) {
+      const authUser = user as AuthUser | undefined;
+      if (authUser) {
+        token.accessToken = authUser.token;
+        token.sub = authUser.id;
+        token.name = authUser.name;
+        token.email = authUser.email;
+        token.picture = authUser.image;
       }
 
       if (trigger === "update" && session?.picture) {
@@ -48,8 +58,14 @@ export const authOptions = {
 
       return token;
     },
-    async session({ session, token }: any) {
-      session.user = token;
+    async session({ session, token }) {
+      session.user = {
+        sub: token.sub || "",
+        accessToken: token.accessToken || "",
+        name: token.name || "",
+        email: token.email || "",
+        picture: token.picture || "",
+      };
       return session;
     },
   },

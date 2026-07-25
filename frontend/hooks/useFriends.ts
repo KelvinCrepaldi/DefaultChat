@@ -2,9 +2,10 @@ import { IFriend } from "@/interfaces/friends";
 import { api } from "@/services";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { toApiErrorState } from "@/types/api";
 
 const useFriends = () => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<IErrorResponse | null>(null);
   const [friends, setFriends] = useState<IFriend[]>([]);
   const { data: session } = useSession();
@@ -12,39 +13,32 @@ const useFriends = () => {
   const fetchFriends = async () => {
     setLoading(true);
     try {
-      const response = await api.get("api/user/friend/list", {
+      const response = await api.get<IFriend[]>("api/user/friend/list", {
         headers: { Authorization: `Bearer ${session?.user.accessToken}` },
       });
-
-      const data = response.data;
-
-      setFriends(data);
-    } catch (error: any) {
-      setError(error.response.body);
+      setFriends(response.data);
+    } catch (err: unknown) {
+      setError(toApiErrorState(err));
     } finally {
       setLoading(false);
     }
   };
 
   const deleteFriend = async (friendId: string) => {
-    if (session?.user.accessToken) {
-      try {
-        setLoading(true);
-        const response = await api.delete(
-          `api/user/friend/delete/${friendId}`,
-          {
-            headers: { Authorization: `Bearer ${session?.user.accessToken}` },
-          }
-        );
-      } catch (error: any) {
-        setError(error.response.body);
-      } finally {
-        setLoading(false);
-        fetchFriends();
-      }
+    if (!session?.user.accessToken) return;
+    try {
+      setLoading(true);
+      await api.delete(`api/user/friend/delete/${friendId}`, {
+        headers: { Authorization: `Bearer ${session.user.accessToken}` },
+      });
+    } catch (err: unknown) {
+      setError(toApiErrorState(err));
+    } finally {
+      setLoading(false);
+      await fetchFriends();
     }
   };
 
-  return { friends, fetchFriends, deleteFriend };
+  return { friends, fetchFriends, deleteFriend, loading, error };
 };
 export default useFriends;

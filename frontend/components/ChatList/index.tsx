@@ -1,12 +1,11 @@
 "use client";
 
-import { useContext } from "react";
-import { IGroupRoom, IPrivateRoom, SocketContext } from "@/contexts/socketContext";
+import { IGroupRoom, IPrivateRoom, useSocket } from "@/contexts/socketContext";
 import ChatCard from "../ChatCard";
 import GroupChatCard from "../GroupChatCard";
 
 const ChatList = ({ isHidden }: { isHidden: boolean }) => {
-  const { privateRooms, groupRooms } = useContext(SocketContext);
+  const { privateRooms, groupRooms } = useSocket();
   const hasPrivate = privateRooms?.length > 0;
   const hasGroups = groupRooms?.length > 0;
   const isEmpty = !hasPrivate && !hasGroups;
