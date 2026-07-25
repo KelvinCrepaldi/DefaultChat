@@ -18,11 +18,17 @@ export default function Header(): JSX.Element {
   const current = LANGUAGES.find((l) => l.code === currentLang) ?? LANGUAGES[1];
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    i18n.changeLanguage(e.target.value);
+    const next = e.target.value;
+    void i18n.changeLanguage(next);
+    try {
+      window.localStorage.setItem("i18nextLng", next);
+    } catch {
+      // ignore
+    }
   };
 
   return (
-    <header className="px-4 py-2 w-full flex items-center justify-between bg-chatBackground0 border-b border-chatBorder">
+    <header className="flex w-full items-center justify-between border-b border-chatBorder bg-chatBackground0 px-4 py-2">
       <Link href={"/"} className="shrink-0">
         <Image
           src="/defaultchatlogo.svg"

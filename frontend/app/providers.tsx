@@ -6,15 +6,27 @@ import { UserSearchProvider } from "@/contexts/userSearchContext";
 import { FriendsProvider } from "@/contexts/friendsContext";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import "@/i18n/config";
+import i18n, { detectPreferredLanguage } from "@/i18n/config";
 
 function HtmlLangSync({ children }: { children: React.ReactNode }) {
-  const { i18n } = useTranslation();
+  const { i18n: i18nInstance } = useTranslation();
 
   useEffect(() => {
-    const lang = i18n.language?.startsWith("pt") ? "pt-BR" : "en";
+    const preferred = detectPreferredLanguage();
+    if (i18n.language !== preferred) {
+      void i18n.changeLanguage(preferred);
+    }
+    try {
+      window.localStorage.setItem("i18nextLng", preferred);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    const lang = i18nInstance.language?.startsWith("pt") ? "pt-BR" : "en";
     document.documentElement.lang = lang;
-  }, [i18n.language]);
+  }, [i18nInstance.language]);
 
   return <>{children}</>;
 }
