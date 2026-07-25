@@ -1,4 +1,5 @@
 "use client";
+
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -6,9 +7,29 @@ import { IloginRequest } from "@/interfaces/authentication/login.interface";
 import { createLoginSchema } from "./loginSchema";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import Loading from "../_ui/Loading";
 import ErrorText from "../_ui/ErrorText";
 import { useTranslation } from "react-i18next";
+import {
+  authFieldWrapClass,
+  authInputClass,
+  authLabelClass,
+  authSubmitClass,
+} from "./authFieldStyles";
+
+const fieldMotion = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      delay,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  }),
+};
 
 const LoginForm = () => {
   const router = useRouter();
@@ -49,37 +70,70 @@ const LoginForm = () => {
   }
 
   return (
-    <section className="flex flex-col w-full max-w-[400px]">
-      <form className="flex flex-col" onSubmit={handleSubmit(onSubmitHandler)}>
-        <label className=" text-chatTitle text-lg font-semibold">
-          {t("auth.email")}
-        </label>
-        <input
-          className="text-chatBackground p-1 rounded"
-          placeholder={t("auth.emailPlaceholder")}
-          {...register("email")}
-        />
-        <ErrorText>{errors?.email && errors.email.message}</ErrorText>
+    <section className="flex w-full flex-col">
+      <form
+        className="flex flex-col gap-5"
+        onSubmit={handleSubmit(onSubmitHandler)}
+      >
+        <motion.div
+          className={authFieldWrapClass}
+          custom={0.28}
+          initial="hidden"
+          animate="visible"
+          variants={fieldMotion}
+        >
+          <label className={authLabelClass} htmlFor="login-email">
+            {t("auth.email")}
+          </label>
+          <input
+            id="login-email"
+            className={authInputClass}
+            placeholder={t("auth.emailPlaceholder")}
+            autoComplete="email"
+            {...register("email")}
+          />
+          <ErrorText>{errors?.email && errors.email.message}</ErrorText>
+        </motion.div>
 
-        <label className=" text-chatTitle text-lg font-semibold">
-          {t("auth.password")}
-        </label>
-        <input
-          className="text-chatBackground p-1 rounded"
-          placeholder={t("auth.passwordPlaceholder")}
-          type="password"
-          {...register("password")}
-        />
-        <ErrorText>{errors?.password && errors.password.message}</ErrorText>
-        <div className="flex justify-center">
-          {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
-        </div>
-        <button
+        <motion.div
+          className={authFieldWrapClass}
+          custom={0.36}
+          initial="hidden"
+          animate="visible"
+          variants={fieldMotion}
+        >
+          <label className={authLabelClass} htmlFor="login-password">
+            {t("auth.password")}
+          </label>
+          <input
+            id="login-password"
+            className={authInputClass}
+            placeholder={t("auth.passwordPlaceholder")}
+            type="password"
+            autoComplete="current-password"
+            {...register("password")}
+          />
+          <ErrorText>{errors?.password && errors.password.message}</ErrorText>
+        </motion.div>
+
+        {errorMessage && (
+          <div className="flex justify-center">
+            <ErrorText>{errorMessage}</ErrorText>
+          </div>
+        )}
+
+        <motion.button
           type="submit"
-          className="button mt-10 mb-2 py-3 bg-chatPrimary rounded text-chatText text-lg hover:shadow-lg"
+          className={authSubmitClass}
+          custom={0.44}
+          initial="hidden"
+          animate="visible"
+          variants={fieldMotion}
+          whileHover={{ scale: 1.015 }}
+          whileTap={{ scale: 0.98 }}
         >
           {t("auth.enter")}
-        </button>
+        </motion.button>
       </form>
     </section>
   );
